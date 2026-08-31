@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>借口生成器</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .excuse-card { background: var(--ft-accent-excuse); border: none; }
+    .scene-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .scene-card {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 16px 10px; border-radius: var(--ft-radius-md);
+      background: var(--ft-card-bg); border: 2px solid transparent;
+      cursor: pointer; transition: all 0.2s var(--ft-transition-bounce);
+    }
+    .scene-card.selected { border-color: var(--ft-primary); transform: scale(1.03); }
+    .scene-card .icon { font-size: 30px; }
+    .scene-card .name { font-size: 14px; font-weight: 700; color: var(--ft-text-primary); }
+    .tone-row { display: flex; gap: 10px; justify-content: center; margin: 10px 0; }
+    .tone-chip {
+      padding: 10px 18px; border-radius: 999px;
+      background: var(--ft-card-bg); border: 1.5px solid var(--ft-card-border);
+      cursor: pointer; font-weight: 600; font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    .tone-chip.selected { background: var(--ft-primary); color: #fff; border-color: var(--ft-primary); }
+    .fav-link { text-align: center; margin-top: 12px; }
+    .fav-link a { color: var(--ft-text-secondary); font-size: 13px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="../../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">借口生成器</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="ft-card excuse-card">
+        <div class="ft-section-title">选择场景</div>
+        <div class="scene-grid" id="sceneGrid"></div>
+      </section>
+
+      <section class="ft-card" style="margin-top:14px;">
+        <div class="ft-section-title">语气风格</div>
+        <div class="tone-row" id="toneRow"></div>
+      </section>
+
+      <button class="ft-btn ft-btn-primary ft-btn-block" style="margin-top:14px;" id="generateBtn">生成借口</button>
+      <div class="fav-link"><a href="favorites.html">⭐ 查看常用借口</a></div>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const sceneGrid = document.getElementById('sceneGrid');
+      const toneRow = document.getElementById('toneRow');
+      let selectedScene = null;
+      let selectedTone = 'humor';
+
+      const last = FT.storage.get('excuse_last_choice', { scene: FT.data.excuseScenes[0].id, tone: 'humor' });
+      selectedScene = last.scene;
+      selectedTone = last.tone;
+
+      FT.data.excuseScenes.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'scene-card' + (s.id === selectedScene ? ' selected' : '');
+        card.dataset.scene = s.id;
+        card.innerHTML = `<div class="icon">${s.icon}</div><div class="name">${s.name}</div>`;
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.scene-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedScene = s.id;
+        });
+        sceneGrid.appendChild(card);
+      });
+
+      FT.data.excuseTones.forEach(t => {
+        const chip = document.createElement('div');
+        chip.className = 'tone-chip' + (t.id === selectedTone ? ' selected' : '');
+        chip.textContent = t.name;
+        chip.dataset.tone = t.id;
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.tone-chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+          selectedTone = t.id;
+        });
+        toneRow.appendChild(chip);
+      });
+
+      document.getElementById('generateBtn').addEventListener('click', () => {
+        if (!selectedScene) return FT.toast('请先选择场景');
+        FT.storage.set('excuse_last_choice', { scene: selectedScene, tone: selectedTone });
+        FT.storage.addTotalCount('excuse_generate_count');
+        const list = FT.data.excuses[selectedScene][selectedTone];
+        const recent = FT.storage.get('excuse_recent', []);
+        const pool = list.filter(x => !recent.includes(x));
+        const pickFrom = pool.length ? pool : list;
+        const text = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+        recent.unshift(text);
+        if (recent.length > 5) recent.pop();
+        FT.storage.set('excuse_recent', recent);
+        window.location.href = 'result.html?scene=' + selectedScene + '&tone=' + selectedTone + '&text=' + encodeURIComponent(text);
+      });
+    })();
+  </script>
+</body>
+</html>

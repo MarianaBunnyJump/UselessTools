@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>有点意思工具盒</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .home-header { text-align: center; margin-bottom: 24px; padding-top: 8px; }
+    .home-title {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(120deg, var(--ft-primary), var(--ft-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .home-slogan { font-size: 14px; color: var(--ft-text-secondary); font-weight: 500; }
+    .home-theme { position: absolute; top: 20px; right: 16px; }
+
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 18px 16px;
+      border-radius: var(--ft-radius-lg);
+      background: var(--ft-card-bg);
+      border: 1px solid var(--ft-card-border);
+      box-shadow: var(--ft-card-shadow);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s var(--ft-transition-bounce), box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 64px; height: 64px;
+      border-radius: 0 0 0 64px;
+      opacity: 0.2;
+      transition: transform 0.3s ease;
+    }
+    .tool-card:hover::before { transform: scale(1.15); }
+    .tool-card[href="pages/crusher/index.html"]::before { background: var(--ft-accent-crusher); }
+    .tool-card[href="pages/life/index.html"]::before { background: var(--ft-accent-life); }
+    .tool-card[href="pages/mixer/index.html"]::before { background: var(--ft-accent-mixer); }
+    .tool-card[href="pages/merit/index.html"]::before { background: var(--ft-accent-merit); }
+    .tool-card[href="pages/excuse/index.html"]::before { background: var(--ft-accent-excuse); }
+    .tool-card[href="pages/wheel/index.html"]::before { background: var(--ft-accent-wheel); }
+    .tool-card:active { transform: scale(0.95) translateY(2px); }
+    .tool-icon {
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      line-height: 1;
+    }
+    .tool-name { font-size: 17px; font-weight: 700; color: var(--ft-text-primary); }
+    .tool-desc { font-size: 12px; color: var(--ft-text-secondary); line-height: 1.4; }
+
+    .intro-pop {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) scale(0.85);
+      width: 90%;
+      background: var(--ft-card-bg);
+      border: 1px solid var(--ft-card-border);
+      border-radius: var(--ft-radius-md);
+      box-shadow: var(--ft-card-shadow);
+      padding: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s var(--ft-transition-bounce);
+      z-index: 10;
+    }
+    .tool-card.show-intro .intro-pop { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
+    .intro-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .intro-text { font-size: 12px; color: var(--ft-text-secondary); line-height: 1.5; }
+    .intro-count { font-size: 12px; color: var(--ft-primary); font-weight: 700; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <div class="home-theme" data-theme-switcher></div>
+    <header class="home-header">
+      <h1 class="home-title">有点意思工具盒</h1>
+      <p class="home-slogan" id="dailySlogan">收录了一些有点意思的东西</p>
+    </header>
+
+    <main class="ft-grid-2" id="toolGrid"></main>
+
+    <footer class="ft-footer-bar">
+      <span>已收录 6 个工具</span>
+      <span>·</span>
+      <a href="about.html">关于</a>
+    </footer>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+
+      // 每日文案
+      const dayIndex = Math.floor(Date.now() / 86400000) % FT.data.slogans.length;
+      document.getElementById('dailySlogan').textContent = FT.data.slogans[dayIndex];
+
+      const grid = document.getElementById('toolGrid');
+      const usageMap = {
+        'crusher': FT.storage.get('crusher_count_total', 0),
+        'life': 0,
+        'mixer': FT.storage.get('mixer_play_count', 0),
+        'merit': FT.storage.get('merit_total', 0),
+        'excuse': FT.storage.get('excuse_generate_count', 0),
+        'wheel': FT.storage.get('wheel_spin_count', 0),
+      };
+
+      FT.data.tools.forEach(tool => {
+        const count = usageMap[tool.id];
+        const card = document.createElement('a');
+        card.className = 'tool-card ft-anim-breath';
+        card.href = `pages/${tool.id}/index.html`;
+        card.style.animationDelay = `${Math.random() * 2}s`;
+        card.innerHTML = `
+          <div class="tool-icon">${tool.icon}</div>
+          <div class="tool-name">${tool.name}</div>
+          <div class="tool-desc">${tool.desc}</div>
+          <div class="intro-pop">
+            <div class="intro-title">${tool.icon} ${tool.name}</div>
+            <div class="intro-text">${tool.desc}。长按或点击即可使用这个有点意思的小工具。</div>
+            <div class="intro-count">累计使用 ${count.toLocaleString()} 次</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // 长按显示简介
+      let pressTimer = null;
+      let pressedCard = null;
+      grid.querySelectorAll('.tool-card').forEach(card => {
+        const start = (e) => {
+          if (e.button && e.button !== 0) return;
+          pressedCard = card;
+          pressTimer = setTimeout(() => {
+            card.classList.add('show-intro');
+            pressTimer = null;
+          }, 500);
+        };
+        const cancel = () => {
+          if (pressTimer) clearTimeout(pressTimer);
+          pressTimer = null;
+          if (pressedCard) {
+            setTimeout(() => pressedCard.classList.remove('show-intro'), 200);
+          }
+        };
+        card.addEventListener('mousedown', start);
+        card.addEventListener('touchstart', start, { passive: true });
+        card.addEventListener('mouseup', cancel);
+        card.addEventListener('mouseleave', cancel);
+        card.addEventListener('touchend', cancel);
+        card.addEventListener('click', (e) => {
+          if (card.classList.contains('show-intro')) {
+            e.preventDefault();
+            card.classList.remove('show-intro');
+          }
+        });
+      });
+
+      // 点击空白关闭简介
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.tool-card')) {
+          document.querySelectorAll('.tool-card.show-intro').forEach(c => c.classList.remove('show-intro'));
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

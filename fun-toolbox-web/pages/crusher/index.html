@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>情绪粉碎机</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .crusher-wrap { display: flex; flex-direction: column; gap: 18px; }
+    .input-wrap { position: relative; }
+    .input-wrap .ft-textarea { min-height: 160px; font-size: 16px; }
+    .char-count {
+      position: absolute; right: 12px; bottom: 12px;
+      font-size: 12px; color: var(--ft-text-tertiary); font-weight: 500;
+      background: var(--ft-card-bg); padding: 2px 8px; border-radius: 999px;
+    }
+    .mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .mode-grid .ft-choice { padding: 16px 6px; }
+    .mode-grid .ft-choice-icon { font-size: 32px; }
+    .mode-grid .ft-choice-label { font-size: 13px; }
+    .stat-line { text-align: center; font-size: 13px; color: var(--ft-text-secondary); margin-top: 6px; }
+    .stat-line strong { color: var(--ft-primary); }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="../../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">情绪粉碎机</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main class="crusher-wrap">
+      <section class="ft-card" style="background:var(--ft-accent-crusher);border:none;">
+        <div class="ft-section-title">把你的烦心事写在这里</div>
+        <div class="input-wrap">
+          <textarea class="ft-textarea" id="worryInput" maxlength="200" placeholder="今天又被甲方改了八版..."></textarea>
+          <div class="char-count"><span id="charCount">0</span>/200</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="ft-section-title">选择粉碎方式</div>
+        <div class="mode-grid" id="modeGrid">
+          <div class="ft-choice selected" data-mode="tear">
+            <div class="ft-choice-icon">✂️</div>
+            <div class="ft-choice-label">撕碎</div>
+          </div>
+          <div class="ft-choice" data-mode="burn">
+            <div class="ft-choice-icon">🔥</div>
+            <div class="ft-choice-label">焚烧</div>
+          </div>
+          <div class="ft-choice" data-mode="flush">
+            <div class="ft-choice-icon">🚽</div>
+            <div class="ft-choice-label">冲走</div>
+          </div>
+        </div>
+      </section>
+
+      <button class="ft-btn ft-btn-primary ft-btn-block" id="startBtn" disabled>开始粉碎</button>
+
+      <div class="stat-line">
+        今日已粉碎：<strong id="todayCount">0</strong> 件 · 累计 <strong id="totalCount">0</strong> 件
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const input = document.getElementById('worryInput');
+      const charCount = document.getElementById('charCount');
+      const startBtn = document.getElementById('startBtn');
+      const todayEl = document.getElementById('todayCount');
+      const totalEl = document.getElementById('totalCount');
+
+      const daily = FT.storage.getDailyCount('crusher_count_today');
+      todayEl.textContent = daily.count;
+      totalEl.textContent = FT.storage.getTotalCount('crusher_count_total').toLocaleString();
+
+      let selectedMode = 'tear';
+      document.getElementById('modeGrid').addEventListener('click', (e) => {
+        const choice = e.target.closest('.ft-choice');
+        if (!choice) return;
+        document.querySelectorAll('#modeGrid .ft-choice').forEach(c => c.classList.remove('selected'));
+        choice.classList.add('selected');
+        selectedMode = choice.dataset.mode;
+      });
+
+      input.addEventListener('input', () => {
+        const len = input.value.length;
+        charCount.textContent = len;
+        startBtn.disabled = len === 0;
+      });
+
+      startBtn.addEventListener('click', () => {
+        const text = input.value.trim();
+        if (!text) return;
+        FT.storage.addDailyCount('crusher_count_today');
+        FT.storage.addTotalCount('crusher_count_total');
+        const phrase = FT.data.crusherPhrases[Math.floor(Math.random() * FT.data.crusherPhrases.length)];
+        const params = new URLSearchParams({ text, mode: selectedMode, phrase });
+        window.location.href = 'animation.html?' + params.toString();
+      });
+    })();
+  </script>
+</body>
+</html>

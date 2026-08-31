@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>关于 - 有点意思工具盒</title>
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <style>
+    .about-card { text-align: center; padding: 32px 24px; margin-bottom: 20px; }
+    .about-logo { font-size: 56px; margin-bottom: 10px; }
+    .about-name { font-size: 22px; font-weight: 800; color: var(--ft-text-primary); margin-bottom: 4px; }
+    .about-version { font-size: 13px; color: var(--ft-text-tertiary); margin-bottom: 8px; }
+    .about-desc { font-size: 14px; color: var(--ft-text-secondary); line-height: 1.7; }
+    .tool-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+    .tool-list-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: var(--ft-card-bg);
+      border: 1px solid var(--ft-card-border);
+      border-radius: var(--ft-radius-md);
+      font-size: 15px;
+      color: var(--ft-text-primary);
+      font-weight: 500;
+    }
+    .tool-list-item span { font-size: 22px; }
+    .about-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">关于</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="ft-card about-card">
+        <div class="about-logo">🧰</div>
+        <div class="about-name">有点意思工具盒</div>
+        <div class="about-version" id="version">v1.0.0</div>
+        <div class="about-desc">收录六个有点意思的小工具。<br>情绪价值 + 社交谈资，用轻松对抗焦虑。</div>
+      </section>
+
+      <section class="ft-card">
+        <div class="ft-section-title">工具列表</div>
+        <div class="tool-list" id="toolList"></div>
+      </section>
+
+      <section class="ft-card">
+        <div class="ft-section-title">品牌与说明</div>
+        <div class="about-desc" style="text-align:left;">
+          本产品为静态网页原型演示，所有数据仅保存在浏览器本地（localStorage）。<br>
+          无后端服务、不上传隐私、不接入 AI 服务。音频与真实分享功能为 UI 模拟。
+        </div>
+        <div class="about-actions">
+          <button class="ft-btn ft-btn-primary ft-btn-block" id="btnFeedback">意见反馈</button>
+          <button class="ft-btn ft-btn-secondary ft-btn-block" id="btnShare">分享给朋友</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      document.getElementById('version').textContent = 'v' + FT.data.version;
+
+      const list = document.getElementById('toolList');
+      FT.data.tools.forEach(tool => {
+        const div = document.createElement('div');
+        div.className = 'tool-list-item';
+        div.innerHTML = `<span>${tool.icon}</span><div>${tool.name}</div>`;
+        list.appendChild(div);
+      });
+
+      document.getElementById('btnFeedback').addEventListener('click', () => {
+        FT.modal.show({
+          title: '意见反馈',
+          content: '请把建议发送到我们的邮箱：<br><strong>feedback@funtoolbox.demo</strong><br><br>（本功能为演示）',
+          confirmText: '知道了',
+          showCancel: false,
+        });
+      });
+
+      document.getElementById('btnShare').addEventListener('click', () => {
+        FT.shareImage('有点意思工具盒', ['收录六个有点意思的小工具', '情绪价值 + 社交谈资']);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>生成的借口</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .result-meta { font-size: 13px; color: var(--ft-text-secondary); margin-bottom: 12px; text-align: center; }
+    .result-meta strong { color: var(--ft-primary); }
+    .excuse-card-display {
+      background: var(--ft-card-bg); border: 1px solid var(--ft-card-border);
+      border-radius: var(--ft-radius-xl); padding: 32px 24px;
+      text-align: center; font-size: 22px; line-height: 1.7;
+      color: var(--ft-text-primary); box-shadow: var(--ft-card-shadow);
+      margin-bottom: 20px;
+      animation: ftBounceIn 0.45s var(--ft-transition-bounce) both;
+    }
+    .excuse-text { font-family: 'Noto Sans SC', sans-serif; font-weight: 500; }
+    .action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .fav-btn {
+      width: 100%; padding: 12px; border-radius: var(--ft-radius-md);
+      border: 1.5px solid var(--ft-card-border); background: var(--ft-card-bg);
+      color: var(--ft-text-secondary); font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .fav-btn.active { color: #f59e0b; border-color: #f59e0b; background: rgba(245,158,11,0.08); }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">借口生成器</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <div class="result-meta" id="resultMeta"></div>
+      <section class="excuse-card-display">
+        <div class="excuse-text" id="excuseText"></div>
+      </section>
+
+      <div class="action-row">
+        <button class="ft-btn ft-btn-secondary" id="anotherBtn">换一个</button>
+        <button class="ft-btn ft-btn-secondary" id="copyBtn">复制</button>
+        <button class="ft-btn ft-btn-secondary" id="shareBtn">分享</button>
+      </div>
+      <button class="fav-btn" id="favBtn">⭐ 收藏到常用</button>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const params = new URLSearchParams(location.search);
+      const sceneId = params.get('scene') || 'no_meet';
+      const toneId = params.get('tone') || 'humor';
+      let text = decodeURIComponent(params.get('text') || '');
+
+      const sceneName = FT.data.excuseScenes.find(s => s.id === sceneId)?.name || sceneId;
+      const toneName = FT.data.excuseTones.find(t => t.id === toneId)?.name || toneId;
+      document.getElementById('resultMeta').innerHTML = `场景：<strong>${sceneName}</strong> · ${toneName}风`;
+      document.getElementById('excuseText').textContent = text;
+
+      const favBtn = document.getElementById('favBtn');
+      let favorites = FT.storage.get('excuse_favorites', []);
+      function isFav() { return favorites.some(f => f.text === text); }
+      function updateFavBtn() {
+        favBtn.classList.toggle('active', isFav());
+        favBtn.textContent = isFav() ? '⭐ 已收藏' : '⭐ 收藏到常用';
+      }
+      updateFavBtn();
+
+      favBtn.addEventListener('click', () => {
+        if (isFav()) {
+          favorites = favorites.filter(f => f.text !== text);
+          FT.toast('已取消收藏');
+        } else {
+          favorites.push({ text, scene: sceneId, tone: toneId, ts: Date.now() });
+          FT.toast('已收藏到常用');
+        }
+        FT.storage.set('excuse_favorites', favorites);
+        updateFavBtn();
+      });
+
+      document.getElementById('copyBtn').addEventListener('click', () => FT.copyText(text));
+
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        FT.shareImage('借口生成器', ['「' + text + '」', sceneName + ' · ' + toneName + '风']);
+      });
+
+      document.getElementById('anotherBtn').addEventListener('click', () => {
+        const list = FT.data.excuses[sceneId][toneId];
+        const recent = FT.storage.get('excuse_recent', []);
+        const pool = list.filter(x => x !== text && !recent.includes(x));
+        const pickFrom = pool.length ? pool : list.filter(x => x !== text);
+        const newText = pickFrom.length ? pickFrom[Math.floor(Math.random() * pickFrom.length)] : list[0];
+        recent.unshift(newText);
+        if (recent.length > 5) recent.pop();
+        FT.storage.set('excuse_recent', recent);
+        window.location.href = 'result.html?scene=' + sceneId + '&tone=' + toneId + '&text=' + encodeURIComponent(newText);
+      });
+    })();
+  </script>
+</body>
+</html>

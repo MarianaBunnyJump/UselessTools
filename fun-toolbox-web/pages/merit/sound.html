@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>切换音效</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .sound-list { display: flex; flex-direction: column; gap: 12px; }
+    .sound-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; background: var(--ft-card-bg);
+      border: 2px solid transparent; border-radius: var(--ft-radius-md);
+      cursor: pointer; transition: all 0.2s var(--ft-transition-bounce);
+    }
+    .sound-item.selected { border-color: var(--ft-primary); background: rgba(255,152,0,0.06); }
+    .sound-icon { font-size: 32px; width: 44px; text-align: center; }
+    .sound-info { flex: 1; }
+    .sound-name { font-size: 16px; font-weight: 700; color: var(--ft-text-primary); }
+    .sound-desc { font-size: 12px; color: var(--ft-text-tertiary); }
+    .check-dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--ft-text-tertiary);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .sound-item.selected .check-dot { border-color: var(--ft-primary); background: var(--ft-primary); }
+    .check-dot::after {
+      content: '✓'; color: #fff; font-size: 13px; font-weight: 700; opacity: 0;
+    }
+    .sound-item.selected .check-dot::after { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">切换音效</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="sound-list" id="soundList"></section>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const sounds = [
+        { id: 'wooden_fish', name: '木鱼', icon: '🪵', desc: '传统木鱼声，沉稳悠长' },
+        { id: 'bronze_bell', name: '铜磬', icon: '🔔', desc: '清脆金属声，余音绕梁' },
+        { id: 'temple_bell', name: '寺钟', icon: '🕐', desc: '厚重钟声，仪式感强' },
+        { id: 'water_drop', name: '水滴', icon: '💧', desc: '清脆水滴，宁静致远' },
+        { id: 'silent', name: '无声', icon: '🔇', desc: '只保留震动与浮字反馈' },
+      ];
+      const list = document.getElementById('soundList');
+      let current = FT.storage.get('merit_sound', 'wooden_fish');
+
+      sounds.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sound-item' + (s.id === current ? ' selected' : '');
+        div.innerHTML = `
+          <div class="sound-icon">${s.icon}</div>
+          <div class="sound-info">
+            <div class="sound-name">${s.name}</div>
+            <div class="sound-desc">${s.desc}</div>
+          </div>
+          <div class="check-dot"></div>
+        `;
+        div.addEventListener('click', () => {
+          current = s.id;
+          FT.storage.set('merit_sound', s.id);
+          document.querySelectorAll('.sound-item').forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
+          FT.toast('已切换：' + s.name + '（音频为演示）');
+        });
+        list.appendChild(div);
+      });
+    })();
+  </script>
+</body>
+</html>

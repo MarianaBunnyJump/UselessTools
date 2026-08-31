@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>电子功德</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .merit-header { text-align: center; margin-bottom: 10px; }
+    .merit-label { font-size: 14px; color: var(--ft-text-secondary); font-weight: 600; }
+    .merit-today { font-size: 64px; font-weight: 800; line-height: 1; background: var(--ft-btn-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .merit-total { font-size: 14px; color: var(--ft-text-secondary); margin-top: 4px; }
+
+    .fish-area {
+      position: relative;
+      width: 220px; height: 220px;
+      margin: 24px auto;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,183,77,0.15) 0%, transparent 70%);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s var(--ft-transition-bounce);
+    }
+    .fish-area:active { transform: scale(0.88); }
+    .fish-emoji { font-size: 120px; line-height: 1; filter: drop-shadow(0 8px 16px rgba(255,152,0,0.2)); }
+
+    .merit-actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+    .merit-actions a, .merit-actions button {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 12px 18px; border-radius: var(--ft-radius-md);
+      background: var(--ft-card-bg); border: 1px solid var(--ft-card-border);
+      color: var(--ft-text-primary); text-decoration: none;
+      font-weight: 600; font-size: 14px; cursor: pointer; transition: transform 0.15s ease;
+    }
+    .merit-actions a:active, .merit-actions button:active { transform: scale(0.95); }
+
+    .rank-line { text-align: center; font-size: 13px; color: var(--ft-text-tertiary); margin-top: 18px; }
+    .rank-line strong { color: var(--ft-primary); }
+
+    .achievement-toast {
+      position: fixed; top: 20px; left: 50%;
+      transform: translateX(-50%) translateY(-30px);
+      background: linear-gradient(135deg, #FFE0B2, #FFF9C4);
+      color: #7c4a00;
+      padding: 14px 22px; border-radius: var(--ft-radius-xl);
+      box-shadow: 0 8px 24px -6px rgba(255,152,0,0.35);
+      font-weight: 700; font-size: 15px;
+      opacity: 0; pointer-events: none; transition: all 0.4s var(--ft-transition-bounce);
+      z-index: 200; display: flex; align-items: center; gap: 10px;
+    }
+    .achievement-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="../../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">电子功德</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="merit-header">
+        <div class="merit-label">今日功德</div>
+        <div class="merit-today" id="todayCount">0</div>
+        <div class="merit-total">累计：<span id="totalCount">0</span></div>
+      </section>
+
+      <div class="fish-area" id="fishArea">
+        <div class="fish-emoji">🪵</div>
+      </div>
+
+      <div class="merit-actions">
+        <a href="sound.html">🔔 切换音效</a>
+        <a href="achievement.html">🏅 功德成就</a>
+      </div>
+
+      <div class="rank-line">今日排名：你超过了 <strong id="rankPercent">0%</strong> 的人</div>
+    </main>
+  </div>
+
+  <div class="achievement-toast" id="achievementToast"></div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const todayEl = document.getElementById('todayCount');
+      const totalEl = document.getElementById('totalCount');
+      const rankEl = document.getElementById('rankPercent');
+      const fishArea = document.getElementById('fishArea');
+
+      function load() {
+        const daily = FT.storage.getDailyCount('merit_today');
+        todayEl.textContent = daily.count.toLocaleString();
+        totalEl.textContent = FT.storage.getTotalCount('merit_total').toLocaleString();
+        const pct = Math.min(99, Math.floor(daily.count / 100 * 100));
+        rankEl.textContent = pct + '%';
+      }
+      load();
+
+      // 连续天数
+      function updateStreak() {
+        const today = FT.storage.getDatePart();
+        const last = FT.storage.get('merit_last_date', '');
+        let streak = FT.storage.get('merit_streak_days', 0);
+        if (last !== today) {
+          const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+          const yStr = yesterday.toISOString().slice(0, 10);
+          streak = (last === yStr) ? streak + 1 : 1;
+          FT.storage.set('merit_streak_days', streak);
+          FT.storage.set('merit_last_date', today);
+        }
+        return streak;
+      }
+      updateStreak();
+
+      function checkAchievements(today, total, streak) {
+        const unlocked = new Set(FT.storage.get('merit_achievements', []));
+        let newUnlock = null;
+        FT.data.achievements.forEach(a => {
+          if (unlocked.has(a.id)) return;
+          const t = a.threshold;
+          if ((t.total && total >= t.total) || (t.daily && today >= t.daily) || (t.streak && streak >= t.streak)) {
+            unlocked.add(a.id);
+            newUnlock = a;
+          }
+        });
+        FT.storage.set('merit_achievements', Array.from(unlocked));
+        return newUnlock;
+      }
+
+      function showUnlock(a) {
+        const toast = document.getElementById('achievementToast');
+        toast.innerHTML = `<span style="font-size:22px;">${a.icon}</span> 解锁成就「${a.name}」`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
+
+      fishArea.addEventListener('click', (e) => {
+        const daily = FT.storage.addDailyCount('merit_today');
+        const total = FT.storage.addTotalCount('merit_total');
+        const streak = updateStreak();
+        todayEl.textContent = daily.toLocaleString();
+        totalEl.textContent = total.toLocaleString();
+        rankEl.textContent = Math.min(99, Math.floor(daily / 100 * 100)) + '%';
+
+        // 浮动文字
+        const float = document.createElement('div');
+        float.className = 'ft-float-text';
+        float.textContent = '功德 +1';
+        float.style.left = (e.clientX || fishArea.getBoundingClientRect().left + 110) + (Math.random() * 40 - 20) + 'px';
+        float.style.top = (e.clientY || fishArea.getBoundingClientRect().top) - 20 + 'px';
+        document.body.appendChild(float);
+        setTimeout(() => float.remove(), 1000);
+
+        // 涟漪
+        const rect = fishArea.getBoundingClientRect();
+        const ripple = document.createElement('div');
+        ripple.className = 'ft-ripple-ring';
+        ripple.style.left = rect.left + 'px';
+        ripple.style.top = rect.top + 'px';
+        ripple.style.width = rect.width + 'px';
+        ripple.style.height = rect.height + 'px';
+        document.body.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 800);
+
+        // 音效模拟
+        const sound = FT.storage.get('merit_sound', 'wooden_fish');
+        if (sound !== 'silent') {
+          // 无真实音频，仅 UI 反馈
+        }
+
+        const unlocked = checkAchievements(daily, total, streak);
+        if (unlocked) showUnlock(unlocked);
+      });
+    })();
+  </script>
+</body>
+</html>

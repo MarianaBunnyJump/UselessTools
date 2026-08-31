@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>分享卡片</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .share-preview {
+      background: linear-gradient(135deg, #F3E5F5 0%, #E1F5FE 100%);
+      border-radius: var(--ft-radius-xl);
+      padding: 40px 28px;
+      text-align: center;
+      box-shadow: var(--ft-card-shadow);
+      border: 1px solid var(--ft-card-border);
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .share-preview::before {
+      content: ''; position: absolute; top: -40px; right: -40px;
+      width: 140px; height: 140px; border-radius: 50%;
+      background: rgba(225, 190, 231, 0.35);
+    }
+    .share-preview::after {
+      content: ''; position: absolute; bottom: -30px; left: -30px;
+      width: 120px; height: 120px; border-radius: 50%;
+      background: rgba(179, 229, 252, 0.35);
+    }
+    .share-label { font-size: 16px; color: var(--ft-text-secondary); margin-bottom: 10px; position: relative; z-index: 1; }
+    .share-number { font-size: 56px; font-weight: 800; color: var(--ft-text-primary); line-height: 1.1; position: relative; z-index: 1; }
+    .share-unit { font-size: 20px; font-weight: 600; color: var(--ft-text-secondary); margin-bottom: 16px; position: relative; z-index: 1; }
+    .share-phrase { font-size: 15px; color: var(--ft-text-primary); line-height: 1.6; position: relative; z-index: 1; }
+    .share-brand { font-size: 13px; color: var(--ft-text-tertiary); margin-top: 24px; position: relative; z-index: 1; }
+    .share-qrcode {
+      width: 120px; height: 120px; margin: 18px auto 0;
+      background: #fff; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--ft-text-tertiary); position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">分享卡片</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="share-preview ft-anim-scale-in">
+        <div class="share-label">你的人生还剩</div>
+        <div class="share-number" id="shareNumber">0</div>
+        <div class="share-unit">个周五</div>
+        <div class="share-phrase" id="sharePhrase">每一个周五都值得好好度过</div>
+        <div class="share-qrcode">小程序码</div>
+        <div class="share-brand">有点意思工具盒 · 人生倒计时钟</div>
+      </section>
+
+      <button class="ft-btn ft-btn-primary ft-btn-block" id="saveBtn">保存分享图片</button>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const params = new URLSearchParams(location.search);
+      document.getElementById('shareNumber').textContent = params.get('fridays') || '0';
+      document.getElementById('sharePhrase').textContent = decodeURIComponent(params.get('phrase') || FT.data.lifePhrases[0]);
+
+      document.getElementById('saveBtn').addEventListener('click', () => {
+        FT.shareImage('人生倒计时钟', ['你的人生还剩', document.getElementById('shareNumber').textContent + ' 个周五', document.getElementById('sharePhrase').textContent]);
+      });
+    })();
+  </script>
+</body>
+</html>

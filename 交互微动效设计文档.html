@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>有点意思工具盒 — 交互微动效设计文档</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Noto Sans SC', system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(255,224,178,.40), transparent 45%),
+      radial-gradient(circle at 85% 25%, rgba(178,223,219,.35), transparent 50%),
+      radial-gradient(circle at 50% 90%, rgba(225,190,231,.18), transparent 55%),
+      linear-gradient(135deg, #FFF8E1 0%, #F1F8E9 50%, #E0F7FA 100%);
+    color: #475569; line-height: 1.7; min-height: 100vh; padding: 40px 20px;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  .card {
+    background: rgba(255,255,255,.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,.6);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px -12px rgba(255,180,100,.20), 0 4px 14px -6px rgba(77,182,172,.15);
+    padding: 32px; margin-bottom: 24px;
+  }
+  h1 {
+    font-size: 30px; font-weight: 800;
+    background: linear-gradient(120deg, #FF9800, #4DB6AC);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 8px;
+  }
+  h2 { font-size: 21px; font-weight: 700; color: #1e293b; margin-top: 28px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #FFE0B2; }
+  h3 { font-size: 16px; font-weight: 600; color: #475569; margin-top: 20px; margin-bottom: 8px; }
+  p { margin-bottom: 10px; font-size: 15px; color: #475569; }
+  .subtitle { font-size: 15px; color: #64748b; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th { background: #FFF8E1; color: #475569; font-weight: 600; padding: 10px 12px; text-align: left; border-bottom: 2px solid #FFE0B2; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; color: #475569; }
+  tr:hover td { background: #FFFDE7; }
+  .anim-box {
+    background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 14px;
+    padding: 16px; margin: 12px 0; font-family: monospace; font-size: 13px; color: #64748b; line-height: 1.6;
+  }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; margin: 2px; }
+  .tag-unified { background: #FFF3E0; color: #E65100; }
+  .tag-tool { background: #E0F2F1; color: #00695C; }
+  .tag-sound { background: #F3E5F5; color: #6A1B9A; }
+  .tag-bg { background: #E3F2FD; color: #1565C0; }
+  .note { background: #FFF8E1; border-left: 4px solid #FFB74D; border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 14px; }
+  .note-mint { background: #E0F2F1; border-left-color: #4DB6AC; }
+  .demo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 12px; margin: 4px;
+    background: linear-gradient(135deg, #FFE0B2, #FFB74D);
+    box-shadow: 0 4px 12px -2px rgba(255,152,0,.35);
+    font-size: 20px;
+  }
+  .phase-list { list-style: none; padding-left: 0; }
+  .phase-list li { padding: 6px 0 6px 24px; position: relative; font-size: 14px; color: #475569; }
+  .phase-list li::before { content: '▸'; position: absolute; left: 6px; color: #FFB74D; font-weight: bold; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #334155; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>有点意思工具盒 — 交互微动效设计</h1>
+    <p class="subtitle">Interaction & Micro-Animation Design v1.0 | 核心理念：工具盒不仅是名字，是贯穿全局的交互隐喻</p>
+    <p>本文档定义所有统一交互微动效。设计原则：<strong>每个动画都要有"打开盒子/拿出工具/放回盒子"的隐喻感，让"工具盒"概念可感知。</strong>动画服务于体验，不是炫技——每次动效时长控制在 150-600ms，不阻塞用户操作。</p>
+  </div>
+
+  <!-- ========== 1. 工具盒核心隐喻 ========== -->
+  <div class="card">
+    <h2>1. 工具盒核心隐喻动画</h2>
+    <p>这是整个产品最关键的统一交互。用户每次进入工具和退出工具，都伴随"开盒/关盒"动画，强化"工具盒"品牌认知。</p>
+
+    <h3>1.1 打开工具 — "开盒弹出"动画 <span class="tag tag-unified">全局统一</span></h3>
+    <p>用户在首页点击任意工具卡片时触发。分 3 个阶段，总时长 500ms：</p>
+    <table>
+      <tr><th>阶段</th><th>时长</th><th>动画描述</th><th>实现方式</th></tr>
+      <tr><td>① 盒盖掀起</td><td>0-150ms</td><td>被点击的卡片顶部边缘向上翻转 15°（如盒盖掀起一条缝），伴随轻微阴影加深，暗示盒子内部</td><td>CSS transform: perspective(600px) rotateX(-15deg) + box-shadow 加深</td></tr>
+      <tr><td>② 工具弹出</td><td>150-350ms</td><td>卡片内容（图标+文字）从盒子里"弹"出来，向上 scale(1.1) + translateY(-8px) + 弹性回弹，同时盒盖完全打开（rotateX 0°）</td><td>transform: scale(1.1)→1.0 + translateY(-8px)→0, cubic-bezier(.34,1.56,.64,1)</td></tr>
+      <tr><td>③ 页面切入</td><td>350-500ms</td><td>整个工具页面从卡片位置展开铺满屏幕，背景毛玻璃渐变淡入。卡片本身淡出</td><td>页面 opacity 0→1 + scale(0.95)→1, 背景渐变 opacity 0→1</td></tr>
+    </table>
+    <div class="anim-box">// 卡片点击交互链
+click card
+  ├─ t=0ms:     卡片盒盖掀起 (rotateX -15deg, shadow+)
+  ├─ t=150ms:   图标弹出 (scale 1.1, translateY -8px, 弹性回弹)
+  ├─ t=350ms:   页面展开 (opacity 0→1, scale 0.95→1, 背景渐变淡入)
+  └─ t=500ms:   卡片淡出，页面就绪
+
+// 音效: "咔哒" 开盒声 + "啵" 弹出声（可选，用户可在设置中关闭）</div>
+
+    <h3>1.2 返回首页 — "关盒收回"动画 <span class="tag tag-unified">全局统一</span></h3>
+    <p>用户点击返回按钮时触发，是开盒动画的逆过程，总时长 400ms：</p>
+    <table>
+      <tr><th>阶段</th><th>时长</th><th>动画描述</th></tr>
+      <tr><td>① 页面收缩</td><td>0-200ms</td><td>工具页面内容向中心收缩 scale(1)→0.92 + opacity 1→0，背景渐变淡出</td></tr>
+      <tr><td>② 盒盖合上</td><td>200-400ms</td><td>首页卡片从透明恢复显示，伴随盒盖合上的轻微"咔"效果（卡片 scale 0.96→1 弹性回弹）</td></tr>
+    </table>
+    <div class="anim-box">// 返回交互链
+click back
+  ├─ t=0ms:     页面内容收缩 (scale 1→0.92, opacity 1→0)
+  ├─ t=200ms:   首页恢复, 卡片盒盖合上 (scale 0.96→1, 弹性)
+  └─ t=400ms:   首页完全就绪
+
+// 音效: "咔" 关盒声（轻柔）</div>
+
+    <h3>1.3 卡片闲置呼吸 <span class="tag tag-unified">全局统一</span></h3>
+    <p>首页工具卡片在闲置状态有极轻微的呼吸浮动，让页面"活着"：</p>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>动画</td><td>translateY(0 → -2px → 0) 无限循环</td></tr>
+      <tr><td>时长</td><td>3-4 秒/周期，每张卡片随机延迟 0-2s（不同步）</td></tr>
+      <tr><td>曲线</td><td>ease-in-out</td></tr>
+      <tr><td>幅度</td><td>仅 2px，极其微妙，不干扰</td></tr>
+      <tr><td>触发</td><td>页面可见 + 卡片未被按压 + 3秒无操作后开始</td></tr>
+    </table>
+
+    <h3>1.4 卡片按压 — "按进盒子" <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>按下</td><td>scale(0.95) + translateY(2px)，像把卡片按进盒子里</td></tr>
+      <tr><td>阴影</td><td>内阴影 inset 0 2px 8px rgba(0,0,0,.1)，模拟按入凹陷感</td></tr>
+      <tr><td>抬起</td><td>scale(1.0) 弹性回弹，触发开盒动画</td></tr>
+      <tr><td>时长</td><td>按下 100ms, 抬起 200ms</td></tr>
+    </table>
+
+    <h3>1.5 长按卡片 — "工具探头" <span class="tag tag-unified">全局统一</span></h3>
+    <p>长按卡片 500ms 后，卡片图标轻微"探头"（向上 peek），弹出简介弹窗：</p>
+    <table>
+      <tr><th>阶段</th><th>动画</th></tr>
+      <tr><td>长按触发</td><td>图标 translateY(-6px) + scale(1.05)，像工具从盒子里探出头</td></tr>
+      <tr><td>弹窗出现</td><td>从卡片上方弹出简介弹窗（工具说明 + 使用次数），scale(0.8)→1 + opacity 0→1, 300ms 弹性</td></tr>
+      <tr><td>松手</td><td>图标收回 translateY(0)，弹窗保持，点击空白处关闭</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 2. 页面过渡 ========== -->
+  <div class="card">
+    <h2>2. 统一页面过渡</h2>
+
+    <h3>2.1 子页面进入 <span class="tag tag-unified">全局统一</span></h3>
+    <p>工具内部子页面跳转（如功德→音效切换、借口→借口展示）使用统一的过渡：</p>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>进入</td><td>从右侧滑入 + 淡入。translateX(30px→0) + opacity(0→1)</td></tr>
+      <tr><td>退出</td><td>向左滑出 + 淡出。translateX(0→-30px) + opacity(1→0)</td></tr>
+      <tr><td>时长</td><td>300ms</td></tr>
+      <tr><td>曲线</td><td>ease-out</td></tr>
+    </table>
+
+    <h3>2.2 返回按钮交互 <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>常态</td><td>左箭头 + "返回"文字，半透明白色圆形背景</td></tr>
+      <tr><td>按下</td><td>scale(0.9) + 向左位移 2px，像要把页面推回去</td></tr>
+      <tr><td>抬起</td><td>触发关盒/页面退出动画</td></tr>
+    </table>
+
+    <h3>2.3 下拉刷新 <span class="tag tag-unified">全局统一</span></h3>
+    <p>首页支持下拉刷新，下拉时出现一个小工具盒图标在旋转，松手后盒盖打开弹出"已刷新"文字。</p>
+    <table>
+      <tr><th>阶段</th><th>动画</th></tr>
+      <tr><td>下拉中</td><td>工具盒图标随下拉距离旋转 0→180°，盒盖逐渐掀起</td></tr>
+      <tr><td>刷新中</td><td>工具盒图标旋转 360° 循环，盒盖开合循环</td></tr>
+      <tr><td>刷新完成</td><td>盒盖完全打开，弹出"✨ 已刷新"文字，向上淡出</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 3. 通用微交互 ========== -->
+  <div class="card">
+    <h2>3. 通用微交互组件</h2>
+
+    <h3>3.1 按钮交互 <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>按钮类型</th><th>按下</th><th>抬起</th><th>音效</th></tr>
+      <tr><td>主按钮</td><td>scale(0.96) + 阴影减弱</td><td>scale(1) 弹性回弹 200ms</td><td>"嗒" 轻触声</td></tr>
+      <tr><td>次按钮</td><td>scale(0.96) + 背景色加深</td><td>scale(1) 150ms</td><td>无</td></tr>
+      <tr><td>圆形大按钮(GO/播放)</td><td>scale(0.88) + 内阴影加深</td><td>scale(1) 弹性 250ms</td><td>"咚" 沉闷声</td></tr>
+      <tr><td>图标按钮</td><td>scale(0.9) + 图标轻微旋转 5°</td><td>scale(1) + 旋转归零 200ms</td><td>无</td></tr>
+    </table>
+
+    <h3>3.2 数字滚动动画 <span class="tag tag-unified">全局统一</span></h3>
+    <p>所有数字变化（功德+1、天数刷新、次数统计）使用 CountUp 滚动效果，而非直接跳变：</p>
+    <table>
+      <tr><th>场景</th><th>动画</th><th>时长</th></tr>
+      <tr><td>功德 +1</td><td>旧数字向上滑出，新数字从下方滑入</td><td>200ms</td></tr>
+      <tr><td>首次展示大数字</td><td>从 0 滚动到目标值</td><td>800ms, ease-out</td></tr>
+      <tr><td>倒计时每秒刷新</td><td>仅小时数以下做翻转效果，数字 3D 翻转</td><td>400ms</td></tr>
+      <tr><td>统计数字变化</td><td>数字跳动 scale(1.1)→1 + 颜色闪烁</td><td>300ms</td></tr>
+    </table>
+
+    <h3>3.3 弹窗交互 <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>场景</th><th>出现</th><th>消失</th></tr>
+      <tr><td>居中弹窗</td><td>遮罩淡入 200ms → 弹窗 scale(0.8)→1 + opacity 0→1, 300ms 弹性</td><td>弹窗 scale(1)→0.8 + opacity 1→0, 200ms → 遮罩淡出 150ms</td></tr>
+      <tr><td>底部弹窗</td><td>遮罩淡入 → 弹窗从底部滑入 translateY(100%→0), 300ms</td><td>向下滑出 translateY(0→100%), 250ms → 遮罩淡出</td></tr>
+      <tr><td>Toast</td><td>从底部上滑 translateY(40px→0) + 淡入, 300ms</td><td>淡出 + 向下滑 200ms, 2秒后触发</td></tr>
+      <tr><td>成就解锁</td><td>从顶部下拉 + 缩放弹入，带光芒效果, 400ms 弹性</td><td>向上滑出 + 淡出, 300ms, 3秒后触发</td></tr>
+    </table>
+
+    <h3>3.4 列表项交互 <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>操作</th><th>动画</th><th>时长</th></tr>
+      <tr><td>新增项</td><td>从顶部滑入 + 高亮闪烁（橙色背景渐变到透明）</td><td>400ms</td></tr>
+      <tr><td>删除项</td><td>向右滑出 + 高度收缩</td><td>300ms</td></tr>
+      <tr><td>长按</td><td>背景色渐变到橙色 + 左侧出现删除图标</td><td>200ms</td></tr>
+      <tr><td>拖拽排序</td><td>被拖项 scale(1.05) + 阴影增强，其他项让位平移</td><td>实时</td></tr>
+    </table>
+
+    <h3>3.5 滑块交互 <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>拖拽中</td><td>滑块圆形旋钮 scale(1.2) + 发光（box-shadow 扩散）</td></tr>
+      <tr><td>松手</td><td>旋钮 scale(1.0) 弹性回弹 200ms</td></tr>
+      <tr><td>轨道</td><td>已填充部分渐变色（橙→绿），未填充部分灰色</td></tr>
+      <tr><td>音量从0变非0</td><td>对应音轨 emoji 从灰色变彩色，伴随 scale(0.8)→1 弹出</td></tr>
+      <tr><td>数值显示</td><td>百分比数字跟随滑块实时滚动</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 4. 背景氛围 ========== -->
+  <div class="card">
+    <h2>4. 背景氛围动效</h2>
+
+    <h3>4.1 浮动粒子 <span class="tag tag-bg">背景层</span></h3>
+    <p>每个页面背景有 5-8 个缓慢浮动的小粒子（小圆点、星星、小爪印），增强氛围感：</p>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>粒子形状</td><td>小圆点(4px) / 小星星(✦) / 猫爪印(微缩SVG)，随机混合</td></tr>
+      <tr><td>颜色</td><td>马卡龙色系随机，透明度 15-30%</td></tr>
+      <tr><td>运动</td><td>缓慢上浮 + 轻微左右摆动，无限循环</td></tr>
+      <tr><td>速度</td><td>每个粒子 15-25 秒完成一个循环，随机不同步</td></tr>
+      <tr><td>数量</td><td>5-8 个，不影响性能</td></tr>
+      <tr><td>触发</td><td>页面可见时持续运行</td></tr>
+    </table>
+
+    <h3>4.2 页面切换粒子爆发 <span class="tag tag-bg">背景层</span></h3>
+    <p>开盒动画第②阶段（工具弹出）时，从卡片位置喷射 6-8 个马卡龙色小粒子，向外扩散并淡出：</p>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>起点</td><td>卡片中心</td></tr>
+      <tr><td>方向</td><td>360° 随机方向</td></tr>
+      <tr><td>距离</td><td>30-60px 随机</td></tr>
+      <tr><td>时长</td><td>500ms, ease-out 减速</td></tr>
+      <tr><td>淡出</td><td>最后 200ms opacity 1→0</td></tr>
+    </table>
+
+    <h3>4.3 滚动视差 <span class="tag tag-bg">背景层</span></h3>
+    <p>页面内容滚动时，背景渐变层以 0.3 倍速度缓慢移动，制造轻微视差感。粒子层以 0.5 倍速度移动。</p>
+  </div>
+
+  <!-- ========== 5. 各工具专属动效 ========== -->
+  <div class="card">
+    <h2>5. 各工具专属交互动效</h2>
+
+    <h3>5.1 情绪粉碎机 <span class="tag tag-tool">专属</span></h3>
+    <table>
+      <tr><th>交互</th><th>动画描述</th><th>时长</th></tr>
+      <tr><td>输入文本聚焦</td><td>输入框边框从灰色渐变到橙色，内阴影从冷色变暖色，像纸张被点亮</td><td>300ms</td></tr>
+      <tr><td>选择粉碎方式</td><td>选中项 scale(1.05) + 边框变橙 + 内部图标轻微旋转/跳动；未选中项 scale(0.95) + 变灰</td><td>200ms</td></tr>
+      <tr><td>点击"开始粉碎"</td><td>按钮 scale(0.9) → 页面内容向上收起（如纸条被卷入） → 过渡到全屏动画页</td><td>400ms</td></tr>
+      <tr><td>撕碎动画</td><td>文字渲染到 Canvas → 按网格切分为碎片 → 每碎片随机速度+旋转角度飞散 → 粒子效果</td><td>2500ms</td></tr>
+      <tr><td>焚烧动画</td><td>文字从底部逐行变黑碳化 → 灰烬粒子向上飘散 → 火焰渐变（红→橙→黄）从底部上升</td><td>3000ms</td></tr>
+      <tr><td>冲走动画</td><td>文字整体旋转+缩小+淡出 → 水波纹从底部扩散 → 文字碎片旋转消失</td><td>2500ms</td></tr>
+      <tr><td>完成态出现</td><td>"已粉碎 ✅" 从 scale(0.5)→1 弹性弹入 + 随机文案打字机效果逐字显示</td><td>500ms + 文字</td></tr>
+      <tr><td>分享结果</td><td>分享卡片从屏幕底部弹出 + 轻微摆动 + 小粒子散布</td><td>400ms</td></tr>
+    </table>
+
+    <h3>5.2 人生倒计时钟 <span class="tag tag-tool">专属</span></h3>
+    <table>
+      <tr><th>交互</th><th>动画描述</th><th>时长</th></tr>
+      <tr><td>首次进入</td><td>生日设置引导从底部滑入，半透明遮罩，日期选择器居中高亮</td><td>400ms</td></tr>
+      <tr><td>设置完成</td><td>设置面板向上收起 → 大数字从 0 滚动到目标值 → 数据卡片逐行从上方滑入（stagger 50ms 间隔）</td><td>800ms 数字 + 600ms 卡片</td></tr>
+      <tr><td>大数字展示</td><td>数字使用渐变色文字（橙→绿），底部有微弱发光效果</td><td>持续</td></tr>
+      <tr><td>修改生日/寿命</td><td>所有数字同步重新滚动到新值，进度条平滑过渡（宽度 + 颜色）</td><td>500ms</td></tr>
+      <tr><td>每秒刷新</td><td>小时数及以下做 3D 翻转效果（数字卡片绕 X 轴翻转 180°），像翻牌</td><td>400ms</td></tr>
+      <tr><td>进度条</td><td>已过比例用马卡龙色系渐变填充（随比例变化色相），未过部分浅灰</td><td>持续</td></tr>
+      <tr><td>生成分享卡片</td><td>卡片从页面中心展开 scale(0.8)→1 + 旋转入场 2°→0° + 周围粒子散开</td><td>500ms</td></tr>
+    </table>
+
+    <h3>5.3 白噪音混音台 <span class="tag tag-tool">专属</span></h3>
+    <table>
+      <tr><th>交互</th><th>动画描述</th><th>时长</th></tr>
+      <tr><td>场景预设切换</td><td>各音轨滑块同步滑动到预设值（不是瞬移），stagger 30ms 间隔，像多米诺骨牌</td><td>600ms 总计</td></tr>
+      <tr><td>拖拽音量滑块</td><td>旋钮 scale(1.2) + 发光，轨道填充渐变色实时变化，对应 emoji 灰↔彩色切换</td><td>实时</td></tr>
+      <tr><td>点击播放</td><td>播放按钮图标 ▶→⏸ 形变过渡，所有活跃音轨 emoji 轻微跳动（像在演奏），底部出现音波柱状动画</td><td>300ms 形变</td></tr>
+      <tr><td>播放中音波</td><td>底部 5 根柱状条随机高低跳动，马卡龙色，模拟音波可视化</td><td>持续循环</td></tr>
+      <tr><td>定时倒计时</td><td>剩余时间数字从底部出现，进度环（圆形）逐渐缩小</td><td>持续</td></tr>
+      <tr><td>保存混音</td><td>保存按钮点击后 → 弹出命名输入框 → 保存成功后按钮变为"✓ 已保存" + 弹出 Toast</td><td>300ms</td></tr>
+      <tr><td>退出页面(播放中)</td><td>页面向下滑出 + 底部弹出"继续后台播放"选项条</td><td>300ms</td></tr>
+      <tr><td>音轨 emoji 状态</td><td>音量=0: 灰色 + scale(0.9) 静止；音量>0: 彩色 + 轻微跳动循环（像在演奏）</td><td>持续</td></tr>
+    </table>
+
+    <h3>5.4 电子木鱼 <span class="tag tag-tool">专属</span></h3>
+    <table>
+      <tr><th>交互</th><th>动画描述</th><th>时长</th></tr>
+      <tr><td>点击木鱼</td><td>木鱼图案 scale(0.88)→1 弹性回弹 + 木鱼上方出现"功德 +1"浮字（向上飘动+淡出+轻微旋转） + 短促"咚"音效</td><td>150ms 缩放 + 1000ms 浮字</td></tr>
+      <tr><td>功德数字+1</td><td>旧数字向上滑出+淡出，新数字从下方滑入+淡入，数字颜色短暂闪烁（橙→白→橙）</td><td>200ms</td></tr>
+      <tr><td>连续快速点击</td><td>每次点击都触发缩放+浮字+音效，浮字位置随机偏移（避免重叠），音效实例池轮换（最多5个并发）</td><td>每次 100ms</td></tr>
+      <tr><td>木鱼涟漪</td><td>每次点击从木鱼中心向外扩散一圈涟漪（马卡龙色），3 层涟漪 stagger 100ms</td><td>600ms/圈</td></tr>
+      <tr><td>成就解锁</td><td>从顶部下拉成就卡片（带光芒放射效果）+ "叮" 音效 + 3秒后向上滑出消失</td><td>400ms 入 + 300ms 出</td></tr>
+      <tr><td>切换音效</td><td>音效列表项点击 → 选中项左侧出现橙色圆点（弹性弹入）+ 播放一次该音效预览</td><td>200ms</td></tr>
+      <tr><td>成就页网格</td><td>已解锁成就: 亮色 + 轻微呼吸光效；未解锁: 灰色 + 锁图标 + 无动效</td><td>持续</td></tr>
+      <tr><td>今日排名</td><td>百分比数字从 0 滚动到目标值 + "超过 XX% 的人"文字打字机效果</td><td>800ms</td></tr>
+    </table>
+
+    <h3>5.5 借口生成器 <span class="tag tag-tool">专属</span></h3>
+    <table>
+      <tr><th>交互</th><th>动画描述</th><th>时长</th></tr>
+      <tr><td>选择场景</td><td>选中项 scale(1.03) + 橙色边框弹入 + 内部图标弹跳；可切换，切换时旧项边框收缩消失</td><td>200ms</td></tr>
+      <tr><td>选择语气</td><td>单选圆点从旧位置滑动到新位置 + 文字颜色变化</td><td>200ms</td></tr>
+      <tr><td>点击"生成借口"</td><td>按钮 scale(0.9) → 页面内容向左卷起收起 → 借口展示页从右滑入</td><td>400ms</td></tr>
+      <tr><td>借口卡片出现</td><td>卡片从 scale(0.8)→1 + rotate(-2deg)→0deg + opacity 0→1 弹性入场，像卡片被甩到桌上</td><td>400ms</td></tr>
+      <tr><td>借口文字</td><td>手写体 ZCOOL KuaiLe，文字逐字打字机效果显示（每个字 30ms 间隔淡入）</td><td>视字数</td></tr>
+      <tr><td>换一个</td><td>旧卡片向左飞出 + 旋转 + 淡出 → 新卡片从右飞入 + 旋转归零 + 弹性，像洗牌</td><td>400ms</td></tr>
+      <tr><td>复制成功</td><td>复制按钮图标短暂变为 ✓ + Toast "已复制" 从底部弹出</td><td>200ms + Toast 2s</td></tr>
+      <tr><td>收藏</td><td>星标从 scale(0)→1.3→1 弹性弹入 + 颜色从灰变金 + 微弱光芒</td><td>300ms</td></tr>
+      <tr><td>取消收藏</td><td>星标 scale(1)→0 + 颜色变灰</td><td>200ms</td></tr>
+    </table>
+
+    <h3>5.6 转盘选择器 <span class="tag tag-tool">专属</span></h3>
+    <table>
+      <tr><th>交互</th><th>动画描述</th><th>时长</th></tr>
+      <tr><td>添加选项</td><td>新选项从顶部滑入 + 高亮闪烁，转盘重绘新增扇形（从 0° 展开到目标角度）</td><td>300ms</td></tr>
+      <tr><td>修改权重</td><td>转盘扇形面积实时重绘（平滑过渡），数字滚动到新值</td><td>200ms</td></tr>
+      <tr><td>删除选项</td><td>列表项向右滑出，转盘扇形收缩消失</td><td>300ms</td></tr>
+      <tr><td>切换方案 Tab</td><td>Tab 下划线滑动到新位置 + 转盘内容渐变切换（旧扇形淡出→新扇形淡入）</td><td>300ms</td></tr>
+      <tr><td>切换配色预设</td><td>转盘扇形颜色平滑过渡（从旧色→新色 逐个 stagger 30ms）</td><td>500ms 总计</td></tr>
+      <tr><td>点击 GO</td><td>GO 按钮 scale(0.85)→1 弹性 + 渐隐消失 → 转盘开始旋转</td><td>200ms</td></tr>
+      <tr><td>转盘旋转</td><td>初始角速度 0.3rad/帧，每帧×0.985 衰减，5-7圈，减速停止。指针在顶部抖动（随转速幅度变化）</td><td>4200-5400ms</td></tr>
+      <tr><td>旋转中命运文案</td><td>顶部文字每 800ms 淡入淡出切换一条命运文案</td><td>持续</td></tr>
+      <tr><td>停止选中</td><td>指针弹性弹跳 2 次 + 选中扇形高亮闪烁 3 次 + 结果区域从中心展开 + GO 按钮淡入恢复</td><td>500ms</td></tr>
+      <tr><td>结果出现</td><td>结果文字从 scale(0.5)→1.2→1 弹性弹入 + 手写体 + 周围粒子爆发</td><td>400ms</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 6. 音效设计 ========== -->
+  <div class="card">
+    <h2>6. 音效设计</h2>
+    <p>所有音效为短促音效（50-200ms），使用 InnerAudioContext 播放，音量默认 60%，可在设置中关闭。</p>
+
+    <h3>6.1 统一音效 <span class="tag tag-sound">全局统一</span></h3>
+    <table>
+      <tr><th>场景</th><th>音效描述</th><th>时长</th><th>格式</th></tr>
+      <tr><td>开盒（进入工具）</td><td>"咔哒" 清脆开盒声，木质质感</td><td>80ms</td><td>mp3/wav</td></tr>
+      <tr><td>关盒（返回首页）</td><td>"咔" 轻柔关盒声</td><td>60ms</td><td>mp3/wav</td></tr>
+      <tr><td>工具弹出</td><td>"啵" 弹出声，类似气泡破裂</td><td>50ms</td><td>mp3/wav</td></tr>
+      <tr><td>按钮点击</td><td>"嗒" 轻触声，极轻</td><td>40ms</td><td>mp3/wav</td></tr>
+      <tr><td>圆按钮(GO)点击</td><td>"咚" 沉闷敲击声</td><td>100ms</td><td>mp3/wav</td></tr>
+      <tr><td>弹窗出现</td><td>"唰" 纸张展开声</td><td>100ms</td><td>mp3/wav</td></tr>
+      <tr><td>Toast 出现</td><td>"叮" 清脆提示音</td><td>60ms</td><td>mp3/wav</td></tr>
+      <tr><td>列表项添加</td><td>"噗" 轻弹出声</td><td>50ms</td><td>mp3/wav</td></tr>
+      <tr><td>列表项删除</td><td>"嗖" 滑走声</td><td>80ms</td><td>mp3/wav</td></tr>
+    </table>
+
+    <h3>6.2 工具专属音效 <span class="tag tag-sound">专属</span></h3>
+    <table>
+      <tr><th>工具</th><th>音效</th><th>说明</th></tr>
+      <tr><td>情绪粉碎机</td><td>撕碎：纸张撕裂声 / 焚烧：火焰噼啪声 / 冲走：水流冲刷声</td><td>动画期间循环播放</td></tr>
+      <tr><td>人生倒计时</td><td>无音效（庄重感，不加音）</td><td>—</td></tr>
+      <tr><td>白噪音混音台</td><td>8 条音轨各自的白噪音（雨/篝火/键盘/猫/海浪/咖啡/树叶/虫鸣）</td><td>循环播放，见音频资源</td></tr>
+      <tr><td>电子木鱼</td><td>木鱼/铜磬/寺钟/水滴/无声 5 种</td><td>每次点击播放，实例池管理</td></tr>
+      <tr><td>借口生成器</td><td>生成：翻书声 / 换一个：洗牌声 / 复制：无</td><td>短促</td></tr>
+      <tr><td>转盘选择器</td><td>旋转中：_TICK-TICK-TICK_ 转盘刻度声（随转速频率变化）/ 停止：铃铛声</td><td>旋转期间动态频率</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 7. 特殊状态动效 ========== -->
+  <div class="card">
+    <h2>7. 特殊状态动效</h2>
+
+    <h3>7.1 空状态 <span class="tag tag-unified">全局统一</span></h3>
+    <p>当工具无数据时（如借口收藏为空、转盘无选项），展示空状态插画 + 引导文字：</p>
+    <table>
+      <tr><th>元素</th><th>规范</th></tr>
+      <tr><td>插画</td><td>200×200px，工具盒打开但里面空空的，一个小箭头指向盒子里</td></tr>
+      <tr><td>动画</td><td>工具盒盒盖缓慢开合循环（呼吸感），盒子里偶尔飘出一个小问号</td></tr>
+      <tr><td>文字</td><td>"这里还是空的，试试添加点什么吧" 14px, slate-400</td></tr>
+      <tr><td>时长</td><td>开合 3s/周期</td></tr>
+    </table>
+
+    <h3>7.2 加载状态 <span class="tag tag-unified">全局统一</span></h3>
+    <p>分包加载（白噪音音频包）或首次进入时的加载动画：</p>
+    <table>
+      <tr><th>元素</th><th>规范</th></tr>
+      <tr><td>动画</td><td>工具盒图标，盒盖开合循环，里面冒出小星星</td></tr>
+      <tr><td>文字</td><td>"正在打开工具盒..." → "正在拿出工具..." → "马上就好..."</td></tr>
+      <tr><td>文字切换</td><td>每 1.5s 淡入淡出切换一条</td></tr>
+    </table>
+
+    <h3>7.3 分享触发 <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>阶段</th><th>动画</th></tr>
+      <tr><td>点击分享</td><td>分享卡片从底部弹出 + 周围粒子散布 + "咔哒" 开盒声（分享 = 打开盒子给别人看）</td></tr>
+      <tr><td>卡片展示</td><td>卡片轻微悬浮（translateY 0→-4px→0 循环），可长按保存</td></tr>
+      <tr><td>分享成功</td><td>卡片缩小消失 + Toast "已分享" + 粒子爆发</td></tr>
+    </table>
+
+    <h3>7.4 成就解锁 <span class="tag tag-unified">全局统一</span></h3>
+    <table>
+      <tr><th>阶段</th><th>动画</th><th>时长</th></tr>
+      <tr><td>触发</td><td>从顶部下拉成就卡片 + 光芒放射效果（4-6 条光线从卡片中心向外扩散）</td><td>400ms</td></tr>
+      <tr><td>展示</td><td>成就图标 scale 弹性弹跳 + 名称打字机显示 + "叮" 音效</td><td>500ms</td></tr>
+      <tr><td>消失</td><td>向上滑出 + 淡出 + 光芒收回</td><td>300ms</td></tr>
+      <tr><td>总时长</td><td>3 秒后自动消失</td><td>—</td></tr>
+    </table>
+  </div>
+
+  <!-- ========== 8. 实现优先级 ========== -->
+  <div class="card">
+    <h2>8. 动效实现优先级</h2>
+    <p>动效虽好，但不能全部一次做完阻塞开发。按优先级分批实现：</p>
+    <table>
+      <tr><th>优先级</th><th>动效</th><th>理由</th></tr>
+      <tr><td>P0 必须有</td><td>开盒/关盒动画、卡片按压、页面过渡、按钮交互</td><td>核心品牌体验，没有就不叫"工具盒"</td></tr>
+      <tr><td>P0 必须有</td><td>各工具核心功能动画（粉碎、转盘旋转、功德点击）</td><td>工具本身的功能性动画</td></tr>
+      <tr><td>P1 应该有</td><td>数字滚动、弹窗动画、Toast、列表项增删、成就解锁</td><td>体验提升明显，开发量适中</td></tr>
+      <tr><td>P1 应该有</td><td>统一音效（开盒/关盒/按钮）</td><td>配合动画增强品牌感</td></tr>
+      <tr><td>P2 锦上添花</td><td>浮动粒子、滚动视差、卡片呼吸、下拉刷新</td><td>氛围动效，性能允许时加</td></tr>
+      <tr><td>P2 锦上添花</td><td>所有专属微交互的细节打磨</td><td>最后打磨阶段补</td></tr>
+    </table>
+    <div class="note note-mint">实现策略：第一版先做 P0 动效 + 功能，跑通全流程。P1 在联调阶段逐步加入。P2 在上线后根据用户反馈和性能情况补充。这样不会让动效开发拖慢核心功能进度。</div>
+  </div>
+
+  <!-- ========== 9. 性能约束 ========== -->
+  <div class="card">
+    <h2>9. 性能约束</h2>
+    <table>
+      <tr><th>指标</th><th>要求</th></tr>
+      <tr><td>动画帧率</td><td>≥ 30fps（Canvas 动画 ≥ 30fps，CSS 动画 ≥ 60fps）</td></tr>
+      <tr><td>单次动画时长</td><td>≤ 600ms（除功能性动画如粉碎/转盘）</td></tr>
+      <tr><td>同时运行动画数</td><td>≤ 8 个（粒子 + 呼吸 + 功能动画总计）</td></tr>
+      <tr><td>粒子数量</td><td>单页 ≤ 8 个浮动粒子</td></tr>
+      <tr><td>音效实例池</td><td>音效 InnerAudioContext 预创建复用，最多 5 个并发</td></tr>
+      <tr><td>动画属性</td><td>优先 transform 和 opacity（GPU 加速），避免 layout 属性</td></tr>
+      <tr><td>will-change</td><td>仅在动画期间设置，结束移除</td></tr>
+      <tr><td>低端机降级</td><td>检测设备性能，低端机关闭粒子/视差，保留核心动画</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>10. 总结</h2>
+    <p>本交互文档的核心设计理念是：<strong>"工具盒"不是一个静态的名字，而是一套贯穿全局的动态交互语言。</strong></p>
+    <p>每次进入工具 = 开盒取出工具。每次返回 = 放回工具关上盒子。每次分享 = 打开盒子给别人看。这个隐喻在 50+ 个微交互中被反复强化，让用户形成"打开我的工具盒"的心智模型，而非"使用一个小程序"。</p>
+    <p>统一动画 + 专属动效 + 背景氛围 + 音效配合 = 一个有生命力的工具盒。优先保证 P0 核心动效到位，P1/P2 逐步打磨。</p>
+  </div>
+</div>
+</body>
+</html>

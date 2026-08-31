@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>粉碎中...</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    body { overflow: hidden; }
+    .anim-shell { max-width: 520px; margin: 0 auto; padding: 0; min-height: 100vh; position: relative; }
+    #animCanvas { position: fixed; inset: 0; width: 100%; height: 100%; background: rgba(30,41,59,0.92); z-index: 1; }
+    .result-panel {
+      position: fixed; left: 50%; top: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      width: min(90%, 360px);
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
+      transition: all 0.5s var(--ft-transition-bounce);
+    }
+    .result-panel.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+    .result-icon { font-size: 56px; margin-bottom: 12px; }
+    .result-title { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .result-phrase { font-size: 16px; color: rgba(255,255,255,0.85); margin-bottom: 24px; line-height: 1.7; }
+    .result-actions { display: flex; gap: 12px; }
+    .result-actions .ft-btn { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="anim-shell">
+    <canvas id="animCanvas"></canvas>
+    <div class="result-panel" id="resultPanel">
+      <div class="result-icon" id="resultIcon">✅</div>
+      <div class="result-title">已粉碎</div>
+      <div class="result-phrase" id="resultPhrase"></div>
+      <div class="result-actions">
+        <a class="ft-btn ft-btn-secondary" href="index.html">再来一次</a>
+        <button class="ft-btn ft-btn-primary" id="shareBtn">分享结果</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const params = new URLSearchParams(location.search);
+      const text = params.get('text') || '';
+      const mode = params.get('mode') || 'tear';
+      const phrase = params.get('phrase') || FT.data.crusherPhrases[0];
+
+      document.getElementById('resultPhrase').textContent = phrase;
+      document.getElementById('resultIcon').textContent = mode === 'tear' ? '✂️' : mode === 'burn' ? '🔥' : '🚽';
+
+      const canvas = document.getElementById('animCanvas');
+      const ctx = canvas.getContext('2d');
+      let w, h;
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const modeNames = { tear: '撕碎', burn: '焚烧', flush: '冲走' };
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      // 离屏文字
+      const textCanvas = document.createElement('canvas');
+      const tctx = textCanvas.getContext('2d');
+      const fontSize = Math.min(48, Math.max(24, w / 12));
+      const padding = 40;
+      tctx.font = `700 ${fontSize}px "Noto Sans SC", sans-serif`;
+      const measured = tctx.measureText(text);
+      const lineHeight = fontSize * 1.4;
+      const maxWidth = w - padding * 2;
+      const words = text.split('');
+      const lines = [];
+      let line = '';
+      for (const ch of words) {
+        const test = line + ch;
+        if (tctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = ch;
+        } else {
+          line = test;
+        }
+      }
+      lines.push(line);
+      textCanvas.width = Math.ceil(maxWidth + padding * 2) * dpr;
+      textCanvas.height = Math.ceil(lines.length * lineHeight + padding * 2) * dpr;
+      tctx.scale(dpr, dpr);
+      tctx.font = `700 ${fontSize}px "Noto Sans SC", sans-serif`;
+      tctx.fillStyle = '#fff';
+      tctx.textAlign = 'center';
+      tctx.textBaseline = 'middle';
+      lines.forEach((l, i) => tctx.fillText(l, maxWidth / 2 + padding, padding + lineHeight * (i + 0.5)));
+
+      const imgData = tctx.getImageData(0, 0, textCanvas.width, textCanvas.height);
+
+      // 动画对象
+      const pieces = [];
+      const cw = 28, ch = 28;
+      const cols = Math.ceil(textCanvas.width / dpr / cw);
+      const rows = Math.ceil(textCanvas.height / dpr / ch);
+      const offX = (w - textCanvas.width / dpr) / 2;
+      const offY = (h - textCanvas.height / dpr) / 2;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const sx = c * cw * dpr;
+          const sy = r * ch * dpr;
+          const sw = Math.min(cw * dpr, textCanvas.width - sx);
+          const sh = Math.min(ch * dpr, textCanvas.height - sy);
+          const piece = document.createElement('canvas');
+          piece.width = sw; piece.height = sh;
+          const pctx = piece.getContext('2d');
+          pctx.putImageData(imgData, -sx, -sy);
+          pieces.push({
+            x: offX + c * cw, y: offY + r * ch,
+            vx: (Math.random() - 0.5) * (mode === 'tear' ? 18 : 6),
+            vy: (mode === 'burn' ? -2 - Math.random() * 6 : mode === 'flush' ? 2 + Math.random() * 4 : (Math.random() - 0.5) * 14),
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 0.3,
+            opacity: 1,
+            scale: 1,
+            piece,
+          });
+        }
+      }
+
+      const particles = [];
+      function spawnParticle(x, y, color) {
+        particles.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 4,
+          vy: -Math.random() * 5 - 1,
+          life: 1,
+          color,
+          size: Math.random() * 4 + 2,
+        });
+      }
+
+      let startTime = null;
+      const duration = mode === 'burn' ? 3000 : 2500;
+      function animate(now) {
+        if (!startTime) startTime = now;
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        ctx.clearRect(0, 0, w, h);
+
+        if (mode === 'burn') {
+          const fireGrad = ctx.createLinearGradient(0, h, 0, h * 0.5);
+          fireGrad.addColorStop(0, 'rgba(239,68,68,0.25)');
+          fireGrad.addColorStop(1, 'rgba(255,152,0,0)');
+          ctx.fillStyle = fireGrad;
+          ctx.fillRect(0, h * 0.55, w, h * 0.45);
+        }
+
+        pieces.forEach((p, i) => {
+          ctx.save();
+          ctx.globalAlpha = p.opacity;
+          if (mode === 'tear') {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.25;
+            p.rot += p.vrot;
+            p.opacity = 1 - Math.pow(progress, 2);
+          } else if (mode === 'burn') {
+            const burnLine = h - progress * (textCanvas.height / dpr + offY);
+            if (p.y + ch > burnLine) {
+              p.opacity -= 0.08;
+              if (Math.random() < 0.08) spawnParticle(p.x + cw / 2, p.y, 'rgba(200,200,200,0.6)');
+            }
+            p.y += p.vy;
+            p.x += Math.sin(elapsed * 0.005 + i) * 0.8;
+            p.rot += 0.01;
+          } else if (mode === 'flush') {
+            const cx = w / 2, cy = h / 2;
+            const dx = p.x - cx, dy = p.y - cy;
+            const angle = Math.atan2(dy, dx) + 0.04;
+            const dist = Math.hypot(dx, dy) * (1 - progress * 0.02);
+            p.x = cx + Math.cos(angle) * dist;
+            p.y = cy + Math.sin(angle) * dist;
+            p.scale = 1 - progress * 0.6;
+            p.opacity = 1 - progress;
+            if (progress < 0.7 && Math.random() < 0.03) spawnParticle(p.x + cw / 2, p.y + ch / 2, 'rgba(178,223,219,0.5)');
+          }
+          ctx.translate(p.x + cw / 2, p.y + ch / 2);
+          ctx.rotate(p.rot);
+          ctx.scale(p.scale, p.scale);
+          ctx.drawImage(p.piece, -cw / 2, -ch / 2, cw, ch);
+          ctx.restore();
+        });
+
+        // 水波纹
+        if (mode === 'flush') {
+          ctx.strokeStyle = `rgba(178,223,219,${0.3 * (1 - progress)})`;
+          ctx.lineWidth = 3;
+          for (let i = 0; i < 3; i++) {
+            const r = (progress * 300 + i * 80) % 400;
+            ctx.beginPath();
+            ctx.ellipse(w / 2, h / 2, r * 1.2, r * 0.7, 0, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+
+        particles.forEach((pt, i) => {
+          pt.x += pt.vx; pt.y += pt.vy; pt.vy += 0.08; pt.life -= 0.015;
+          if (pt.life <= 0) particles.splice(i, 1);
+          ctx.fillStyle = pt.color.replace(/[\d.]+%?\)$/, `${pt.life})`.replace(/^.*\(/, '')) || pt.color;
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          document.getElementById('resultPanel').classList.add('show');
+        }
+      }
+      requestAnimationFrame(animate);
+
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        FT.shareImage('情绪粉碎机', [modeNames[mode] + '了烦恼', phrase, '今日已粉碎 ' + FT.storage.getDailyCount('crusher_count_today').count + ' 件']);
+      });
+    })();
+  </script>
+</body>
+</html>

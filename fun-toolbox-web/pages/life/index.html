@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>人生倒计时钟</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .life-settings { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+    .life-settings label { font-size: 13px; font-weight: 600; color: var(--ft-text-secondary); }
+    .life-input-row { display: flex; align-items: center; gap: 10px; }
+    .life-input-row .ft-input { flex: 1; }
+    .life-input-row button {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ft-card-border);
+      background: var(--ft-card-bg); font-size: 18px; cursor: pointer; color: var(--ft-text-primary);
+    }
+    .life-input-row button:active { transform: scale(0.9); }
+
+    .big-friday {
+      text-align: center; padding: 24px 0;
+      background: var(--ft-accent-life);
+      border-radius: var(--ft-radius-xl);
+      margin-bottom: 18px;
+      border: 1px solid var(--ft-card-border);
+    }
+    .big-number { font-size: 64px; font-weight: 800; line-height: 1; color: var(--ft-text-primary); }
+    .big-label { font-size: 18px; font-weight: 600; color: var(--ft-text-secondary); margin-top: 6px; }
+
+    .stat-card { display: grid; gap: 12px; }
+    .stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 14px; background: var(--ft-card-bg);
+      border: 1px solid var(--ft-card-border); border-radius: var(--ft-radius-md);
+    }
+    .stat-row .label { font-size: 14px; color: var(--ft-text-secondary); font-weight: 500; }
+    .stat-row .value { font-family: 'Baloo 2', sans-serif; font-size: 20px; font-weight: 700; color: var(--ft-text-primary); }
+
+    .progress-wrap { margin-top: 8px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--ft-text-secondary); margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="../../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">人生倒计时钟</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="ft-card life-settings">
+        <div>
+          <label>你的生日</label>
+          <input type="date" class="ft-input" id="birthInput">
+        </div>
+        <div>
+          <label>预期寿命</label>
+          <div class="life-input-row">
+            <button id="ageMinus">−</button>
+            <input type="number" class="ft-input" id="ageInput" min="60" max="120" value="77">
+            <button id="agePlus">+</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="big-friday">
+        <div class="big-number" id="fridayCount">0</div>
+        <div class="big-label">个周五</div>
+      </section>
+
+      <section class="ft-card stat-card">
+        <div class="stat-row"><span class="label">剩余天数</span><span class="value" id="dayCount">0</span></div>
+        <div class="stat-row"><span class="label">剩余月数</span><span class="value" id="monthCount">0</span></div>
+        <div class="stat-row"><span class="label">剩余周数</span><span class="value" id="weekCount">0</span></div>
+        <div class="stat-row"><span class="label">剩余周五</span><span class="value" id="fridayCount2">0</span></div>
+        <div class="stat-row"><span class="label">剩余小时</span><span class="value" id="hourCount">0</span></div>
+        <div class="progress-wrap">
+          <div class="progress-info"><span>已过比例</span><span id="livedPercent">0%</span></div>
+          <div class="ft-progress"><div class="ft-progress-bar" id="livedBar" style="width:0%"></div></div>
+        </div>
+      </section>
+
+      <button class="ft-btn ft-btn-primary ft-btn-block" style="margin-top:18px;" id="shareBtn">生成分享卡片</button>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const birthInput = document.getElementById('birthInput');
+      const ageInput = document.getElementById('ageInput');
+      const fridayEl = document.getElementById('fridayCount');
+      const dayEl = document.getElementById('dayCount');
+      const monthEl = document.getElementById('monthCount');
+      const weekEl = document.getElementById('weekCount');
+      const friday2El = document.getElementById('fridayCount2');
+      const hourEl = document.getElementById('hourCount');
+      const livedPercentEl = document.getElementById('livedPercent');
+      const livedBar = document.getElementById('livedBar');
+
+      const storedBirth = FT.storage.get('life_birthdate', '');
+      const storedAge = FT.storage.get('life_expectancy', 77);
+      if (storedBirth) birthInput.value = storedBirth;
+      ageInput.value = storedAge;
+
+      function countFridays(birth, end) {
+        let count = 0;
+        const d = new Date(birth.getTime());
+        while (d <= end) {
+          if (d.getDay() === 5) count++;
+          d.setDate(d.getDate() + 1);
+        }
+        return count;
+      }
+
+      function update() {
+        const birthVal = birthInput.value;
+        let age = parseInt(ageInput.value, 10);
+        if (isNaN(age)) age = 77;
+        age = Math.max(60, Math.min(120, age));
+        ageInput.value = age;
+
+        if (birthVal) {
+          FT.storage.set('life_birthdate', birthVal);
+          FT.storage.set('life_expectancy', age);
+        }
+        if (!birthVal) return;
+
+        const birth = new Date(birthVal);
+        const now = new Date();
+        const end = new Date(birth);
+        end.setFullYear(birth.getFullYear() + age);
+
+        const totalMs = end.getTime() - birth.getTime();
+        const livedMs = now.getTime() - birth.getTime();
+        const remainingMs = Math.max(0, end.getTime() - now.getTime());
+
+        const days = remainingMs / 86400000;
+        const hours = Math.floor(remainingMs / 3600000);
+        const weeks = Math.floor(days / 7);
+        const months = Math.floor(days / 30.44);
+        const fridays = countFridays(now, end);
+        const livedPct = Math.min(100, Math.max(0, (livedMs / totalMs) * 100));
+
+        fridayEl.textContent = fridays.toLocaleString();
+        dayEl.textContent = Math.floor(days).toLocaleString();
+        monthEl.textContent = months.toLocaleString();
+        weekEl.textContent = weeks.toLocaleString();
+        friday2El.textContent = fridays.toLocaleString();
+        hourEl.textContent = hours.toLocaleString();
+        livedPercentEl.textContent = livedPct.toFixed(1) + '%';
+        livedBar.style.width = livedPct + '%';
+      }
+
+      birthInput.addEventListener('input', update);
+      ageInput.addEventListener('input', update);
+      document.getElementById('ageMinus').addEventListener('click', () => { ageInput.value = Math.max(60, parseInt(ageInput.value) - 1); update(); });
+      document.getElementById('agePlus').addEventListener('click', () => { ageInput.value = Math.min(120, parseInt(ageInput.value) + 1); update(); });
+
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        const phrase = FT.data.lifePhrases[Math.floor(Math.random() * FT.data.lifePhrases.length)];
+        window.location.href = 'share.html?fridays=' + fridayEl.textContent + '&phrase=' + encodeURIComponent(phrase);
+      });
+
+      update();
+      setInterval(update, 1000);
+
+      if (!storedBirth) {
+        FT.modal.show({
+          title: '设置生日',
+          content: '首次使用需要设置你的生日，才能计算人生倒计时。',
+          confirmText: '去设置',
+          showCancel: false,
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

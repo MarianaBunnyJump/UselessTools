@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>常用借口</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .fav-list { display: flex; flex-direction: column; gap: 10px; }
+    .fav-item {
+      background: var(--ft-card-bg); border: 1px solid var(--ft-card-border);
+      border-radius: var(--ft-radius-md); padding: 14px;
+      transition: transform 0.2s ease;
+    }
+    .fav-item .text { font-size: 15px; color: var(--ft-text-primary); line-height: 1.6; margin-bottom: 8px; }
+    .fav-item .tags { display: flex; gap: 6px; margin-bottom: 10px; }
+    .fav-item .tag {
+      font-size: 11px; padding: 3px 8px; border-radius: 999px;
+      background: rgba(255,152,0,0.1); color: var(--ft-primary); font-weight: 600;
+    }
+    .fav-item .actions { display: flex; gap: 8px; }
+    .fav-item .actions button {
+      flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--ft-card-border);
+      background: rgba(255,255,255,0.5); color: var(--ft-text-secondary);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--ft-text-tertiary); }
+    .empty-state .icon { font-size: 56px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">常用借口</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="fav-list" id="favList"></section>
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="icon">📭</div>
+        <div>还没有收藏的借口</div>
+        <div class="ft-caption">去生成一些再收藏吧</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const listEl = document.getElementById('favList');
+      const emptyEl = document.getElementById('emptyState');
+      let favorites = FT.storage.get('excuse_favorites', []);
+
+      function render() {
+        listEl.innerHTML = '';
+        if (!favorites.length) {
+          listEl.style.display = 'none';
+          emptyEl.style.display = 'block';
+          return;
+        }
+        listEl.style.display = 'flex';
+        emptyEl.style.display = 'none';
+        favorites.forEach((f, idx) => {
+          const sceneName = FT.data.excuseScenes.find(s => s.id === f.scene)?.name || f.scene;
+          const toneName = FT.data.excuseTones.find(t => t.id === f.tone)?.name || f.tone;
+          const item = document.createElement('div');
+          item.className = 'fav-item';
+          item.innerHTML = `
+            <div class="text">${FT.escapeHtml(f.text)}</div>
+            <div class="tags"><span class="tag">${sceneName}</span><span class="tag">${toneName}</span></div>
+            <div class="actions">
+              <button data-copy="${idx}">复制</button>
+              <button data-del="${idx}">删除</button>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+      }
+
+      listEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const idx = parseInt(btn.dataset.copy ?? btn.dataset.del, 10);
+        if (btn.dataset.copy !== undefined) {
+          FT.copyText(favorites[idx].text);
+        } else {
+          favorites.splice(idx, 1);
+          FT.storage.set('excuse_favorites', favorites);
+          render();
+          FT.toast('已删除');
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

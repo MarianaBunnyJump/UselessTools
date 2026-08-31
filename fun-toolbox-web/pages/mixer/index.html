@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>白噪音混音台</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .mixer-card { background: var(--ft-accent-mixer); border: none; }
+    .preset-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .preset-btn {
+      flex: 1; min-width: 90px; padding: 10px 8px; border-radius: var(--ft-radius-md);
+      border: 1.5px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.45);
+      color: var(--ft-text-primary); font-weight: 600; font-size: 13px; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .preset-btn.active { background: var(--ft-primary); color: #fff; border-color: var(--ft-primary); }
+    .preset-btn:active { transform: scale(0.95); }
+
+    .track { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .track-icon { font-size: 26px; text-align: center; transition: filter 0.2s ease, transform 0.2s ease; }
+    .track-icon.muted { filter: grayscale(1) opacity(0.5); }
+    .track-name { font-size: 12px; text-align: center; color: var(--ft-text-secondary); margin-top: 2px; }
+    .track-info { display: flex; flex-direction: column; }
+    .track-val { font-size: 13px; font-weight: 700; color: var(--ft-primary); text-align: right; }
+
+    .controls { display: flex; gap: 14px; justify-content: center; margin: 18px 0; }
+    .control-btn {
+      width: 64px; height: 64px; border-radius: 50%;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: #fff;
+      box-shadow: 0 6px 16px -4px rgba(0,0,0,0.15);
+      transition: transform 0.15s ease;
+    }
+    .control-btn:active { transform: scale(0.9); }
+    .control-play { background: linear-gradient(135deg, var(--ft-primary-light), var(--ft-primary)); }
+    .control-stop { background: linear-gradient(135deg, #94a3b8, #64748b); }
+
+    .timer-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 14px 0; }
+    .timer-chip {
+      padding: 8px 14px; border-radius: 999px;
+      border: 1.5px solid var(--ft-card-border); background: var(--ft-card-bg);
+      color: var(--ft-text-secondary); font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .timer-chip.active { border-color: var(--ft-primary); color: var(--ft-primary); background: rgba(255,152,0,0.08); }
+
+    .timer-display { text-align: center; font-size: 14px; color: var(--ft-text-secondary); margin-top: 8px; }
+    .timer-display strong { color: var(--ft-primary); }
+
+    .custom-presets { margin-top: 16px; }
+    .custom-preset-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; background: var(--ft-card-bg); border: 1px solid var(--ft-card-border);
+      border-radius: var(--ft-radius-md); margin-bottom: 8px; cursor: pointer;
+    }
+    .custom-preset-item:active { transform: scale(0.98); }
+    .custom-preset-item .name { font-size: 14px; font-weight: 600; color: var(--ft-text-primary); }
+    .custom-preset-item .del { font-size: 18px; color: var(--ft-danger); padding: 4px; }
+
+    .wave-bar { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 28px; margin-top: 10px; }
+    .wave-bar span { width: 5px; background: var(--ft-primary-light); border-radius: 999px; animation: ftBreath 0.8s ease-in-out infinite alternate; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="../../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">白噪音混音台</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <section class="ft-card mixer-card">
+        <div class="ft-section-title">场景预设</div>
+        <div class="preset-row" id="presetRow"></div>
+      </section>
+
+      <section class="ft-card" style="margin-top:14px;">
+        <div class="ft-section-title">音轨混音</div>
+        <div id="trackList"></div>
+        <div class="wave-bar" id="waveBar" style="opacity:0;transition:opacity 0.3s;">
+          <span style="height:40%;animation-delay:0s"></span>
+          <span style="height:70%;animation-delay:0.1s"></span>
+          <span style="height:50%;animation-delay:0.2s"></span>
+          <span style="height:90%;animation-delay:0.15s"></span>
+          <span style="height:60%;animation-delay:0.05s"></span>
+        </div>
+      </section>
+
+      <section class="ft-card" style="margin-top:14px;">
+        <div class="controls">
+          <button class="control-btn control-play" id="playBtn">▶</button>
+          <button class="control-btn control-stop" id="stopBtn">⏹</button>
+        </div>
+        <div class="timer-row" id="timerRow"></div>
+        <div class="timer-display" id="timerDisplay"></div>
+      </section>
+
+      <section class="ft-card" style="margin-top:14px;">
+        <button class="ft-btn ft-btn-primary ft-btn-block" id="savePresetBtn">保存当前混音</button>
+        <div class="custom-presets" id="customPresets"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const tracks = FT.data.mixerTracks;
+      const presets = FT.data.mixerPresets;
+      let volumes = FT.storage.get('mixer_last_state', [0, 0, 0, 0, 0, 0, 0, 0]);
+      let custom = FT.storage.get('mixer_custom_presets', []);
+      let isPlaying = false;
+      let timer = null;
+      let timerEnd = null;
+      let activePresetId = null;
+
+      function saveState() {
+        FT.storage.set('mixer_last_state', volumes);
+      }
+
+      // 预设按钮
+      const presetRow = document.getElementById('presetRow');
+      Object.entries(presets).forEach(([key, p]) => {
+        const btn = document.createElement('button');
+        btn.className = 'preset-btn';
+        btn.textContent = p.name;
+        btn.dataset.preset = key;
+        btn.addEventListener('click', () => applyPreset(p.volumes, key));
+        presetRow.appendChild(btn);
+      });
+
+      function applyPreset(arr, id) {
+        activePresetId = id;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.dataset.preset === id));
+        arr.forEach((v, i) => {
+          volumes[i] = v;
+          updateTrackUI(i);
+        });
+        saveState();
+        if (isPlaying) FT.toast('已切换混音方案');
+      }
+
+      // 音轨
+      const trackList = document.getElementById('trackList');
+      tracks.forEach((t, i) => {
+        const div = document.createElement('div');
+        div.className = 'track';
+        div.innerHTML = `
+          <div class="track-info">
+            <div class="track-icon" id="icon${i}">${t.icon}</div>
+            <div class="track-name">${t.name}</div>
+          </div>
+          <input type="range" class="ft-slider" id="slider${i}" min="0" max="100" value="${volumes[i]}">
+          <div class="track-val" id="val${i}">${volumes[i]}%</div>
+        `;
+        trackList.appendChild(div);
+        div.querySelector('.ft-slider').addEventListener('input', (e) => {
+          volumes[i] = parseInt(e.target.value, 10);
+          activePresetId = null;
+          document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+          updateTrackUI(i);
+          saveState();
+          if (volumes[i] > 0 && !isPlaying) togglePlay(true);
+        });
+      });
+
+      function updateTrackUI(i) {
+        const slider = document.getElementById('slider' + i);
+        const val = document.getElementById('val' + i);
+        const icon = document.getElementById('icon' + i);
+        slider.value = volumes[i];
+        val.textContent = volumes[i] + '%';
+        icon.classList.toggle('muted', volumes[i] === 0);
+      }
+
+      tracks.forEach((_, i) => updateTrackUI(i));
+
+      // 播放控制
+      const playBtn = document.getElementById('playBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const waveBar = document.getElementById('waveBar');
+
+      function togglePlay(force) {
+        if (typeof force === 'boolean') isPlaying = force;
+        else isPlaying = !isPlaying;
+        playBtn.textContent = isPlaying ? '⏸' : '▶';
+        waveBar.style.opacity = isPlaying ? '1' : '0';
+        if (isPlaying) {
+          FT.storage.addTotalCount('mixer_play_count');
+          if (volumes.every(v => v === 0)) FT.toast('先把音轨音量调大一点吧');
+        }
+      }
+
+      playBtn.addEventListener('click', () => togglePlay());
+      stopBtn.addEventListener('click', () => {
+        isPlaying = false;
+        playBtn.textContent = '▶';
+        waveBar.style.opacity = '0';
+        clearTimer();
+      });
+
+      // 定时
+      const timerOptions = [
+        { min: 0, label: '不限时' },
+        { min: 15, label: '15分钟' },
+        { min: 30, label: '30分钟' },
+        { min: 60, label: '60分钟' },
+      ];
+      const timerRow = document.getElementById('timerRow');
+      const timerDisplay = document.getElementById('timerDisplay');
+      timerOptions.forEach((opt, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'timer-chip' + (idx === 0 ? ' active' : '');
+        chip.textContent = opt.label;
+        chip.dataset.min = opt.min;
+        chip.addEventListener('click', () => setTimer(opt.min, chip));
+        timerRow.appendChild(chip);
+      });
+
+      function setTimer(min, chip) {
+        clearInterval(timer);
+        document.querySelectorAll('.timer-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        FT.storage.set('mixer_timer_pref', min);
+        if (min === 0) {
+          timerDisplay.innerHTML = '';
+          return;
+        }
+        timerEnd = Date.now() + min * 60000;
+        timer = setInterval(() => {
+          const left = Math.max(0, timerEnd - Date.now());
+          const m = Math.floor(left / 60000);
+          const s = Math.floor((left % 60000) / 1000);
+          timerDisplay.innerHTML = '定时关闭：剩余 <strong>' + m + ':' + String(s).padStart(2, '0') + '</strong>';
+          if (left === 0) {
+            clearInterval(timer);
+            togglePlay(false);
+            timerDisplay.innerHTML = '已自动停止';
+            FT.toast('定时结束，已停止播放');
+          }
+        }, 1000);
+      }
+
+      function clearTimer() {
+        clearInterval(timer);
+        timerDisplay.innerHTML = '';
+        document.querySelectorAll('.timer-chip').forEach(c => c.classList.remove('active'));
+        timerRow.firstElementChild.classList.add('active');
+      }
+
+      const savedTimer = FT.storage.get('mixer_timer_pref', 0);
+      if (savedTimer) {
+        const chip = Array.from(timerRow.children).find(c => parseInt(c.dataset.min) === savedTimer);
+        if (chip) setTimer(savedTimer, chip);
+      }
+
+      // 保存自定义预设
+      function renderCustomPresets() {
+        const box = document.getElementById('customPresets');
+        box.innerHTML = '';
+        if (!custom.length) {
+          box.innerHTML = '<div class="ft-caption" style="text-align:center;margin-top:10px;">暂无自定义混音</div>';
+          return;
+        }
+        custom.forEach((p, idx) => {
+          const item = document.createElement('div');
+          item.className = 'custom-preset-item';
+          item.innerHTML = `<div class="name">${FT.escapeHtml(p.name)}</div><div class="del" data-idx="${idx}">×</div>`;
+          item.addEventListener('click', (e) => {
+            if (e.target.classList.contains('del')) {
+              e.stopPropagation();
+              custom.splice(idx, 1);
+              FT.storage.set('mixer_custom_presets', custom);
+              renderCustomPresets();
+            } else {
+              applyPreset(p.volumes, null);
+              FT.toast('已加载：' + p.name);
+            }
+          });
+          box.appendChild(item);
+        });
+      }
+      renderCustomPresets();
+
+      document.getElementById('savePresetBtn').addEventListener('click', () => {
+        if (custom.length >= 3) {
+          FT.modal.show({
+            title: '自定义预设已满',
+            content: '最多保存 3 个自定义预设，是否覆盖最早的一个？',
+            confirmText: '覆盖',
+            onConfirm: () => promptSave(true),
+          });
+        } else {
+          promptSave(false);
+        }
+      });
+
+      function promptSave(shift) {
+        FT.modal.prompt({
+          title: '保存混音',
+          placeholder: '给这个混音取个名字',
+          confirmText: '保存',
+          onConfirm: (name) => {
+            if (shift) custom.shift();
+            custom.push({ name, volumes: [...volumes], ts: Date.now() });
+            FT.storage.set('mixer_custom_presets', custom);
+            renderCustomPresets();
+            FT.toast('已保存：' + name);
+          },
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

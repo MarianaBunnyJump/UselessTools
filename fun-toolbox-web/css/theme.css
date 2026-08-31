@@ -1,0 +1,124 @@
+/* 有点意思工具盒 - 主题变量系统 */
+/* 通过 html data-theme 切换主题，默认暖色 */
+
+:root {
+  /* 默认主题：暖色（蜜桃+薄荷） */
+  --ft-bg-1: #FFF8E7;
+  --ft-bg-2: #F1F8E9;
+  --ft-bg-3: #E0F7FA;
+  --ft-spot-1: rgba(255, 224, 178, 0.45);
+  --ft-spot-2: rgba(178, 223, 219, 0.38);
+  --ft-spot-3: rgba(225, 190, 231, 0.18);
+
+  --ft-card-bg: rgba(255, 255, 255, 0.72);
+  --ft-card-border: rgba(255, 255, 255, 0.65);
+  --ft-card-shadow: 0 10px 30px -12px rgba(255, 152, 0, 0.22), 0 4px 14px -6px rgba(77, 182, 172, 0.14);
+
+  --ft-text-primary: #475569;
+  --ft-text-secondary: #64748b;
+  --ft-text-tertiary: #94a3b8;
+  --ft-text-on-primary: #ffffff;
+
+  --ft-primary: #FF9800;
+  --ft-primary-light: #FFB74D;
+  --ft-secondary: #4DB6AC;
+  --ft-secondary-light: #80CBC4;
+  --ft-danger: #EF4444;
+  --ft-success: #22c55e;
+
+  --ft-btn-gradient: linear-gradient(135deg, #FFB74D 0%, #FF9800 100%);
+  --ft-btn-shadow: 0 6px 16px -4px rgba(255, 152, 0, 0.42);
+  --ft-btn-active-shadow: 0 3px 8px -3px rgba(255, 152, 0, 0.35);
+
+  --ft-input-bg: rgba(255, 255, 255, 0.55);
+  --ft-input-border: rgba(203, 213, 225, 0.65);
+  --ft-input-focus: #FFB74D;
+  --ft-input-focus-ring: rgba(255, 183, 77, 0.18);
+
+  --ft-accent-crusher: linear-gradient(135deg, #FFCDD2 0%, #FFE0B2 100%);
+  --ft-accent-life: linear-gradient(135deg, #E1BEE7 0%, #B3E5FC 100%);
+  --ft-accent-mixer: linear-gradient(135deg, #B2DFDB 0%, #A8DADC 100%);
+  --ft-accent-merit: linear-gradient(135deg, #FFE0B2 0%, #FFF9C4 100%);
+  --ft-accent-excuse: linear-gradient(135deg, #FFB3C6 0%, #FFE0B2 100%);
+  --ft-accent-wheel: linear-gradient(135deg, #B2DFDB 0%, #FFE0B2 100%);
+
+  --ft-radius-sm: 8px;
+  --ft-radius-md: 12px;
+  --ft-radius-lg: 18px;
+  --ft-radius-xl: 24px;
+  --ft-radius-full: 9999px;
+
+  --ft-transition-bounce: cubic-bezier(.34, 1.56, .64, 1);
+  --ft-transition-smooth: cubic-bezier(.4, 0, .2, 1);
+}
+
+/* 暖色主题（蜜桃） */
+[data-theme="warm"] {
+  --ft-bg-1: #FFF8E7;
+  --ft-bg-2: #FFF3E0;
+  --ft-bg-3: #FFE0B2;
+  --ft-spot-1: rgba(255, 183, 77, 0.48);
+  --ft-spot-2: rgba(255, 152, 0, 0.28);
+  --ft-spot-3: rgba(255, 179, 198, 0.18);
+  --ft-primary: #FF9800;
+  --ft-primary-light: #FFB74D;
+  --ft-secondary: #4DB6AC;
+  --ft-card-shadow: 0 10px 30px -12px rgba(255, 152, 0, 0.24), 0 4px 14px -6px rgba(77, 182, 172, 0.14);
+}
+
+/* 薄荷主题 */
+[data-theme="mint"] {
+  --ft-bg-1: #E0F2F1;
+  --ft-bg-2: #E0F7FA;
+  --ft-bg-3: #F1F8E9;
+  --ft-spot-1: rgba(178, 223, 219, 0.55);
+  --ft-spot-2: rgba(77, 182, 172, 0.32);
+  --ft-spot-3: rgba(187, 247, 208, 0.22);
+  --ft-primary: #26A69A;
+  --ft-primary-light: #4DB6AC;
+  --ft-secondary: #FFB74D;
+  --ft-card-shadow: 0 10px 30px -12px rgba(77, 182, 172, 0.24), 0 4px 14px -6px rgba(255, 152, 0, 0.12);
+  --ft-btn-gradient: linear-gradient(135deg, #4DB6AC 0%, #26A69A 100%);
+  --ft-btn-shadow: 0 6px 16px -4px rgba(38, 166, 154, 0.35);
+  --ft-input-focus: #4DB6AC;
+  --ft-input-focus-ring: rgba(77, 182, 172, 0.18);
+}
+
+/* 樱花主题 */
+[data-theme="sakura"] {
+  --ft-bg-1: #FFF0F3;
+  --ft-bg-2: #FFF3E0;
+  --ft-bg-3: #FCE7F3;
+  --ft-spot-1: rgba(255, 179, 198, 0.48);
+  --ft-spot-2: rgba(255, 154, 158, 0.3);
+  --ft-spot-3: rgba(255, 224, 178, 0.2);
+  --ft-primary: #FF8FAB;
+  --ft-primary-light: #FFB3C6;
+  --ft-secondary: #4DB6AC;
+  --ft-card-shadow: 0 10px 30px -12px rgba(255, 143, 171, 0.24), 0 4px 14px -6px rgba(77, 182, 172, 0.12);
+  --ft-btn-gradient: linear-gradient(135deg, #FFB3C6 0%, #FF8FAB 100%);
+  --ft-btn-shadow: 0 6px 16px -4px rgba(255, 143, 171, 0.35);
+  --ft-input-focus: #FF8FAB;
+  --ft-input-focus-ring: rgba(255, 143, 171, 0.18);
+}
+
+/* 深色主题 */
+[data-theme="dark"] {
+  --ft-bg-1: #1e293b;
+  --ft-bg-2: #0f172a;
+  --ft-bg-3: #334155;
+  --ft-spot-1: rgba(255, 183, 77, 0.18);
+  --ft-spot-2: rgba(77, 182, 172, 0.14);
+  --ft-spot-3: rgba(225, 190, 231, 0.1);
+  --ft-card-bg: rgba(30, 41, 59, 0.72);
+  --ft-card-border: rgba(255, 255, 255, 0.1);
+  --ft-card-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.4), 0 4px 14px -6px rgba(0, 0, 0, 0.25);
+  --ft-text-primary: #f1f5f9;
+  --ft-text-secondary: #94a3b8;
+  --ft-text-tertiary: #64748b;
+  --ft-input-bg: rgba(15, 23, 42, 0.55);
+  --ft-input-border: rgba(148, 163, 184, 0.35);
+  --ft-primary: #FFB74D;
+  --ft-primary-light: #FFCC80;
+  --ft-secondary: #80CBC4;
+}

@@ -1,0 +1,258 @@
+/* 有点意思工具盒 - 动画与微动效 */
+
+@keyframes ftPageIn {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes ftPageOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-26px);
+  }
+}
+
+@keyframes ftFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ftScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ftBounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes ftCardPress {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.95) translateY(2px); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ftFloatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(1.15) rotate(8deg);
+  }
+}
+
+@keyframes ftPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes ftBreath {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes ftParticleFloat {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-18px) translateX(8px);
+  }
+  50% {
+    transform: translateY(-8px) translateX(-6px);
+  }
+  75% {
+    transform: translateY(-22px) translateX(4px);
+  }
+}
+
+@keyframes ftRipple {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes ftShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px) rotate(-1deg); }
+  75% { transform: translateX(3px) rotate(1deg); }
+}
+
+@keyframes ftCountUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ftFlipIn {
+  from {
+    transform: rotateX(-90deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes ftSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ftSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ftSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ftWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+
+@keyframes ftGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.25); }
+  50% { box-shadow: 0 0 20px 6px rgba(255, 152, 0, 0.12); }
+}
+
+@keyframes ftProgressShine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes ftTypewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes ftBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* 动画工具类 */
+.ft-anim-page-in { animation: ftPageIn 0.35s var(--ft-transition-smooth) both; }
+.ft-anim-page-out { animation: ftPageOut 0.3s var(--ft-transition-smooth) both; }
+.ft-anim-fade-in { animation: ftFadeIn 0.3s ease both; }
+.ft-anim-scale-in { animation: ftScaleIn 0.3s var(--ft-transition-bounce) both; }
+.ft-anim-bounce-in { animation: ftBounceIn 0.4s var(--ft-transition-bounce) both; }
+.ft-anim-float { animation: ftParticleFloat 4s ease-in-out infinite; }
+.ft-anim-breath { animation: ftBreath 3.2s ease-in-out infinite; }
+.ft-anim-pulse { animation: ftPulse 2s ease-in-out infinite; }
+.ft-anim-spin { animation: ftSpin 1s linear infinite; }
+.ft-anim-shake { animation: ftShake 0.35s ease both; }
+.ft-anim-slide-up { animation: ftSlideUp 0.4s var(--ft-transition-bounce) both; }
+.ft-anim-slide-down { animation: ftSlideDown 0.4s var(--ft-transition-bounce) both; }
+.ft-anim-glow { animation: ftGlow 2s ease-in-out infinite; }
+
+/* 木鱼涟漪 */
+.ft-ripple-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid var(--ft-primary-light);
+  pointer-events: none;
+  animation: ftRipple 0.7s ease-out forwards;
+}
+
+/* 卡片按压态 */
+.ft-press:active {
+  transform: scale(0.95) translateY(2px);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.1s ease;
+}
+
+/* 成就解锁光芒 */
+.ft-achievement-glow {
+  position: relative;
+}
+
+.ft-achievement-glow::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, transparent, rgba(255, 183, 77, 0.35), transparent, rgba(77, 182, 172, 0.35), transparent);
+  animation: ftSpin 3s linear infinite;
+  z-index: -1;
+  filter: blur(4px);
+}
+
+/* 进度条 */
+.ft-progress {
+  height: 10px;
+  border-radius: var(--ft-radius-full);
+  background: rgba(203, 213, 225, 0.4);
+  overflow: hidden;
+}
+
+.ft-progress-bar {
+  height: 100%;
+  border-radius: var(--ft-radius-full);
+  background: linear-gradient(90deg, var(--ft-primary-light), var(--ft-secondary-light), var(--ft-primary-light));
+  background-size: 200% 100%;
+  transition: width 0.6s var(--ft-transition-smooth);
+  animation: ftProgressShine 3s linear infinite;
+}
+
+/* 打字机容器 */
+.ft-typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: ftTypewriter 1.2s steps(24, end) forwards;
+}

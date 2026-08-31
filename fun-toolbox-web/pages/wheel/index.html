@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="warm">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>转盘选择器</title>
+  <link rel="stylesheet" href="../../css/theme.css">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <style>
+    .wheel-section { position: relative; text-align: center; margin-bottom: 16px; }
+    #wheelCanvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+    .wheel-pointer {
+      position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%); width: 0; height: 0;
+      border-left: 12px solid transparent; border-right: 12px solid transparent;
+      border-top: 20px solid var(--ft-primary); z-index: 5;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    }
+    .wheel-center-btn {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 68px; height: 68px; border-radius: 50%;
+      background: var(--ft-btn-gradient); color: #fff;
+      border: 4px solid #fff; box-shadow: 0 6px 18px -4px rgba(255,152,0,0.45);
+      font-size: 20px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s var(--ft-transition-bounce);
+      z-index: 4;
+    }
+    .wheel-center-btn:active { transform: translate(-50%, -50%) scale(0.85); }
+    .wheel-center-btn.hidden { opacity: 0; pointer-events: none; }
+
+    .result-box {
+      background: var(--ft-card-bg); border: 1px solid var(--ft-card-border);
+      border-radius: var(--ft-radius-md); padding: 14px;
+      text-align: center; min-height: 56px; margin-bottom: 14px;
+    }
+    .result-label { font-size: 13px; color: var(--ft-text-secondary); }
+    .result-text { font-size: 20px; font-weight: 700; color: var(--ft-primary); margin-top: 4px; }
+
+    .seed-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; }
+    .seed-row .ft-input { flex: 1; }
+    .seed-row button { padding: 10px 14px; border-radius: var(--ft-radius-md); border: 1px solid var(--ft-card-border); background: var(--ft-card-bg); color: var(--ft-text-primary); font-weight: 600; cursor: pointer; }
+
+    .option-list { max-height: 180px; overflow-y: auto; margin-bottom: 10px; }
+    .option-item {
+      display: grid; grid-template-columns: 1fr 60px 32px; gap: 8px;
+      align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(203,213,225,0.3);
+    }
+    .option-item input { padding: 8px; font-size: 14px; }
+    .option-item .del { text-align: center; color: var(--ft-danger); cursor: pointer; font-size: 18px; }
+
+    .add-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .add-row .ft-input { flex: 1; }
+
+    .preset-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .preset-chip {
+      padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid transparent; cursor: pointer; transition: transform 0.15s ease;
+    }
+    .preset-chip:active { transform: scale(0.92); }
+    .preset-chip.active { border-color: var(--ft-text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    .config-tabs { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; }
+    .config-tab {
+      flex-shrink: 0; padding: 8px 14px; border-radius: 999px;
+      background: var(--ft-card-bg); border: 1px solid var(--ft-card-border);
+      font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+    .config-tab.active { background: var(--ft-primary); color: #fff; border-color: var(--ft-primary); }
+    .config-tab .close { font-size: 14px; opacity: 0.7; }
+    .config-tab .close:hover { opacity: 1; }
+    .new-tab { background: transparent; border-style: dashed; }
+
+    .wheel-actions { display: flex; gap: 10px; }
+    .wheel-actions .ft-btn { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="app-shell ft-page">
+    <nav class="ft-nav">
+      <a class="ft-back" href="../../index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        返回
+      </a>
+      <div class="ft-title">转盘选择器</div>
+      <div class="ft-nav-spacer"></div>
+    </nav>
+
+    <main>
+      <div class="config-tabs" id="configTabs"></div>
+
+      <section class="wheel-section ft-card" style="padding:14px;position:relative;">
+        <div class="wheel-pointer"></div>
+        <canvas id="wheelCanvas" width="340" height="340"></canvas>
+        <div class="wheel-center-btn" id="goBtn">GO</div>
+      </section>
+
+      <div class="result-box" id="resultBox">
+        <div class="result-label" id="resultLabel">点击 GO 开始转动</div>
+        <div class="result-text" id="resultText"></div>
+      </div>
+
+      <section class="ft-card">
+        <div class="seed-row">
+          <input type="number" class="ft-input" id="seedInput" placeholder="种子">
+          <button id="randomSeedBtn">随机</button>
+        </div>
+
+        <div class="ft-section-title">选项列表</div>
+        <div class="option-list" id="optionList"></div>
+        <div class="add-row">
+          <input type="text" class="ft-input" id="newOptionInput" placeholder="输入新选项">
+          <button class="ft-btn ft-btn-primary" id="addOptionBtn">添加</button>
+        </div>
+
+        <div class="ft-section-title">配色预设</div>
+        <div class="preset-chips" id="presetChips"></div>
+
+        <div class="wheel-actions">
+          <button class="ft-btn ft-btn-secondary" id="shareBtn">分享结果</button>
+          <button class="ft-btn ft-btn-primary" id="saveBtn">保存方案</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../js/storage.js"></script>
+  <script src="../../js/data.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/theme.js"></script>
+  <script>
+    (function () {
+      FT.theme.init();
+      const canvas = document.getElementById('wheelCanvas');
+      const ctx = canvas.getContext('2d');
+      const size = 340;
+      const center = size / 2;
+      const radius = size / 2 - 12;
+
+      // 配置数据
+      let configs = FT.storage.get('wheel_configs', [
+        { name: '今天吃什么', items: [{ text: '火锅', weight: 1 }, { text: '烤肉', weight: 1 }, { text: '日料', weight: 2 }, { text: '自己做饭', weight: 1 }], colorPreset: 'matcha', seed: '' }
+      ]);
+      let currentIndex = FT.storage.get('wheel_last_config', 0);
+      if (currentIndex >= configs.length) currentIndex = 0;
+
+      let rotation = 0;
+      let isSpinning = false;
+
+      function saveConfigs() {
+        FT.storage.set('wheel_configs', configs);
+        FT.storage.set('wheel_last_config', currentIndex);
+      }
+
+      function current() { return configs[currentIndex]; }
+
+      function totalWeight() {
+        return current().items.reduce((s, it) => s + (parseInt(it.weight) || 1), 0);
+      }
+
+      function getItemAngles() {
+        const total = totalWeight();
+        let start = 0;
+        return current().items.map(it => {
+          const w = parseInt(it.weight) || 1;
+          const angle = (w / total) * Math.PI * 2;
+          const obj = { ...it, startAngle: start, endAngle: start + angle };
+          start += angle;
+          return obj;
+        });
+      }
+
+      function drawWheel() {
+        ctx.clearRect(0, 0, size, size);
+        const items = getItemAngles();
+        const colors = FT.data.wheelColorPresets[current().colorPreset].colors;
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(rotation);
+        ctx.translate(-center, -center);
+
+        items.forEach((it, i) => {
+          ctx.beginPath();
+          ctx.moveTo(center, center);
+          ctx.arc(center, center, radius, it.startAngle, it.endAngle);
+          ctx.closePath();
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // 文字
+          const mid = (it.startAngle + it.endAngle) / 2;
+          const textRadius = radius * 0.65;
+          const x = center + Math.cos(mid) * textRadius;
+          const y = center + Math.sin(mid) * textRadius;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(mid + Math.PI / 2);
+          ctx.fillStyle = 'rgba(0,0,0,0.65)';
+          ctx.font = '600 14px "Noto Sans SC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const angleSize = it.endAngle - it.startAngle;
+          if (angleSize > 0.18) {
+            ctx.fillText(it.text.length > 5 ? it.text.slice(0, 4) + '…' : it.text, 0, 0);
+          }
+          ctx.restore();
+        });
+        ctx.restore();
+
+        // 中心装饰
+        ctx.beginPath();
+        ctx.arc(center, center, 38, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(203,213,225,0.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // 渲染配置 Tab
+      function renderTabs() {
+        const tabs = document.getElementById('configTabs');
+        tabs.innerHTML = '';
+        configs.forEach((cfg, idx) => {
+          const tab = document.createElement('div');
+          tab.className = 'config-tab' + (idx === currentIndex ? ' active' : '');
+          tab.innerHTML = `<span>${FT.escapeHtml(cfg.name)}</span>${configs.length > 1 ? '<span class="close" data-close="' + idx + '">×</span>' : ''}`;
+          tab.addEventListener('click', (e) => {
+            if (e.target.classList.contains('close')) {
+              e.stopPropagation();
+              if (configs.length <= 1) return;
+              configs.splice(idx, 1);
+              if (currentIndex >= configs.length) currentIndex = configs.length - 1;
+              saveConfigs();
+              renderTabs();
+              renderOptions();
+              renderPresetChips();
+              drawWheel();
+            } else {
+              currentIndex = idx;
+              saveConfigs();
+              renderTabs();
+              renderOptions();
+              renderPresetChips();
+              drawWheel();
+            }
+          });
+          tabs.appendChild(tab);
+        });
+        const newTab = document.createElement('div');
+        newTab.className = 'config-tab new-tab';
+        newTab.textContent = '+ 新建';
+        newTab.addEventListener('click', () => {
+          FT.modal.prompt({
+            title: '新建方案',
+            placeholder: '方案名称',
+            confirmText: '创建',
+            onConfirm: (name) => {
+              configs.push({ name, items: [{ text: '选项 A', weight: 1 }, { text: '选项 B', weight: 1 }], colorPreset: 'matcha', seed: '' });
+              currentIndex = configs.length - 1;
+              saveConfigs();
+              renderTabs();
+              renderOptions();
+              renderPresetChips();
+              drawWheel();
+            },
+          });
+        });
+        tabs.appendChild(newTab);
+      }
+
+      // 渲染选项
+      function renderOptions() {
+        const list = document.getElementById('optionList');
+        list.innerHTML = '';
+        current().items.forEach((it, idx) => {
+          const row = document.createElement('div');
+          row.className = 'option-item';
+          row.innerHTML = `
+            <input type="text" class="ft-input" value="${FT.escapeHtml(it.text)}" data-idx="${idx}" data-field="text">
+            <input type="number" class="ft-input" value="${it.weight}" min="1" data-idx="${idx}" data-field="weight">
+            <div class="del" data-del="${idx}">×</div>
+          `;
+          list.appendChild(row);
+        });
+      }
+
+      document.getElementById('optionList').addEventListener('input', (e) => {
+        const input = e.target.closest('input');
+        if (!input) return;
+        const idx = parseInt(input.dataset.idx, 10);
+        const field = input.dataset.field;
+        current().items[idx][field] = field === 'weight' ? Math.max(1, parseInt(input.value) || 1) : input.value;
+        saveConfigs();
+        drawWheel();
+      });
+
+      document.getElementById('optionList').addEventListener('click', (e) => {
+        if (e.target.classList.contains('del')) {
+          const idx = parseInt(e.target.dataset.del, 10);
+          if (current().items.length <= 1) return FT.toast('至少保留一个选项');
+          current().items.splice(idx, 1);
+          saveConfigs();
+          renderOptions();
+          drawWheel();
+        }
+      });
+
+      document.getElementById('addOptionBtn').addEventListener('click', () => {
+        const input = document.getElementById('newOptionInput');
+        const val = input.value.trim();
+        if (!val) return FT.toast('请输入选项内容');
+        if (current().items.length >= 30) return FT.toast('最多 30 个选项');
+        current().items.push({ text: val, weight: 1 });
+        input.value = '';
+        saveConfigs();
+        renderOptions();
+        drawWheel();
+      });
+
+      // 配色
+      function renderPresetChips() {
+        const box = document.getElementById('presetChips');
+        box.innerHTML = '';
+        Object.entries(FT.data.wheelColorPresets).forEach(([key, p]) => {
+          const chip = document.createElement('div');
+          chip.className = 'preset-chip' + (current().colorPreset === key ? ' active' : '');
+          chip.textContent = p.name;
+          chip.style.background = p.colors[0];
+          chip.style.color = '#475569';
+          chip.addEventListener('click', () => {
+            current().colorPreset = key;
+            saveConfigs();
+            renderPresetChips();
+            drawWheel();
+          });
+          box.appendChild(chip);
+        });
+      }
+
+      // 种子
+      document.getElementById('seedInput').value = current().seed || '';
+      document.getElementById('seedInput').addEventListener('input', (e) => {
+        current().seed = e.target.value;
+        saveConfigs();
+      });
+      document.getElementById('randomSeedBtn').addEventListener('click', () => {
+        current().seed = '';
+        document.getElementById('seedInput').value = '';
+        saveConfigs();
+      });
+
+      // LCG 随机
+      function makeLcg(seed) {
+        let s = seed >>> 0;
+        return () => {
+          s = (s * 1103515245 + 12345) & 0x7fffffff;
+          return s / 0x7fffffff;
+        };
+      }
+
+      // 旋转动画
+      document.getElementById('goBtn').addEventListener('click', () => {
+        if (isSpinning) return;
+        if (current().items.length === 0) return FT.toast('请先添加选项');
+        isSpinning = true;
+        document.getElementById('goBtn').classList.add('hidden');
+        document.getElementById('resultLabel').textContent = '命运的齿轮正在转动...';
+        document.getElementById('resultText').textContent = '';
+        FT.storage.addTotalCount('wheel_spin_count');
+
+        const seedVal = current().seed ? parseInt(current().seed, 10) : Date.now();
+        const rng = makeLcg(seedVal);
+        const extraSpins = 5 + Math.floor(rng() * 3); // 5-7 圈
+        const items = getItemAngles();
+        const winningIndex = Math.floor(rng() * items.length);
+        const targetItem = items[winningIndex];
+        const targetAngle = (targetItem.startAngle + targetItem.endAngle) / 2;
+        const finalRotation = extraSpins * Math.PI * 2 + (Math.PI * 1.5 - targetAngle);
+
+        let start = null;
+        const duration = 4200 + Math.floor(rng() * 1200);
+        function spin(now) {
+          if (!start) start = now;
+          const p = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          rotation = finalRotation * ease;
+          drawWheel();
+          if (p < 1) {
+            requestAnimationFrame(spin);
+          } else {
+            isSpinning = false;
+            document.getElementById('goBtn').classList.remove('hidden');
+            document.getElementById('resultLabel').textContent = '转盘选择了';
+            document.getElementById('resultText').textContent = targetItem.text;
+            const wish = FT.data.wheelWishes[Math.floor(Math.random() * FT.data.wheelWishes.length)];
+            FT.toast(wish);
+          }
+        }
+        requestAnimationFrame(spin);
+      });
+
+      document.getElementById('saveBtn').addEventListener('click', () => {
+        saveConfigs();
+        FT.toast('方案已保存');
+      });
+
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        const result = document.getElementById('resultText').textContent;
+        if (!result) return FT.toast('先转一下转盘吧');
+        FT.shareImage('转盘选择器', ['转盘替我选择了', '「' + result + '」']);
+      });
+
+      renderTabs();
+      renderOptions();
+      renderPresetChips();
+      drawWheel();
+    })();
+  </script>
+</body>
+</html>

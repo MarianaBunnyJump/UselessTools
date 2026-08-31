@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>有点意思工具盒 - 视觉设计规范文档</title>
+<style>
+  :root {
+    --blue-50: #eff6ff;
+    --blue-100: #dbeafe;
+    --blue-200: #bfdbfe;
+    --blue-300: #93c5fd;
+    --blue-400: #60a5fa;
+    --blue-500: #3b82f6;
+    --blue-600: #2563eb;
+    --blue-700: #1d4ed8;
+    --green-50: #f0fdf4;
+    --green-100: #dcfce7;
+    --green-200: #bbf7d0;
+    --green-300: #86efac;
+    --green-400: #4ade80;
+    --green-500: #22c55e;
+    --green-600: #16a34a;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --warm-1: #fef3c7;
+    --warm-2: #fde68a;
+    --warm-3: #fbbf24;
+    --pink-soft: #fce7f3;
+    --purple-soft: #f3e8ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Noto Sans SC', system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(186,230,253,.40), transparent 45%),
+      radial-gradient(circle at 85% 25%, rgba(187,247,208,.35), transparent 50%),
+      radial-gradient(circle at 50% 90%, rgba(196,181,253,.18), transparent 55%),
+      linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 50%, #ecfeff 100%);
+    color: var(--slate-700);
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  .card {
+    background: rgba(255,255,255,.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,.6);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px -12px rgba(56,189,248,.25), 0 4px 14px -6px rgba(34,197,94,.15);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-size: 32px; font-weight: 800;
+    background: linear-gradient(120deg, var(--blue-600), var(--green-500));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-size: 22px; font-weight: 700; color: var(--slate-800);
+    margin-top: 28px; margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--blue-100);
+  }
+  h3 { font-size: 17px; font-weight: 600; color: var(--slate-600); margin-top: 20px; margin-bottom: 8px; }
+  p { margin-bottom: 10px; font-size: 15px; color: var(--slate-600); }
+  .subtitle { font-size: 15px; color: var(--slate-500); margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+  th { background: var(--blue-50); color: var(--slate-700); font-weight: 600; padding: 10px 12px; text-align: left; border-bottom: 2px solid var(--blue-100); }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--slate-100); color: var(--slate-600); }
+  tr:hover td { background: var(--slate-50); }
+  .color-swatch { display: inline-block; width: 18px; height: 18px; border-radius: 5px; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(0,0,0,.1); }
+  .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin: 16px 0; }
+  .color-item { background: rgba(255,255,255,.6); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid var(--slate-100); }
+  .color-block { width: 100%; height: 48px; border-radius: 10px; margin-bottom: 8px; border: 1px solid rgba(0,0,0,.08); }
+  .color-label { font-size: 12px; font-weight: 600; color: var(--slate-700); }
+  .color-value { font-size: 11px; color: var(--slate-400); font-family: monospace; }
+  .mockup-box { background: var(--slate-50); border: 2px dashed var(--slate-200); border-radius: 14px; padding: 20px; margin: 16px 0; font-family: monospace; font-size: 13px; color: var(--slate-500); white-space: pre; overflow-x: auto; line-height: 1.5; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 4px; }
+  .tag-blue { background: var(--blue-100); color: var(--blue-600); }
+  .tag-green { background: var(--green-100); color: var(--green-600); }
+  .tag-warm { background: var(--warm-1); color: #92400e; }
+  .tag-pink { background: var(--pink-soft); color: #be185d; }
+  .tag-purple { background: var(--purple-soft); color: #7c3aed; }
+  .icon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  .icon-card { background: rgba(255,255,255,.7); border-radius: 14px; padding: 16px; text-align: center; border: 1px solid var(--slate-100); }
+  .icon-emoji { font-size: 36px; margin-bottom: 8px; }
+  .icon-name { font-size: 14px; font-weight: 600; color: var(--slate-700); }
+  .icon-desc { font-size: 12px; color: var(--slate-400); margin-top: 4px; }
+  .note { background: var(--blue-50); border-left: 4px solid var(--blue-400); border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 14px; }
+  .note-warm { background: var(--warm-1); border-left-color: var(--warm-3); }
+  code { background: var(--slate-100); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: var(--slate-700); }
+  .section-anchor { scroll-margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>有点意思工具盒 — 视觉设计规范</h1>
+    <p class="subtitle">FunToolbox Visual Design Specification v1.0 | 适用平台：微信小程序（Taro 4 + React + TypeScript）</p>
+    <p>本文档供 AI 设计工具使用，包含全部 6 个工具的视觉风格、配色系统、字体规范、图标风格、页面布局和组件设计要求。设计 AI 应严格遵循本规范输出设计稿和图标素材。</p>
+  </div>
+
+  <div class="card section-anchor" id="style-direction">
+    <h2>1. 整体风格方向</h2>
+    <p><strong>风格定位：现代扁平 + 毛玻璃（Glassmorphism）+ 马卡龙暖色系。</strong></p>
+    <p>核心气质是"轻松、温暖、有点意思"。不是冷冰冰的工具感，不是花哨的游戏化感，而是让人打开就觉得放松的日常小工具合集。视觉上要传达"这不严肃，但也不廉价"的调性。</p>
+    <h3>风格关键词</h3>
+    <table>
+      <tr><th>维度</th><th>要求</th></tr>
+      <tr><td>设计语言</td><td>扁平化 + 毛玻璃效果（backdrop-filter: blur）+ 大圆角卡片</td></tr>
+      <tr><td>色彩基调</td><td>暖调为主（奶油黄/蜜桃粉/薄荷绿），马卡龙多色点缀，避免冷蓝主导</td></tr>
+      <tr><td>圆角体系</td><td>8px（小元素）/ 12px（输入框）/ 14px（列表项）/ 18px（卡片）/ 50%（圆形按钮）</td></tr>
+      <tr><td>阴影风格</td><td>双层软阴影（暖色外光 + 绿色内光），偏光感，不要硬阴影</td></tr>
+      <tr><td>动画曲线</td><td>cubic-bezier(.34, 1.56, .64, 1) 弹性过渡，easeOut 缓出</td></tr>
+      <tr><td>图标风格</td><td>手绘感线条图标（Lucide/Phosphor 风格），圆角端点，2px 线宽</td></tr>
+      <tr><td>整体氛围</td><td>温暖、松弛、治愈、有点可爱但不幼稚</td></tr>
+    </table>
+    <div class="note">参考项目「转盘选择器」已建立此视觉基调，5 个新工具需与之保持一致。配色从冷蓝绿调整为暖色调（奶油/蜜桃/薄荷），但保持毛玻璃 + 马卡龙的底层逻辑。</div>
+  </div>
+
+  <div class="card section-anchor" id="color-system">
+    <h2>2. 配色系统</h2>
+
+    <h3>2.1 基础色板（Sass 变量）</h3>
+    <p>以下色值将作为全局 Sass 变量，所有页面共用。暖色调替代原项目的冷蓝绿。</p>
+
+    <div class="color-grid">
+      <div class="color-item">
+        <div class="color-block" style="background:#FFF8E7"></div>
+        <div class="color-label">奶油白</div>
+        <div class="color-value">#FFF8E7</div>
+      </div>
+      <div class="color-item">
+        <div class="color-block" style="background:#FFE0B2"></div>
+        <div class="color-label">蜜桃橙</div>
+        <div class="color-value">#FFE0B2</div>
+      </div>
+      <div class="color-item">
+        <div class="color-block" style="background:#FFB3C6"></div>
+        <div class="color-label">樱花粉</div>
+        <div class="color-value">#FFB3C6</div>
+      </div>
+      <div class="color-item">
+        <div class="color-block" style="background:#B2DFDB"></div>
+        <div class="color-label">薄荷绿</div>
+        <div class="color-value">#B2DFDB</div>
+      </div>
+      <div class="color-item">
+        <div class="color-block" style="background:#FFF3E0"></div>
+        <div class="color-label">暖米色</div>
+        <div class="color-value">#FFF3E0</div>
+      </div>
+      <div class="color-item">
+        <div class="color-block" style="background:#E1BEE7"></div>
+        <div class="color-label">薰衣草紫</div>
+        <div class="color-value">#E1BEE7</div>
+      </div>
+    </div>
+
+    <h3>2.2 语义色（功能色）</h3>
+    <table>
+      <tr><th>语义</th><th>变量名</th><th>色值</th><th>用途</th></tr>
+      <tr><td><span class="color-swatch" style="background:#475569"></span>主文字</td><td>$text-primary</td><td>#475569</td><td>正文、标题</td></tr>
+      <tr><td><span class="color-swatch" style="background:#94A3B8"></span>次文字</td><td>$text-secondary</td><td>#94A3B8</td><td>描述、占位符</td></tr>
+      <tr><td><span class="color-swatch" style="background:#CBD5E1"></span>弱文字</td><td>$text-tertiary</td><td>#CBD5E1</td><td>统计数字、时间</td></tr>
+      <tr><td><span class="color-swatch" style="background:#FFB74D"></span>强调色</td><td>$accent</td><td>#FFB74D</td><td>按钮渐变起点、高亮</td></tr>
+      <tr><td><span class="color-swatch" style="background:#FF9800"></span>主色</td><td>$primary</td><td>#FF9800</td><td>主按钮、选中态</td></tr>
+      <tr><td><span class="color-swatch" style="background:#4DB6AC"></span>辅助色</td><td>$secondary</td><td>#4DB6AC</td><td>按钮渐变终点、成功态</td></tr>
+      <tr><td><span class="color-swatch" style="background:#EF4444"></span>警告色</td><td>$danger</td><td>#EF4444</td><td>删除、错误</td></tr>
+      <tr><td><span class="color-swatch" style="background:rgba(255,255,255,.72)"></span>卡片背景</td><td>$card-bg</td><td>rgba(255,255,255,.72)</td><td>毛玻璃卡片</td></tr>
+    </table>
+
+    <h3>2.3 背景渐变（全局 body 背景）</h3>
+    <p>每个工具页面使用多层径向渐变叠加，主色调随工具变化：</p>
+    <table>
+      <tr><th>页面</th><th>渐变主色</th><th>CSS 参考</th></tr>
+      <tr><td>首页</td><td><span class="color-swatch" style="background:#FFE0B2"></span><span class="color-swatch" style="background:#B2DFDB"></span>蜜桃+薄荷</td><td>radial-gradient(circle at 15% 15%, rgba(255,224,178,.40), transparent 45%), radial-gradient(circle at 85% 25%, rgba(178,223,219,.35), transparent 50%), linear-gradient(135deg, #FFF8E1 0%, #F1F8E9 50%, #E0F7FA 100%)</td></tr>
+      <tr><td>情绪粉碎机</td><td><span class="color-swatch" style="background:#FFCDD2"></span><span class="color-swatch" style="background:#FFE0B2"></span>珊瑚+暖橙</td><td>radial-gradient(circle at 20% 20%, rgba(255,205,210,.40), transparent 45%), linear-gradient(135deg, #FFF3E0 0%, #FBE9E7 100%)</td></tr>
+      <tr><td>人生倒计时</td><td><span class="color-swatch" style="background:#E1BEE7"></span><span class="color-swatch" style="background:#B3E5FC"></span>薰衣草+天蓝</td><td>radial-gradient(circle at 15% 15%, rgba(225,190,231,.35), transparent 45%), linear-gradient(135deg, #F3E5F5 0%, #E1F5FE 100%)</td></tr>
+      <tr><td>白噪音混音台</td><td><span class="color-swatch" style="background:#B2DFDB"></span><span class="color-swatch" style="background:#A8DADC"></span>薄荷+海盐</td><td>radial-gradient(circle at 15% 15%, rgba(178,223,219,.40), transparent 45%), linear-gradient(135deg, #E0F2F1 0%, #E0F7FA 100%)</td></tr>
+      <tr><td>电子木鱼</td><td><span class="color-swatch" style="background:#FFE0B2"></span><span class="color-swatch" style="background:#FFF9C4"></span>暖橙+奶油黄</td><td>radial-gradient(circle at 15% 15%, rgba(255,224,178,.40), transparent 45%), linear-gradient(135deg, #FFF8E1 0%, #FFF3E0 100%)</td></tr>
+      <tr><td>借口生成器</td><td><span class="color-swatch" style="background:#FFB3C6"></span><span class="color-swatch" style="background:#FFE0B2"></span>樱花+蜜桃</td><td>radial-gradient(circle at 15% 15%, rgba(255,179,198,.35), transparent 45%), linear-gradient(135deg, #FFF0F3 0%, #FFF3E0 100%)</td></tr>
+      <tr><td>转盘选择器</td><td><span class="color-swatch" style="background:#B2DFDB"></span><span class="color-swatch" style="background:#FFE0B2"></span>薄荷+蜜桃</td><td>沿用原项目风格，多层渐变 + 猫爪纹理</td></tr>
+    </table>
+
+    <h3>2.4 转盘 10 套马卡龙配色预设（沿用原项目）</h3>
+    <table>
+      <tr><th>预设</th><th>色值</th></tr>
+      <tr><td><span class="tag tag-green">抹茶 matcha</span></td><td>#C8E6C9, #A5D6A7, #B2DFDB, #95D5B2, #C5E1A5, #DCEDC8</td></tr>
+      <tr><td><span class="tag tag-pink">樱花 sakura</span></td><td>#FFD6E0, #FFC2D1, #FFB3C6, #FF8FAB, #FFB5A7, #FCD5CE</td></tr>
+      <tr><td><span class="tag tag-warm">蜜桃 peach</span></td><td>#FFDAB9, #FFE5B4, #FFCBA4, #FFD6A5, #FFE4C4, #FAE3D9</td></tr>
+      <tr><td><span class="tag tag-blue">海盐 seashell</span></td><td>#A8DADC, #B5EAD7, #C7F0DB, #A0E7E5, #B4E4D6, #95D5B2</td></tr>
+      <tr><td><span class="tag tag-warm">奶油 cream</span></td><td>#FFF3E0, #FFE0B2, #FFCCBC, #FFF9C4, #F0F4C3, #FFFDE7</td></tr>
+      <tr><td><span class="tag tag-warm">焦糖 caramel</span></td><td>#FFE0B2, #FFCC80, #FFB74D, #FFA726, #FFE4B5, #F5DEB3</td></tr>
+      <tr><td><span class="tag tag-blue">海洋 ocean</span></td><td>#B3E5FC, #81D4FA, #4FC3F7, #29B6F6, #90CAF9, #BBDEFB</td></tr>
+      <tr><td><span class="tag tag-purple">葡萄 grape</span></td><td>#E1BEE7, #CE93D8, #BA68C8, #AB47BC, #F8BBD0, #F3E5F5</td></tr>
+      <tr><td><span class="tag tag-warm">柠檬 lemon</span></td><td>#FFF9C4, #FFF59D, #FFEE58, #FFF176, #FDD835, #FFFDE7</td></tr>
+      <tr><td><span class="tag tag-green">薄荷 mint</span></td><td>#B2DFDB, #80CBC4, #4DB6AC, #26A69A, #B2DFDB, #E0F2F1</td></tr>
+    </table>
+  </div>
+
+  <div class="card section-anchor" id="typography">
+    <h2>3. 字体规范</h2>
+    <table>
+      <tr><th>用途</th><th>字体</th><th>字重</th><th>字号</th></tr>
+      <tr><td>主标题（页面标题）</td><td>Baloo 2 / Noto Sans SC</td><td>700-800</td><td>24-32px</td></tr>
+      <tr><td>卡片标题</td><td>Baloo 2 / Noto Sans SC</td><td>600</td><td>16-18px</td></tr>
+      <tr><td>正文</td><td>Noto Sans SC</td><td>400-500</td><td>14-15px</td></tr>
+      <tr><td>描述/占位符</td><td>Noto Sans SC</td><td>400</td><td>13-14px</td></tr>
+      <tr><td>大数字展示</td><td>Baloo 2</td><td>800</td><td>48-72px</td></tr>
+      <tr><td>结果展示文字</td><td>ZCOOL KuaiLe（手写体）</td><td>400</td><td>20-24px</td></tr>
+      <tr><td>按钮文字</td><td>Baloo 2 / Noto Sans SC</td><td>600</td><td>15-16px</td></tr>
+      <tr><td>统计/时间</td><td>Baloo 2</td><td>500</td><td>12-13px</td></tr>
+      <tr><td>转盘扇区文字</td><td>Baloo 2</td><td>600</td><td>13-24px（动态）</td></tr>
+    </table>
+    <div class="note">字体在微信小程序中通过 <code>@font-face</code> 引入网络字体或使用系统字体回退。Baloo 2 和 ZCOOL KuaiLe 需压缩为 woff2 格式打包。若体积过大，Noto Sans SC 作为系统字体回退方案。</div>
+    <h3>字号层级</h3>
+    <table>
+      <tr><th>层级</th><th>用途</th><th>字号</th><th>行高</th></tr>
+      <tr><td>Display</td><td>巨大数字（剩余天数、功德数）</td><td>48-72px</td><td>1.1</td></tr>
+      <tr><td>H1</td><td>页面标题</td><td>24-28px</td><td>1.3</td></tr>
+      <tr><td>H2</td><td>区块标题</td><td>18-20px</td><td>1.4</td></tr>
+      <tr><td>Body</td><td>正文</td><td>14-15px</td><td>1.6</td></tr>
+      <tr><td>Caption</td><td>辅助文字</td><td>12-13px</td><td>1.5</td></tr>
+    </table>
+  </div>
+
+  <div class="card section-anchor" id="icons">
+    <h2>4. 工具图标设计要求</h2>
+    <p>6 个工具各需一个图标，风格统一：手绘感线条图标，圆角端点，2px 线宽，马卡龙配色填充。尺寸 120×120px，透明背景 PNG。</p>
+    <div class="icon-grid">
+      <div class="icon-card">
+        <div class="icon-emoji">🗑️</div>
+        <div class="icon-name">情绪粉碎机</div>
+        <div class="icon-desc">碎纸机/撕碎的纸条</div>
+      </div>
+      <div class="icon-card">
+        <div class="icon-emoji">⏳</div>
+        <div class="icon-name">人生倒计时</div>
+        <div class="icon-desc">沙漏/时钟</div>
+      </div>
+      <div class="icon-card">
+        <div class="icon-emoji">🎵</div>
+        <div class="icon-name">白噪音混音台</div>
+        <div class="icon-desc">音波/调音台旋钮</div>
+      </div>
+      <div class="icon-card">
+        <div class="icon-emoji">🪵</div>
+        <div class="icon-name">电子木鱼</div>
+        <div class="icon-desc">功德+1</div>
+      </div>
+      <div class="icon-card">
+        <div class="icon-emoji">💬</div>
+        <div class="icon-name">借口生成器</div>
+        <div class="icon-desc">对话框/气泡</div>
+      </div>
+      <div class="icon-card">
+        <div class="icon-emoji">🎡</div>
+        <div class="icon-name">转盘选择器</div>
+        <div class="icon-desc">转盘/指针</div>
+      </div>
+    </div>
+    <h3>图标设计细节</h3>
+    <table>
+      <tr><th>属性</th><th>要求</th></tr>
+      <tr><td>尺寸</td><td>120×120px，输出 PNG 透明背景</td></tr>
+      <tr><td>线条</td><td>2px 线宽，圆角端点（stroke-linecap: round）</td></tr>
+      <tr><td>填充</td><td>马卡龙色系低饱和填充（透明度 60-80%）</td></tr>
+      <tr><td>风格</td><td>手绘感，略带不规则，不要过于工整</td></tr>
+      <tr><td>主色映射</td><td>粉碎机→珊瑚粉 / 倒计时→薰衣草紫 / 混音台→薄荷绿 / 木鱼→暖橙 / 借口→樱花粉 / 转盘→蜜桃橙</td></tr>
+      <tr><td>表情</td><td>图标可带一个小表情/小细节增加趣味（如木鱼带笑脸，沙漏带星星）</td></tr>
+    </table>
+  </div>
+
+  <div class="card section-anchor" id="components">
+    <h2>5. 通用组件设计</h2>
+
+    <h3>5.1 毛玻璃卡片（Card）</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>背景</td><td>rgba(255,255,255,0.72)</td></tr>
+      <tr><td>模糊</td><td>backdrop-filter: blur(14px)</td></tr>
+      <tr><td>边框</td><td>1px solid rgba(255,255,255,0.6)</td></tr>
+      <tr><td>圆角</td><td>18px</td></tr>
+      <tr><td>阴影</td><td>0 10px 30px -12px rgba(255,180,100,.25), 0 4px 14px -6px rgba(77,182,172,.15)</td></tr>
+      <tr><td>内边距</td><td>16-24px</td></tr>
+      <tr><td>Hover/Active</td><td>阴影增强，轻微上浮 translateY(-2px)</td></tr>
+    </table>
+
+    <h3>5.2 主按钮（Primary Button）</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>背景</td><td>linear-gradient(135deg, #FFB74D 0%, #FF9800 100%)</td></tr>
+      <tr><td>文字</td><td>#FFFFFF, 600, 16px</td></tr>
+      <tr><td>圆角</td><td>12px</td></tr>
+      <tr><td>阴影</td><td>0 6px 16px -4px rgba(255,152,0,.45)</td></tr>
+      <tr><td>禁用态</td><td>opacity: 0.4, 灰色背景，无阴影</td></tr>
+      <tr><td>按下态</td><td>scale(0.97), 阴影减弱</td></tr>
+    </table>
+
+    <h3>5.3 次按钮（Secondary Button）</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>背景</td><td>rgba(255,255,255,0.6)</td></tr>
+      <tr><td>边框</td><td>1.5px solid rgba(77,182,172,0.4)</td></tr>
+      <tr><td>文字</td><td>#4DB6AC, 600, 15px</td></tr>
+      <tr><td>圆角</td><td>12px</td></tr>
+    </table>
+
+    <h3>5.4 输入框（Input）</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>背景</td><td>rgba(255,255,255,0.5)</td></tr>
+      <tr><td>边框</td><td>1.5px solid rgba(203,213,225,0.6)</td></tr>
+      <tr><td>圆角</td><td>12px</td></tr>
+      <tr><td>聚焦</td><td>border-color: #FFB74D, box-shadow: 0 0 0 4px rgba(255,183,77,.15)</td></tr>
+      <tr><td>占位符</td><td>color: #94A3B8</td></tr>
+    </table>
+
+    <h3>5.5 工具卡片（首页网格用）</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>布局</td><td>2列网格，间距 12px</td></tr>
+      <tr><td>背景</td><td>毛玻璃卡片样式</td></tr>
+      <tr><td>内含</td><td>图标（48px）+ 名称（16px, 600）+ 描述（12px, 400）</td></tr>
+      <tr><td>点击反馈</td><td>scale(0.96), 0.2s 弹性动画</td></tr>
+      <tr><td>长按</td><td>弹出简介弹窗</td></tr>
+    </table>
+
+    <h3>5.6 圆形大按钮（GO 按钮 / 播放按钮）</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>形状</td><td>圆形，74px 直径</td></tr>
+      <tr><td>背景</td><td>linear-gradient(135deg, #FFB74D, #FF9800)</td></tr>
+      <tr><td>文字</td><td>白色, 700, 18px</td></tr>
+      <tr><td>阴影</td><td>0 8px 20px -4px rgba(255,152,0,.5), inset 0 2px 4px rgba(255,255,255,.3)</td></tr>
+      <tr><td>按下</td><td>scale(0.92)</td></tr>
+    </table>
+
+    <h3>5.7 弹窗（Modal）</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>遮罩</td><td>rgba(30,41,59,0.4), backdrop-filter: blur(4px)</td></tr>
+      <tr><td>弹窗背景</td><td>毛玻璃卡片样式</td></tr>
+      <tr><td>圆角</td><td>20px</td></tr>
+      <tr><td>动画</td><td>从中心放大淡入，0.3s cubic-bezier(.34,1.56,.64,1)</td></tr>
+    </table>
+
+    <h3>5.8 Toast 提示</h3>
+    <table>
+      <tr><th>属性</th><th>值</th></tr>
+      <tr><td>位置</td><td>底部居中，距底 60px</td></tr>
+      <tr><td>背景</td><td>rgba(30,41,59,0.85)</td></tr>
+      <tr><td>文字</td><td>#FFFFFF, 14px</td></tr>
+      <tr><td>圆角</td><td>12px</td></tr>
+      <tr><td>动画</td><td>从底部上滑淡入，0.3s</td></tr>
+      <tr><td>时长</td><td>2 秒后自动消失</td></tr>
+    </table>
+  </div>
+
+  <div class="card section-anchor" id="page-home">
+    <h2>6. 页面设计 — 首页</h2>
+    <p>首页是全部 6 个工具的入口，气质决定用户第一印象。</p>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│         有点意思工具盒          │  ← 顶部标题，渐变文字
+│   "收录了一些有点意思的东西"   │  ← 副标题（每日随机文案）
+├─────────────────────────────────┤
+│                                 │
+│  ┌──────────┐    ┌──────────┐  │
+│  │  [图标]  │    │  [图标]  │  │  ← 工具卡片 2 列网格
+│  │ 情绪粉碎机│    │ 人生倒计时│  │     毛玻璃卡片
+│  │ 把烦心事  │    │ 看看还剩  │  │     图标48px + 名称 + 描述
+│  │ 撕个粉碎  │    │ 多少个周五│  │
+│  └──────────┘    └──────────┘  │
+│                                 │
+│  ┌──────────┐    ┌──────────┐  │
+│  │  [图标]  │    │  [图标]  │  │
+│  │ 白噪音   │    │ 电子木鱼 │  │
+│  │ 混音台   │    │ 功德+1   │  │
+│  └──────────┘    └──────────┘  │
+│                                 │
+│  ┌──────────┐    ┌──────────┐  │
+│  │  [图标]  │    │  [图标]  │  │
+│  │ 借口生成器│    │ 转盘选择器│  │
+│  │ 帮你说不 │    │ 让转盘替  │  │
+│  │          │    │ 你做决定  │  │
+│  └──────────┘    └──────────┘  │
+│                                 │
+├─────────────────────────────────┤
+│  已收录 6 个工具  |  关于        │  ← 底部信息栏
+└─────────────────────────────────┘</div>
+    <h3>设计要点</h3>
+    <ul style="margin-left:20px; color:var(--slate-600); font-size:14px;">
+      <li>标题使用渐变文字 linear-gradient(120deg, #FF9800, #4DB6AC)</li>
+      <li>副标题每日随机切换，13px，slate-500 色</li>
+      <li>卡片间距 12px，内边距 16px</li>
+      <li>卡片点击有推入动画（从右滑入）</li>
+      <li>背景使用蜜桃+薄荷多层渐变</li>
+      <li>底部信息栏 13px，居中</li>
+    </ul>
+  </div>
+
+  <div class="card section-anchor" id="page-crusher">
+    <h2>7. 页面设计 — 情绪粉碎机</h2>
+    <p>核心是一个文本输入区 + 3 种粉碎方式选择 + 全屏 Canvas 动画。情绪基调：宣泄、释放。</p>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回     情绪粉碎机           │
+├─────────────────────────────────┤
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │                           │  │
+│  │  把你的烦心事写在这里      │  │  ← 文本输入区，多行
+│  │  占位符灰色提示            │  │     边框聚焦变橙色
+│  │                           │  │
+│  └───────────────────────────┘  │
+│  12/200                          │  ← 字数统计，右下角
+│                                 │
+│  选择粉碎方式：                  │
+│  ┌─────┐  ┌─────┐  ┌─────┐     │
+│  │ 撕碎│  │ 焚烧│  │ 冲走│     │  ← 3 选 1 卡片
+│  │ ✂️ │  │ 🔥 │  │ 🚽 │     │     选中高亮橙色边框
+│  └─────┘  └─────┘  └─────┘     │
+│                                 │
+│      ┌─────────────────┐        │
+│      │    开始粉碎      │        │  ← 主按钮（空输入时禁用）
+│      └─────────────────┘        │
+│                                 │
+│  今日已粉碎：3 件                │  ← 底部统计
+└─────────────────────────────────┘</div>
+    <h3>粉碎动画页</h3>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│                                 │
+│     （文字碎片飞散动画）         │
+│        ✦  ·  ✦   ·              │  ← 全屏 Canvas
+│      ·    ✦   ·   ✦              │     深色半透明背景
+│         ✦    ·   ✦              │
+│                                 │
+│      ┌─────────────────┐        │
+│      │   已粉碎 ✅      │        │  ← 完成状态卡
+│      └─────────────────┘        │
+│  "烦恼已清零，请继续生活"        │  ← 随机完成文案
+│                                 │
+│  ┌─────────┐  ┌─────────┐       │
+│  │ 再来一次│  │ 分享结果 │       │
+│  └─────────┘  └─────────┘       │
+└─────────────────────────────────┘</div>
+  </div>
+
+  <div class="card section-anchor" id="page-life">
+    <h2>8. 页面设计 — 人生倒计时钟</h2>
+    <p>核心是一个巨大的剩余天数数字 + 详细数据卡片。情绪基调：感悟、冲击感。</p>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回    人生倒计时钟          │
+├─────────────────────────────────┤
+│  你的生日：                      │
+│  ┌───────────────────────┐      │
+│  │  1998-05-20           │      │  ← 日期选择器
+│  └───────────────────────┘      │
+│  预期寿命：                      │
+│  ┌───────────────────────┐      │
+│  │  77 岁         ▲▼     │      │  ← 步进器 60-120
+│  └───────────────────────┘      │
+├─────────────────────────────────┤
+│                                 │
+│         18,650                   │  ← 巨大数字 72px
+│         个周五                   │     Baloo 2 800
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │  剩余天数    342,580       │  │
+│  │  剩余月数    11,258        │  │  ← 数据卡片
+│  │  剩余周数    49,025        │  │     每行左标签右数字
+│  │  剩余周五    18,650        │  │
+│  │  剩余小时    8,221,920     │  │
+│  │  已过比例  ████████░ 62%   │  │  ← 进度条
+│  └───────────────────────────┘  │
+│                                 │
+│      ┌─────────────────┐        │
+│      │  生成分享卡片   │        │
+│      └─────────────────┘        │
+└─────────────────────────────────┘</div>
+    <div class="note note-warm">巨大数字是视觉焦点，用 Baloo 2 800 字重 + 渐变色（橙到绿）。进度条用马卡龙色系填充。</div>
+  </div>
+
+  <div class="card section-anchor" id="page-mixer">
+    <h2>9. 页面设计 — 白噪音混音台</h2>
+    <p>核心是 8 条音轨的音量滑块 + 场景预设 + 播放控制。情绪基调：专注、沉浸。</p>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回    白噪音混音台          │
+├─────────────────────────────────┤
+│  场景预设：                      │
+│  ┌──────┐ ┌──────┐ ┌──────┐    │
+│  │程序员│ │哄睡  │ │咖啡馆│    │  ← 预设按钮
+│  │专注  │ │模式  │ │模式  │    │     选中橙色填充
+│  └──────┘ └──────┘ └──────┘    │
+│                                 │
+│  音轨混音：                      │
+│                                 │
+│  🌧 雨声  ━━━━━━━━○────  60%   │  ← 滑块 + emoji + 百分比
+│  🔥 篝火  ━━━━○────────  30%   │
+│  ⌨ 键盘  ━━━━━━━━━━○──  80%   │
+│  🐱 猫噜  ─○──────────   0%   │
+│  🌊 海浪  ━━━━━━○──────  50%   │
+│  ☕ 咖啡  ─○──────────   0%   │
+│  🍃 树叶  ─○──────────   0%   │
+│  🌙 虫鸣  ─○──────────   0%   │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │  ▶ 播放         ⏹ 停止     │  │  ← 播放控制
+│  └───────────────────────────┘  │
+│                                 │
+│  定时关闭：                      │
+│  ○15分 ○30分 ○60分 ●不限时     │
+│                                 │
+│  ┌─────────────────┐            │
+│  │  保存当前混音    │            │
+│  └─────────────────┘            │
+└─────────────────────────────────┘</div>
+    <h3>设计要点</h3>
+    <ul style="margin-left:20px; color:var(--slate-600); font-size:14px;">
+      <li>滑块使用马卡龙色系轨道，拖拽时高亮</li>
+      <li>音量 > 0 的音轨 emoji 彩色，音量 = 0 的灰色</li>
+      <li>播放按钮为圆形大按钮样式</li>
+      <li>背景使用薄荷+海盐渐变</li>
+    </ul>
+  </div>
+
+  <div class="card section-anchor" id="page-merit">
+    <h2>10. 页面设计 — 电子木鱼</h2>
+    <p>核心是一个大数字 + 木鱼点击区 + 浮字动画。情绪基调：仪式感、轻松修行。</p>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回      电子木鱼           │
+├─────────────────────────────────┤
+│                                 │
+│         今日功德                 │
+│         ┌─────────┐              │
+│         │  128    │              │  ← 大数字 48px
+│         └─────────┘              │     橙色渐变
+│         累计：2,847              │  ← 累计 小字
+│                                 │
+│    ┌─────────────────────┐      │
+│    │                     │      │
+│    │       🪵            │      │  ← 木鱼点击区
+│    │    （点击区域）      │      │     点击缩放动画
+│    │                     │      │
+│    └─────────────────────┘      │
+│                                 │
+│         功德 +1                   │  ← 浮字向上飘散
+│                                 │
+│  ┌──────────┐  ┌──────────┐     │
+│  │ 切换音效 │  │ 功德成就 │     │
+│  └──────────┘  └──────────┘     │
+│                                 │
+│  今日排名：超过 87% 的人         │  ← 本地模拟排名
+└─────────────────────────────────┘</div>
+    <h3>音效切换页 & 成就页</h3>
+    <p>音效切换为列表选择样式，5 个选项单选。成就页为 3×3 网格，已解锁亮色，未解锁灰色带锁。</p>
+  </div>
+
+  <div class="card section-anchor" id="page-excuse">
+    <h2>11. 页面设计 — 借口生成器</h2>
+    <p>核心是场景选择 + 语气选择 + 借口展示卡片。情绪基调：社交刚需、幽默。</p>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回    借口生成器            │
+├─────────────────────────────────┤
+│  选择场景：                      │
+│  ┌──────────┐  ┌──────────┐     │
+│  │ 不想赴约 │  │ 想要早退 │     │  ← 场景卡片 2 列
+│  └──────────┘  └──────────┘     │     选中橙色边框
+│  ┌──────────┐  ┌──────────┐     │
+│  │ 拒绝表白 │  │ 推掉饭局 │     │
+│  └──────────┘  └──────────┘     │
+│  ┌──────────┐  ┌──────────┐     │
+│  │ 拒绝加班 │  │ 拒绝借钱 │     │
+│  └──────────┘  └──────────┘     │
+│                                 │
+│  语气风格：                      │
+│  ○ 正经  ● 幽默  ○ 狠话         │  ← 单选
+│                                 │
+│  ┌─────────────────┐            │
+│  │    生成借口      │            │
+│  └─────────────────┘            │
+└─────────────────────────────────┘</div>
+    <h3>借口展示页</h3>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回    借口生成器            │
+├─────────────────────────────────┤
+│  场景：不想赴约 · 幽默风         │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │                           │  │  ← 借口卡片
+│  │ "我家猫今天情绪不太稳定，  │  │     毛玻璃 + 圆角
+│  │  我需要留下来陪它聊聊      │  │     手写体文字
+│  │  人生。"                  │  │
+│  │                           │  │
+│  └───────────────────────────┘  │
+│                                 │
+│  ┌─────┐ ┌─────┐ ┌─────┐       │
+│  │换一个│ │ 复制│ │ 分享│       │
+│  └─────┘ └─────┘ └─────┘       │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │  ⭐ 收藏到常用              │  │
+│  └───────────────────────────┘  │
+└─────────────────────────────────┘</div>
+  </div>
+
+  <div class="card section-anchor" id="page-wheel">
+    <h2>12. 页面设计 — 转盘选择器</h2>
+    <p>沿用参考项目视觉风格，适配小程序竖屏布局。核心是 Canvas 转盘 + 选项管理 + 配色预设。</p>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回    转盘选择器            │
+├─────────────────────────────────┤
+│ 方案：[方案1 ▼]  [+新建] [🗑]    │  ← 方案切换栏
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │                           │  │
+│  │            🎡              │  │  ← Canvas 转盘
+│  │       （旋转动画）         │  │     中心 GO 按钮
+│  │                           │  │     顶部指针
+│  │                           │  │
+│  └───────────────────────────┘  │
+│                                 │
+│  ┌───────────────────────────┐  │
+│  │  结果显示区域              │  │  ← 结果/命运文案
+│  └───────────────────────────┘  │
+│                                 │
+│  种子：[______]  [随机]         │
+│                                 │
+│  选项列表：                      │
+│  ┌──────────────────────────┐   │
+│  │ 吃火锅         权重[1]  │   │  ← 选项列表
+│  │ 吃烤肉         权重[1]  │   │
+│  │ 吃日料         权重[2]  │   │
+│  └──────────────────────────┘   │
+│                                 │
+│  [输入新选项...]    [添加]      │
+│                                 │
+│  配色：[抹茶][樱花][蜜桃]...     │  ← 配色预设
+│                                 │
+│  ┌─────────┐  ┌─────────┐       │
+│  │ 分享结果│  │ 保存方案│       │
+│  └─────────┘  └─────────┘       │
+└─────────────────────────────────┘</div>
+    <div class="note">转盘选择器已有完整的 HTML 实现，视觉风格直接迁移。小程序版本需适配竖屏：Canvas 尺寸从 600×600 调整为响应式（min(deviceWidth-40, 400)），选项列表从右侧栏改为下方排列。</div>
+  </div>
+
+  <div class="card section-anchor" id="page-about">
+    <h2>13. 页面设计 — 关于页</h2>
+    <div class="mockup-box">┌─────────────────────────────────┐
+│  ← 返回        关于              │
+├─────────────────────────────────┤
+│                                 │
+│         有点意思工具盒           │  ← 居中标题
+│         v1.0.0                  │  ← 版本号
+│                                 │
+│  ──────────────────────────     │
+│                                 │
+│  工具列表：                      │
+│  · 情绪粉碎机                   │
+│  · 人生倒计时钟                 │  ← 6 个工具列表
+│  · 白噪音混音台                 │
+│  · 电子木鱼                     │
+│  · 借口生成器                   │
+│  · 转盘选择器                   │
+│                                 │
+│  ──────────────────────────     │
+│                                 │
+│  ┌─────────────────┐            │
+│  │  意见反馈       │            │  ← 反馈按钮
+│  └─────────────────┘            │
+│                                 │
+│  ┌─────────────────┐            │
+│  │  分享给朋友     │            │  ← 分享按钮
+│  └─────────────────┘            │
+└─────────────────────────────────┘</div>
+  </div>
+
+  <div class="card section-anchor" id="share-card">
+    <h2>14. 分享卡片设计</h2>
+    <p>所有工具的分享功能统一通过 Canvas 生成分享图片，图片尺寸 750×1334（iPhone 6 分辨率比例）。</p>
+    <table>
+      <tr><th>元素</th><th>规范</th></tr>
+      <tr><td>背景</td><td>毛玻璃渐变，与工具页面背景一致</td></tr>
+      <tr><td>工具名称</td><td>顶部居中，Baloo 2 600，20px，渐变色</td></tr>
+      <tr><td>核心内容</td><td>居中，大字号（数据48px / 文案24px），ZCOOL KuaiLe 手写体</td></tr>
+      <tr><td>小程序码</td><td>底部居中，200×200px，圆角12px白色背景框</td></tr>
+      <tr><td>品牌水印</td><td>底部"有点意思工具盒"，13px，slate-400</td></tr>
+      <tr><td>装饰</td><td>马卡龙色系小圆点/星星散布，低透明度</td></tr>
+    </table>
+    <h3>各工具分享卡片内容</h3>
+    <table>
+      <tr><th>工具</th><th>核心内容</th></tr>
+      <tr><td>情绪粉碎机</td><td>粉碎方式图标 + 完成文案 + "今日已粉碎 X 件"</td></tr>
+      <tr><td>人生倒计时</td><td>"你的人生还剩 X 个周五" + 冲击文案</td></tr>
+      <tr><td>白噪音混音台</td><td>当前混音方案名 + 音轨组合</td></tr>
+      <tr><td>电子木鱼</td><td>"今日功德 +X" + 功德文案</td></tr>
+      <tr><td>借口生成器</td><td>借口文案 + 场景标签</td></tr>
+      <tr><td>转盘选择器</td><td>转盘截图 + 选中结果 + 命运文案</td></tr>
+    </table>
+  </div>
+
+  <div class="card section-anchor" id="motion">
+    <h2>15. 动效规范</h2>
+    <table>
+      <tr><th>场景</th><th>动画</th><th>时长</th><th>曲线</th></tr>
+      <tr><td>页面进入</td><td>从右滑入</td><td>300ms</td><td>ease-out</td></tr>
+      <tr><td>卡片点击</td><td>scale(0.96)</td><td>200ms</td><td>cubic-bezier(.34,1.56,.64,1)</td></tr>
+      <tr><td>按钮按下</td><td>scale(0.97)</td><td>150ms</td><td>ease</td></tr>
+      <tr><td>弹窗出现</td><td>中心放大淡入</td><td>300ms</td><td>cubic-bezier(.34,1.56,.64,1)</td></tr>
+      <tr><td>Toast</td><td>底部上滑淡入</td><td>300ms</td><td>ease-out</td></tr>
+      <tr><td>功德浮字</td><td>向上飘动+淡出</td><td>1000ms</td><td>ease-out</td></tr>
+      <tr><td>木鱼点击</td><td>scale(0.92)→1</td><td>150ms</td><td>cubic-bezier(.34,1.56,.64,1)</td></tr>
+      <tr><td>转盘旋转</td><td>5-7圈减速</td><td>4200-5400ms</td><td>easeOut(1-pow(1-t,3))</td></tr>
+      <tr><td>粉碎动画</td><td>碎片飞散/焚烧/冲走</td><td>2000-3000ms</td><td>requestAnimationFrame</td></tr>
+      <tr><td>数字滚动</td><td>CountUp 动画</td><td>500ms</td><td>ease-out</td></tr>
+      <tr><td>滑块拖拽</td><td>实时跟随</td><td>0ms</td><td>—</td></tr>
+      <tr><td>进度条</td><td>宽度过渡</td><td>600ms</td><td>ease-in-out</td></tr>
+    </table>
+  </div>
+
+  <div class="card section-anchor" id="deliverables">
+    <h2>16. 设计交付物清单</h2>
+    <p>设计 AI 需要输出的素材列表：</p>
+    <table>
+      <tr><th>序号</th><th>交付物</th><th>规格</th><th>数量</th></tr>
+      <tr><td>1</td><td>工具图标</td><td>120×120px PNG 透明背景</td><td>6 个</td></tr>
+      <tr><td>2</td><td>首页背景纹理</td><td>猫爪/小元素 SVG 图案，透明度 7%</td><td>1 个</td></tr>
+      <tr><td>3</td><td>空状态插画</td><td>各工具无数据时的空状态图，200×200px</td><td>6 个</td></tr>
+      <tr><td>4</td><td>分享卡片背景</td><td>750×1334px，各工具渐变背景</td><td>6 个</td></tr>
+      <tr><td>5</td><td>木鱼图案</td><td>200×200px，手绘风格 PNG</td><td>1 个</td></tr>
+      <tr><td>6</td><td>品牌 Logo</td><td>"有点意思工具盒"文字 Logo，240×80px</td><td>1 个</td></tr>
+      <tr><td>7</td><td>音效图标</td><td>木鱼/铜磬/寺钟/水滴/无声，48×48px</td><td>5 个</td></tr>
+      <tr><td>8</td><td>成就图标</td><td>9 个成就徽章，80×80px，已解锁+未解锁两态</td><td>18 个</td></tr>
+      <tr><td>9</td><td>粉碎方式图标</td><td>撕碎/焚烧/冲走，48×48px</td><td>3 个</td></tr>
+      <tr><td>10</td><td>音轨图标</td><td>雨/篝火/键盘/猫/海浪/咖啡/树叶/虫鸣 emoji 即可</td><td>8 个</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>17. 总结</h2>
+    <p>本设计规范的核心是：暖色调马卡龙 + 毛玻璃质感 + 手绘感图标 + 圆体字体。6 个工具共享同一套设计 token，但各有自己的情绪色（粉碎机珊瑚、倒计时薰衣草、混音台薄荷、功德暖橙、借口樱花、转盘蜜桃），在统一中保持差异。</p>
+    <p>设计 AI 在生成素材时，请严格遵循上述色值、尺寸、圆角、阴影规范，确保 6 个工具视觉一致性。</p>
+  </div>
+</div>
+</body>
+</html>
