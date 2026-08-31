@@ -1,0 +1,126 @@
+.ach-root {
+  min-height: 100vh;
+}
+
+/* ---------- 汇总卡片 ---------- */
+.ach-summary {
+  text-align: center;
+  padding: 40px 28px 32px;
+  animation: fade-up 0.4s ease-out;
+}
+
+.ach-summary-num {
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #4a3b32;
+  font-variant-numeric: tabular-nums;
+}
+
+.ach-summary-slash {
+  font-size: 32px;
+  font-weight: 600;
+  color: #b8a99e;
+}
+
+.ach-summary-label {
+  margin-top: 8px;
+  font-size: 26px;
+  color: #8d7b70;
+}
+
+.ach-summary-stats {
+  margin-top: 18px;
+  font-size: 24px;
+  color: #b8a99e;
+}
+
+/* ---------- 成就网格 ---------- */
+.ach-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.ach-card {
+  width: calc((100% - 40px) / 3);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 26px 10px 22px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  animation: pop-in 0.35s ease-out both;
+
+  &:nth-child(3n + 2) {
+    animation-delay: 0.06s;
+  }
+  &:nth-child(3n) {
+    animation-delay: 0.12s;
+  }
+}
+
+.ach-card--done {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #ffb74d;
+  box-shadow: 0 10px 24px -10px rgba(255, 152, 0, 0.45);
+}
+
+.ach-card-icon {
+  font-size: 52px;
+  line-height: 1.3;
+
+  .ach-card--done & {
+    filter: drop-shadow(0 6px 10px rgba(255, 152, 0, 0.35));
+  }
+
+  .ach-card:not(.ach-card--done) & {
+    filter: grayscale(0.9);
+    opacity: 0.45;
+  }
+}
+
+.ach-card-name {
+  margin-top: 12px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #4a3b32;
+
+  .ach-card:not(.ach-card--done) & {
+    color: #b8a99e;
+  }
+}
+
+.ach-card-desc {
+  margin-top: 6px;
+  font-size: 20px;
+  color: #8d7b70;
+  text-align: center;
+  line-height: 1.4;
+
+  .ach-card:not(.ach-card--done) & {
+    color: #c9bdb4;
+  }
+}
+
+.ach-card-progress {
+  margin-top: 10px;
+  font-size: 20px;
+  color: #ff9800;
+  font-variant-numeric: tabular-nums;
+
+  .ach-card:not(.ach-card--done) & {
+    color: #b8a99e;
+  }
+}
+
+/* ---------- 底部提示 ---------- */
+.ach-tip {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 24px;
+  color: #8d7b70;
+}

@@ -1,0 +1,180 @@
+.life-root {
+  min-height: 100vh;
+}
+
+.life-edit-btn {
+  font-size: 40px;
+}
+
+/* ---------- 首次引导 ---------- */
+.life-setup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 80px;
+}
+
+.life-setup-icon {
+  font-size: 140px;
+  line-height: 1.2;
+  filter: drop-shadow(0 16px 24px rgba(179, 157, 219, 0.45));
+}
+
+.life-setup-title {
+  margin-top: 36px;
+  font-size: 40px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.life-setup-sub {
+  margin-top: 14px;
+  font-size: 24px;
+  color: #b8a99e;
+}
+
+.life-setup-picker {
+  margin-top: 56px;
+  width: 520px;
+  height: 100px;
+  padding: 0 36px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(179, 157, 219, 0.55);
+  font-size: 32px;
+  font-weight: 600;
+  color: #4a3b32;
+  box-shadow: 0 12px 28px -12px rgba(179, 157, 219, 0.5);
+}
+
+.life-setup-arrow {
+  color: #b39ddb;
+  font-size: 28px;
+}
+
+/* ---------- 巨大数字 ---------- */
+.life-hero {
+  text-align: center;
+  padding: 34px 0 10px;
+  animation: fade-up 0.5s ease-out;
+}
+
+.life-hero-label {
+  font-size: 28px;
+  color: #8d7b70;
+}
+
+.life-hero-num {
+  font-size: 130px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #4a3b32;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, #9575cd, #b39ddb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.life-hero-unit {
+  font-size: 30px;
+  color: #8d7b70;
+  margin-top: -6px;
+}
+
+/* ---------- 数据卡片 ---------- */
+.life-card {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: fade-up 0.5s ease-out 0.1s both;
+}
+
+.life-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 6px;
+}
+
+.life-row + .life-row {
+  border-top: 1px dashed rgba(141, 123, 112, 0.18);
+}
+
+.life-row-label {
+  font-size: 28px;
+  color: #8d7b70;
+}
+
+.life-row-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #4a3b32;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 进度条 ---------- */
+.life-progress {
+  margin-top: 18px;
+  padding-top: 20px;
+  border-top: 1px dashed rgba(141, 123, 112, 0.18);
+}
+
+.life-progress-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 24px;
+  color: #8d7b70;
+}
+
+.life-progress-pct {
+  font-weight: 800;
+  color: #9575cd;
+}
+
+.life-progress-track {
+  margin-top: 14px;
+  height: 22px;
+  border-radius: 11px;
+  background: rgba(179, 157, 219, 0.18);
+  overflow: hidden;
+}
+
+.life-progress-fill {
+  height: 100%;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #b39ddb, #9575cd);
+  box-shadow: 0 0 12px rgba(149, 117, 205, 0.6);
+  transition: width 1s ease;
+}
+
+.life-expectancy {
+  margin-top: 20px;
+  padding: 18px 6px 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 26px;
+  color: #8d7b70;
+}
+
+/* ---------- 假期提示 ---------- */
+.life-holiday {
+  margin-top: 26px;
+  text-align: center;
+  font-size: 24px;
+  color: #8d7b70;
+  animation: fade-up 0.5s ease-out 0.2s both;
+}
+
+.life-share {
+  margin-top: 40px;
+  background: linear-gradient(135deg, #c5b0e3, #9575cd);
+}

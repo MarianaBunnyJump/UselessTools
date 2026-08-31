@@ -1,0 +1,98 @@
+.excuse-root {
+  min-height: 100vh;
+}
+
+.excuse-fav-btn {
+  font-size: 36px;
+}
+
+/* ---------- 分区标签 ---------- */
+.excuse-section-label {
+  margin: 26px 8px 16px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+/* ---------- 场景网格 ---------- */
+.excuse-scene-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.excuse-scene-card {
+  width: calc((100% - 18px) / 2);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 26px 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.excuse-scene-card--active {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #f48fb1;
+  box-shadow: 0 10px 24px -10px rgba(244, 143, 177, 0.6);
+  transform: translateY(-3px);
+}
+
+.excuse-scene-icon {
+  font-size: 46px;
+  line-height: 1.2;
+}
+
+.excuse-scene-name {
+  font-size: 30px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+/* ---------- 语气选择 ---------- */
+.excuse-tone-row {
+  display: flex;
+  gap: 16px;
+}
+
+.excuse-tone-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 84px;
+  border-radius: 42px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  font-size: 28px;
+  font-weight: 600;
+  color: #8d7b70;
+  transition: all 0.2s ease;
+}
+
+.excuse-tone-chip--active {
+  background: linear-gradient(135deg, #f8a5c2, #ec6f9c);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 10px 22px -10px rgba(236, 111, 156, 0.65);
+}
+
+/* ---------- 底部操作 ---------- */
+.excuse-actions {
+  margin-top: 48px;
+}
+
+.excuse-generate {
+  background: linear-gradient(135deg, #f8a5c2, #ec6f9c);
+  box-shadow: 0 8px 20px -8px rgba(236, 111, 156, 0.55);
+}
+
+.excuse-hint {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 24px;
+  color: #b8a99e;
+}

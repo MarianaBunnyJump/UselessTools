@@ -1,0 +1,28 @@
+{
+  "miniprogramRoot": "dist/",
+  "projectname": "fun-toolbox",
+  "description": "有点意思工具盒",
+  "appid": "wx37121209361e58d8",
+  "compileType": "miniprogram",
+  "libVersion": "3.4.10",
+  "setting": {
+    "es6": false,
+    "enhance": false,
+    "postcss": false,
+    "minified": false,
+    "urlCheck": false,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "ignoreUploadUnusedFiles": false,
+    "compileHotReLoad": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}

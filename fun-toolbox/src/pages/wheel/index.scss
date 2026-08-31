@@ -1,0 +1,299 @@
+@import '../../styles/theme.scss';
+
+.wheel-root {
+  min-height: 100vh;
+}
+
+.wheel-history-btn {
+  font-size: 40px;
+}
+
+/* ---------- 方案 Tab ---------- */
+.wheel-tabs {
+  width: 100%;
+  white-space: nowrap;
+  margin-top: 6px;
+}
+
+.wheel-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 30px;
+  margin-right: 14px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  font-size: 26px;
+  font-weight: 600;
+  color: #8d7b70;
+  transition: all 0.2s ease;
+}
+
+.wheel-tab--active {
+  background: #ffffff;
+  border-color: #ffab91;
+  color: #4a3b32;
+  box-shadow: 0 8px 20px -10px rgba(255, 138, 101, 0.6);
+}
+
+.wheel-tab-count {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 17px;
+  background: rgba(255, 171, 145, 0.2);
+  color: #ff8a65;
+  font-size: 22px;
+  text-align: center;
+  line-height: 34px;
+}
+
+.wheel-tab--new {
+  border-style: dashed;
+  border-color: rgba(255, 138, 101, 0.5);
+  color: #ff8a65;
+  background: rgba(255, 171, 145, 0.08);
+}
+
+/* ---------- 命运文案 ---------- */
+.wheel-wish {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 26px;
+  color: #8d7b70;
+  min-height: 40px;
+  animation: fade-up 0.4s ease-out;
+}
+
+/* ---------- 转盘 ---------- */
+.wheel-stage {
+  position: relative;
+  width: 640px;
+  height: 640px;
+  margin: 16px auto 0;
+}
+
+.wheel-canvas {
+  width: 640px;
+  height: 640px;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-top: 34px solid #ff7043;
+  filter: drop-shadow(0 4px 6px rgba(255, 112, 67, 0.5));
+  z-index: 5;
+}
+
+.wheel-go {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffab91, #ff7043);
+  color: #fff;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 30px -10px rgba(255, 112, 67, 0.7), inset 0 -4px 8px rgba(0, 0, 0, 0.12);
+  z-index: 6;
+  animation: float-bob 2.2s ease-in-out infinite;
+
+  &:active {
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+}
+
+/* ---------- 结果 ---------- */
+.wheel-result {
+  margin-top: 22px;
+  min-height: 120px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.wheel-result--show {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #ffab91;
+  box-shadow: 0 14px 34px -14px rgba(255, 138, 101, 0.6);
+  animation: result-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wheel-result-label {
+  font-size: 24px;
+  color: #8d7b70;
+}
+
+.wheel-result-text {
+  font-family: $font-hand;
+  font-size: 56px;
+  font-weight: 800;
+  color: #ff7043;
+  line-height: 1.2;
+}
+
+.wheel-result-idle {
+  font-size: 26px;
+  color: #b8a99e;
+}
+
+/* ---------- 种子 ---------- */
+.wheel-seed-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.wheel-seed-input {
+  flex: 1;
+  height: 84px;
+  padding: 0 28px;
+  box-sizing: border-box;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  font-size: 26px;
+  color: #4a3b32;
+}
+
+.wheel-seed-random {
+  width: 130px;
+  height: 84px;
+  border-radius: 22px;
+  background: rgba(255, 171, 145, 0.15);
+  border: 2px dashed rgba(255, 138, 101, 0.5);
+  color: #ff8a65;
+  font-size: 26px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- 选项列表 ---------- */
+.wheel-section-label {
+  margin: 30px 8px 16px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.wheel-items {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wheel-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  animation: slide-in-left 0.3s ease-out both;
+}
+
+.wheel-item-text {
+  font-size: 30px;
+  font-weight: 600;
+  color: #4a3b32;
+}
+
+.wheel-item-weight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.wheel-weight-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 171, 145, 0.16);
+  color: #ff8a65;
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 52px;
+
+  &:active {
+    background: rgba(255, 171, 145, 0.4);
+  }
+}
+
+.wheel-weight-num {
+  min-width: 56px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ff7043;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 添加行 ---------- */
+.wheel-add-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.wheel-add-input {
+  flex: 1;
+  height: 88px;
+  padding: 0 28px;
+  box-sizing: border-box;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  font-size: 28px;
+  color: #4a3b32;
+}
+
+.wheel-add-btn {
+  width: 150px;
+  height: 88px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #ffab91, #ff7043);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 22px -10px rgba(255, 112, 67, 0.6);
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.wheel-tip {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 22px;
+  color: #c9bdb4;
+}

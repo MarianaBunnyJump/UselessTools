@@ -1,0 +1,77 @@
+.wh-root {
+  min-height: 100vh;
+}
+
+.wh-clear-btn {
+  font-size: 40px;
+}
+
+/* ---------- 空状态 ---------- */
+.wh-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 120px;
+}
+
+.wh-empty-icon {
+  font-size: 130px;
+  opacity: 0.6;
+}
+
+.wh-empty-text {
+  margin-top: 28px;
+  font-size: 30px;
+  font-weight: 600;
+  color: #8d7b70;
+}
+
+.wh-empty-sub {
+  margin-top: 12px;
+  font-size: 24px;
+  color: #c9bdb4;
+}
+
+/* ---------- 列表 ---------- */
+.wh-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.wh-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 30px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  animation: slide-in-left 0.3s ease-out both;
+}
+
+.wh-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wh-item-result {
+  font-size: 34px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.wh-item-config {
+  font-size: 22px;
+  color: #b8a99e;
+}
+
+.wh-item-time {
+  font-size: 24px;
+  color: #8d7b70;
+  font-variant-numeric: tabular-nums;
+}

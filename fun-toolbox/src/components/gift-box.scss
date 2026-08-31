@@ -1,0 +1,173 @@
+.gift-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 20px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 30px -14px rgba(74, 59, 50, 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &.active {
+    transform: scale(0.95);
+  }
+}
+
+.gb-stage {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  animation: float-bob 3.6s ease-in-out infinite;
+}
+
+/* 盒身 */
+.gb-body {
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 6px;
+  height: 96px;
+  border-radius: 8px 8px 16px 16px;
+  overflow: hidden;
+  box-shadow: inset 0 -12px 18px -10px rgba(0, 0, 0, 0.14);
+}
+
+.gb-ribbon-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  margin-left: -11px;
+}
+
+.gb-ribbon-h {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34px;
+  height: 16px;
+  opacity: 0.9;
+}
+
+/* 盒盖 */
+.gb-lid {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 92px;
+  height: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.22);
+  transform-origin: 12% 100%;
+  transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.45s ease;
+  z-index: 2;
+}
+
+.gb-lid-ribbon {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  margin-left: -11px;
+}
+
+/* 蝴蝶结 */
+.gb-bow {
+  position: absolute;
+  left: 50%;
+  bottom: 118px;
+  width: 70px;
+  height: 26px;
+  margin-left: -35px;
+  z-index: 1;
+  transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.45s ease;
+}
+
+.gb-bow-loop {
+  position: absolute;
+  top: 2px;
+  width: 26px;
+  height: 20px;
+  border: 5px solid #ff7043;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+
+.gb-bow-l {
+  left: 0;
+  transform: rotate(-22deg);
+}
+
+.gb-bow-r {
+  right: 0;
+  transform: rotate(22deg);
+}
+
+.gb-bow-knot {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 16px;
+  height: 14px;
+  margin-left: -8px;
+  border-radius: 6px;
+}
+
+/* 弹出的工具图标 */
+.gb-pop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(24px) scale(0.6);
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s, opacity 0.4s ease 0.1s;
+}
+
+.gb-pop-icon {
+  font-size: 64px;
+  line-height: 1.2;
+  filter: drop-shadow(0 8px 12px rgba(74, 59, 50, 0.25));
+}
+
+/* 打开状态 */
+.gift-box--opening {
+  .gb-lid {
+    transform: translateY(-52px) rotate(-30deg);
+    opacity: 0;
+  }
+
+  .gb-bow {
+    transform: translateY(-52px) rotate(-30deg);
+    opacity: 0;
+  }
+
+  .gb-pop {
+    opacity: 1;
+    transform: translateY(-26px) scale(1);
+  }
+
+  .gb-stage {
+    animation: none;
+  }
+}
+
+/* 名称 */
+.gb-name {
+  margin-top: 18px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.gb-desc {
+  margin-top: 4px;
+  font-size: 22px;
+  color: #8d7b70;
+}

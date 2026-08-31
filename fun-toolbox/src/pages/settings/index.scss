@@ -1,0 +1,76 @@
+.settings-section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+  margin: 30px 8px 20px;
+}
+
+.settings-bg-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.settings-bg-card {
+  position: relative;
+  width: calc(50% - 12px);
+  height: 160px;
+  margin-bottom: 24px;
+  border-radius: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 26px -12px rgba(74, 59, 50, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &.active {
+    transform: scale(0.96);
+  }
+}
+
+.settings-bg-card--active {
+  border-color: #ff8a80;
+  box-shadow: 0 0 0 6px rgba(255, 138, 128, 0.25);
+}
+
+.settings-bg-accent {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.settings-bg-name {
+  font-size: 30px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.settings-bg-check {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  font-size: 30px;
+  color: #ff7043;
+  font-weight: 800;
+}
+
+.settings-tip {
+  text-align: center;
+  font-size: 22px;
+  color: #b8a99e;
+  margin-top: 6px;
+}
+
+.settings-about-entry {
+  margin-top: 60px;
+  text-align: center;
+  font-size: 26px;
+  color: #8d7b70;
+  text-decoration: underline;
+  text-decoration-color: rgba(141, 123, 112, 0.35);
+  padding: 20px;
+}
