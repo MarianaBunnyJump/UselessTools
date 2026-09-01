@@ -67,12 +67,12 @@
   }
 }
 
-/* 木鱼敲击：转轴在尾部，头被敲得沉下去再回弹 */
+/* 木鱼敲击：转轴在尾部，头被敲得沉下去再回弹（与槌头落下时机同步） */
 @keyframes fish-tap {
   0% {
     transform: rotate(0deg) translateY(0) scale(1);
   }
-  30% {
+  40% {
     transform: rotate(5deg) translateY(4px) scale(0.98);
   }
   100% {
@@ -80,16 +80,16 @@
   }
 }
 
-/* 敲击棒摆动 */
+/* 敲击棒摆动：转轴在手柄末端，槌头抬起后落下敲击 */
 @keyframes stick-hit {
   0% {
-    transform: rotate(-38deg);
+    transform: rotate(14deg);
   }
   40% {
-    transform: rotate(8deg);
+    transform: rotate(-38deg);
   }
   100% {
-    transform: rotate(-38deg);
+    transform: rotate(14deg);
   }
 }
 

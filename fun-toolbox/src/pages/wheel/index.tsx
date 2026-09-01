@@ -77,19 +77,16 @@ function normalizeItems(raw: any[]): WheelItem[] {
     .slice(0, MAX_ITEMS)
 }
 
-/* 旧数据迁移：老版权重是 1-9 倍数，换算为 50 基准 */
+/* 旧数据迁移：v4 把所有权重统一重置为默认 50（旧 1-9 倍数体系 × 50 会产生 100 等值） */
 function loadConfigs(): WheelConfig[] {
   const raw = get<WheelConfig[]>('wheel_configs', [defaultConfig()])
-  if (get<number>('wheel_weight_v3', 0) === 1) return raw
+  if (get<number>('wheel_weight_v4', 0) === 1) return raw
   const next = raw.map(c => ({
     ...c,
-    items: (c.items || []).map(it => ({
-      text: it.text,
-      weight: clampWeight(WEIGHT_DEFAULT * (it.weight || 1))
-    }))
+    items: (c.items || []).map(it => ({ text: it.text, weight: WEIGHT_DEFAULT }))
   }))
   set('wheel_configs', next)
-  set('wheel_weight_v3', 1)
+  set('wheel_weight_v4', 1)
   return next
 }
 
@@ -114,13 +111,14 @@ export default function Wheel() {
   const [seedText, setSeedText] = useState('')
   const [result, setResult] = useState('')
   const [wish, setWish] = useState('')
-  const [spinning, setSpinning] = useState(false)
   const [history, setHistory] = useState<HistoryEntry[]>(get<HistoryEntry[]>('wheel_history', []))
 
   const canvasRef = useRef<any>(null)
   const rotRef = useRef(0)
   const rafRef = useRef(0)
   const spinningRef = useRef(false)
+  /* 上一次中奖下标：连续两次点 GO 结果不重复 */
+  const lastWinRef = useRef(-1)
   const drawRef = useRef<((rot: number) => void) | null>(null)
   const configRef = useRef<WheelConfig | null>(null)
   const themeRef = useRef<BackgroundPreset>(theme)
@@ -239,13 +237,41 @@ export default function Wheel() {
       startAngle = endAngle
     })
 
-    /* 中心底座（GO 按钮的衬底） */
+    /* 中心 GO 与顶部指针直接画进 canvas：原生组件层级会把普通 View 盖住 */
+    if (!spinningRef.current) {
+      ctx.beginPath()
+      ctx.arc(cx, cy, 52, 0, Math.PI * 2)
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fill()
+      const grad = ctx.createLinearGradient(cx - 42, cy - 42, cx + 42, cy + 42)
+      grad.addColorStop(0, '#FFAB91')
+      grad.addColorStop(1, '#FF7043')
+      ctx.beginPath()
+      ctx.arc(cx, cy, 42, 0, Math.PI * 2)
+      ctx.fillStyle = grad
+      ctx.fill()
+      ctx.fillStyle = '#FFFFFF'
+      ctx.font = '800 30px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('GO', cx, cy + 2)
+    } else {
+      ctx.beginPath()
+      ctx.arc(cx, cy, 16, 0, Math.PI * 2)
+      ctx.fillStyle = '#FFFFFF'
+      ctx.fill()
+    }
+
+    /* 顶部指针 */
     ctx.beginPath()
-    ctx.arc(cx, cy, 54, 0, Math.PI * 2)
-    ctx.fillStyle = '#FFFFFF'
+    ctx.moveTo(cx - 15, 2)
+    ctx.lineTo(cx + 15, 2)
+    ctx.lineTo(cx, 30)
+    ctx.closePath()
+    ctx.fillStyle = '#FF7043'
     ctx.fill()
-    ctx.strokeStyle = colors[0]
-    ctx.lineWidth = 6
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)'
+    ctx.lineWidth = 3
     ctx.stroke()
   }
 
@@ -301,7 +327,6 @@ export default function Wheel() {
 
     const run = () => {
       spinningRef.current = true
-      setSpinning(true)
       setResult('')
       setWish(randomOf(WHEEL_WISHES))
 
@@ -310,15 +335,27 @@ export default function Wheel() {
       const useSeed = seedText !== '' && !Number.isNaN(seedNum)
       const rng = useSeed ? mulberry32(Math.floor(Math.abs(seedNum)) + 1) : Math.random
 
-      let r = rng() * tw
-      let targetIndex = 0
-      for (let i = 0; i < items.length; i++) {
-        r -= items[i].weight
-        if (r < 0) {
-          targetIndex = i
-          break
+      const pickIndex = (): number => {
+        let r = rng() * tw
+        let idx = 0
+        for (let i = 0; i < items.length; i++) {
+          r -= items[i].weight
+          if (r < 0) {
+            idx = i
+            break
+          }
         }
+        return idx
       }
+
+      /* 和上一次结果相同就重新随机，保证每次转动都有变化 */
+      let targetIndex = pickIndex()
+      let guard = 0
+      while (items.length > 1 && targetIndex === lastWinRef.current && guard < 24) {
+        targetIndex = pickIndex()
+        guard++
+      }
+      lastWinRef.current = targetIndex
 
       let cumWeight = 0
       for (let i = 0; i < targetIndex; i++) cumWeight += items[i].weight
@@ -343,13 +380,14 @@ export default function Wheel() {
           rafRef.current = canvasRef.current.requestAnimationFrame(animate)
         } else {
           spinningRef.current = false
-          setSpinning(false)
           const winner = items[targetIndex].text
           setResult(winner)
           const nextHistory = get<HistoryEntry[]>('wheel_history', [])
           nextHistory.unshift({ ts: Date.now(), config: config ? config.name : '', result: winner })
           set('wheel_history', nextHistory.slice(0, 100))
           setHistory(nextHistory.slice(0, 100))
+          /* 结束后重绘一次，把中心 GO 画回来 */
+          if (drawRef.current) drawRef.current(rotRef.current)
         }
       }
       rafRef.current = canvasRef.current.requestAnimationFrame(animate)
@@ -369,6 +407,8 @@ export default function Wheel() {
     set('wheel_last_config', index)
     setResult('')
     setSeedText(configs[index].seed)
+    /* 换了方案，上次结果作废，不参与去重 */
+    lastWinRef.current = -1
   }
 
   const createConfig = () => {
@@ -384,6 +424,27 @@ export default function Wheel() {
         const next = [...configs, { name, items: [], seed: '' }]
         persistConfigs(next, next.length - 1)
         setResult('')
+      }
+    }
+    Taro.showModal(opts)
+  }
+
+  /* 长按方案名重命名 */
+  const renameConfig = (index: number) => {
+    if (spinningRef.current) return
+    /* editable 为基础库 2.17.1+ 扩展参数，Taro 类型定义未覆盖 */
+    const opts: any = {
+      title: '重命名方案',
+      editable: true,
+      content: configs[index].name,
+      success: (res: any) => {
+        if (!res.confirm) return
+        const name = (res.content || '').trim()
+        if (!name || name === configs[index].name) return
+        const next = configs.map((c, i) => (i === index ? { ...c, name } : c))
+        setConfigs(next)
+        set('wheel_configs', next)
+        Taro.showToast({ title: '已重命名', icon: 'success' })
       }
     }
     Taro.showModal(opts)
@@ -617,10 +678,18 @@ export default function Wheel() {
             key={`${c.name}-${i}`}
             className={`wheel-tab ${i === activeIndex ? 'wheel-tab--active' : ''}`}
             onClick={() => switchConfig(i)}
-            onLongPress={() => removeConfig(i)}
+            onLongPress={() => renameConfig(i)}
           >
             {c.name}
-            <Text className='wheel-tab-count'>{c.items.length}</Text>
+            <Text
+              className='wheel-tab-del'
+              onClick={e => {
+                e.stopPropagation()
+                removeConfig(i)
+              }}
+            >
+              ×
+            </Text>
           </View>
         ))}
         <View className='wheel-tab wheel-tab--new' onClick={createConfig}>
@@ -628,15 +697,9 @@ export default function Wheel() {
         </View>
       </ScrollView>
 
-      {/* ---------- 转盘 ---------- */}
+      {/* ---------- 转盘（GO/指针画在 canvas 内，点盘面或中心均可转） ---------- */}
       <View className='wheel-stage'>
-        <View className='wheel-pointer' />
-        <Canvas type='2d' id='wheelCanvas' className='wheel-canvas' />
-        {!spinning && (
-          <View className='wheel-go' onClick={spin}>
-            GO
-          </View>
-        )}
+        <Canvas type='2d' id='wheelCanvas' className='wheel-canvas' onClick={spin} />
       </View>
 
       {/* ---------- 结果 ---------- */}
@@ -755,7 +818,7 @@ export default function Wheel() {
         <View className='wheel-items-empty'>还没有记录，转一次试试</View>
       )}
 
-      <View className='wheel-tip'>长按选项或方案名可删除 · 权重决定扇区大小和中奖概率</View>
+      <View className='wheel-tip'>长按选项可删除 · 长按方案名可重命名 · 权重决定扇区大小和中奖概率</View>
     </View>
   )
 }

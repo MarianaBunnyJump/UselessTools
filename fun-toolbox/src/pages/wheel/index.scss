@@ -37,16 +37,26 @@
   box-shadow: 0 8px 20px -10px rgba(255, 138, 101, 0.6);
 }
 
-.wheel-tab-count {
-  min-width: 34px;
+.wheel-tab-del {
+  width: 34px;
   height: 34px;
-  padding: 0 8px;
   border-radius: 17px;
-  background: rgba(255, 171, 145, 0.2);
-  color: #ff8a65;
-  font-size: 22px;
+  background: rgba(176, 165, 154, 0.12);
+  color: #b0a59a;
+  font-size: 26px;
   text-align: center;
-  line-height: 34px;
+  line-height: 32px;
+  flex-shrink: 0;
+
+  &:active {
+    background: rgba(239, 83, 80, 0.2);
+    color: #ef5350;
+  }
+}
+
+.wheel-tab--active .wheel-tab-del {
+  background: rgba(255, 171, 145, 0.18);
+  color: #ff8a65;
 }
 
 .wheel-tab--new {
@@ -67,56 +77,6 @@
 .wheel-canvas {
   width: 620px;
   height: 620px;
-}
-
-.wheel-pointer {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 18px solid transparent;
-  border-right: 18px solid transparent;
-  border-top: 34px solid #ff7043;
-  filter: drop-shadow(0 4px 6px rgba(255, 112, 67, 0.5));
-  z-index: 5;
-}
-
-/* 浮动动画必须带上居中位移，否则 GO 会偏离圆心 */
-@keyframes go-bob {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) translateY(0);
-  }
-  50% {
-    transform: translate(-50%, -50%) translateY(-8px);
-  }
-}
-
-.wheel-go {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 108px;
-  height: 108px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ffab91, #ff7043);
-  color: #fff;
-  font-size: 36px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 14px 30px -10px rgba(255, 112, 67, 0.7), inset 0 -4px 8px rgba(0, 0, 0, 0.12);
-  z-index: 6;
-  animation: go-bob 2.2s ease-in-out infinite;
-
-  &:active {
-    transform: translate(-50%, -50%) scale(0.92);
-  }
 }
 
 /* ---------- 结果 ---------- */

@@ -33,9 +33,6 @@ interface Ash {
   size: number
 }
 
-const FONT_SIZE = 44
-const LINE_HEIGHT = 64
-const CHARS_PER_LINE = 11
 const HOLD_MS = 500
 const ANIM_MS = 2200
 
@@ -82,22 +79,52 @@ export default function CrusherAnimation() {
         const ctx = canvas.getContext('2d')
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-        /* ---------- 构建字符粒子 ---------- */
+        /* ---------- 构建字符粒子（按画布尺寸动态排版，文字始终完整显示在页面内） ---------- */
         const chars = Array.from(text).slice(0, 100)
-        const lines: string[][] = []
-        for (let i = 0; i < chars.length; i += CHARS_PER_LINE) {
-          lines.push(chars.slice(i, i + CHARS_PER_LINE))
+        const availW = w - 56
+        const maxBlockH = h * 0.5
+        let fontSize = 44
+        let lineHeight = Math.round(fontSize * 1.5)
+        let charsPerLine = Math.max(4, Math.floor(availW / fontSize))
+        let lines: string[][] = []
+        const layoutLines = () => {
+          lines = []
+          for (let i = 0; i < chars.length; i += charsPerLine) {
+            lines.push(chars.slice(i, i + charsPerLine))
+          }
+        }
+        layoutLines()
+        /* 行数超预算就逐级缩小字号，直到放下或到达下限 */
+        let guard = 0
+        while (
+          lines.length * lineHeight > maxBlockH &&
+          fontSize > 20 &&
+          guard < 8
+        ) {
+          fontSize -= 4
+          lineHeight = Math.round(fontSize * 1.5)
+          charsPerLine = Math.max(4, Math.floor(availW / fontSize))
+          layoutLines()
+          guard++
+        }
+        /* 仍放不下才截断加省略号 */
+        const maxLines = Math.max(3, Math.floor(maxBlockH / lineHeight))
+        if (lines.length > maxLines) {
+          lines = lines.slice(0, maxLines)
+          const last = lines[lines.length - 1]
+          if (last.length >= charsPerLine) last[last.length - 1] = '…'
+          else last.push('…')
         }
         const cx = w / 2
-        const cy = h * 0.42
-        const startY = cy - ((lines.length - 1) * LINE_HEIGHT) / 2
+        const cy = h * 0.44
+        const startY = cy - ((lines.length - 1) * lineHeight) / 2
 
         const particles: Particle[] = []
         lines.forEach((line, li) => {
-          const lw = line.length * FONT_SIZE
+          const lw = line.length * fontSize
           line.forEach((ch, ci) => {
-            const px = cx - lw / 2 + ci * FONT_SIZE + FONT_SIZE / 2
-            const py = startY + li * LINE_HEIGHT
+            const px = cx - lw / 2 + ci * fontSize + fontSize / 2
+            const py = startY + li * lineHeight
             particles.push({
               ch,
               x: px,
@@ -115,8 +142,8 @@ export default function CrusherAnimation() {
           })
         })
 
-        const textTop = startY - LINE_HEIGHT / 2
-        const textBottom = startY + (lines.length - 1) * LINE_HEIGHT + LINE_HEIGHT / 2
+        const textTop = startY - lineHeight / 2
+        const textBottom = startY + (lines.length - 1) * lineHeight + lineHeight / 2
         const ashes: Ash[] = []
 
         if (isSupported()) {
@@ -127,7 +154,7 @@ export default function CrusherAnimation() {
         const startTime = Date.now()
 
         const drawChars = () => {
-          ctx.font = `700 ${FONT_SIZE}px sans-serif`
+          ctx.font = `700 ${fontSize}px sans-serif`
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
           particles.forEach(p => {

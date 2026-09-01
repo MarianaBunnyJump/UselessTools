@@ -3,6 +3,15 @@
   min-height: 100vh;
 }
 
+/* 背景印花画布：垫在内容层下（后续定位元素按 DOM 顺序盖在它上面） */
+.pattern-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
 .home-header {
   position: relative;
   text-align: center;
@@ -57,6 +66,7 @@
 }
 
 .home-grid {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -69,6 +79,7 @@
 }
 
 .home-footer-wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;

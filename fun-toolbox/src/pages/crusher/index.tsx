@@ -100,7 +100,7 @@ export default function Crusher() {
           className='crusher-textarea'
           value={text}
           maxlength={MAX_LEN}
-          placeholder='把你的烦心事写在这里，比如：今天又被甲方改了八版'
+          placeholder='把你的烦心事写在这里'
           placeholderClass='crusher-placeholder'
           onInput={e => setText(e.detail.value)}
         />

@@ -65,6 +65,76 @@
   margin-top: 6px;
 }
 
+/* ---------- 背景印花 ---------- */
+.settings-pattern-preview-wrap {
+  position: relative;
+  height: 220px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 26px -12px rgba(74, 59, 50, 0.18);
+}
+
+.settings-pattern-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.settings-pattern-preview-tip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #b8a99e;
+}
+
+.settings-pattern-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.settings-pattern-chip {
+  padding: 12px 26px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  font-size: 25px;
+  color: #6d5f56;
+}
+
+.settings-pattern-chip--active {
+  background: rgba(255, 138, 128, 0.14);
+  border-color: #ff8a80;
+  color: #ff7043;
+  font-weight: 700;
+}
+
+.settings-pattern-params {
+  margin-top: 24px;
+  padding: 26px 28px 20px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.settings-slider-row + .settings-slider-row {
+  margin-top: 20px;
+}
+
+.settings-slider-label {
+  display: block;
+  font-size: 24px;
+  color: #6d5f56;
+  margin-bottom: 8px;
+}
+
+.settings-slider {
+  margin: 0;
+}
+
 .settings-about-entry {
   margin-top: 60px;
   text-align: center;

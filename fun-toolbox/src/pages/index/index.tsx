@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { TOOLS, type ToolMeta } from '../../data/tools'
 import { SLOGANS } from '../../data/slogans'
 import { HAPPY_QUIPS } from '../../data/happyQuips'
+import { PATTERNS, getPatternConfig, renderPattern } from '../../data/patterns'
 import { getTheme, type BackgroundPreset } from '../../utils/theme'
 import { get, addTotalCount } from '../../utils/storage'
 import GiftBox from '../../components/GiftBox'
@@ -72,27 +73,23 @@ export default function Index() {
     }
   }, [])
 
-  useEffect(() => {
-    const listener = (bg: BackgroundPreset) => setTh(bg)
-    Taro.eventCenter.on('theme-changed', listener)
-    return () => {
-      Taro.eventCenter.off('theme-changed', listener)
-      stopConfetti()
-    }
-  }, [])
-
-  const startConfetti = useCallback(() => {
+  /* ---------- 背景印花 ---------- */
+  const drawPattern = useCallback(() => {
+    const cfg = getPatternConfig()
+    const pattern = PATTERNS.find(p => p.id === cfg.id)
     const query = Taro.createSelectorQuery()
     query
-      .select('#confettiCanvas')
+      .select('#patternCanvas')
       .fields({ node: true, size: true })
       .exec(res => {
         if (!res || !res[0] || !res[0].node) return
         const canvas = res[0].node
-        canvasRef.current = canvas
         let dpr = 2
+        let winW = 375
         try {
-          dpr = Taro.getSystemInfoSync().pixelRatio || 2
+          const info = Taro.getSystemInfoSync()
+          dpr = info.pixelRatio || 2
+          winW = info.windowWidth || 375
         } catch (e) {
           /* 默认值兜底 */
         }
@@ -102,10 +99,84 @@ export default function Index() {
         canvas.height = h * dpr
         const ctx = canvas.getContext('2d')
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        if (!pattern) {
+          ctx.clearRect(0, 0, w, h)
+          return
+        }
+        const scale = winW / 750
+        renderPattern(ctx, w, h, pattern, {
+          size: cfg.size * scale,
+          gap: cfg.gap * scale,
+          opacity: cfg.opacity,
+          color: getTheme().accent
+        })
+      })
+  }, [])
 
-        const pieces: ConfettiPiece[] = []
-        const count = 150
-        for (let i = 0; i < count; i++) {
+  /* 印花 Canvas 挂载后再查询绘制 */
+  useEffect(() => {
+    const timer = setTimeout(drawPattern, 80)
+    return () => clearTimeout(timer)
+  }, [drawPattern])
+
+  const stopConfetti = useCallback(() => {
+    runningRef.current = false
+    setConfettiOn(false)
+  }, [])
+
+  useEffect(() => {
+    const listener = (bg: BackgroundPreset) => {
+      setTh(bg)
+      /* 主题色变了，印花跟着重绘 */
+      drawPattern()
+    }
+    Taro.eventCenter.on('theme-changed', listener)
+    const patternListener = () => drawPattern()
+    Taro.eventCenter.on('pattern-changed', patternListener)
+    return () => {
+      Taro.eventCenter.off('theme-changed', listener)
+      Taro.eventCenter.off('pattern-changed', patternListener)
+      stopConfetti()
+    }
+  }, [drawPattern, stopConfetti])
+
+  const startConfetti = useCallback(() => {
+    /* Canvas 挂载有时序差，查不到节点就退避重试 */
+    const tryStart = (retries: number) => {
+      const query = Taro.createSelectorQuery()
+      query
+        .select('#confettiCanvas')
+        .fields({ node: true, size: true })
+        .exec(res => {
+          if (!res || !res[0] || !res[0].node) {
+            if (retries > 0) {
+              setTimeout(() => tryStart(retries - 1), 120)
+            } else {
+              /* 放弃：复位状态，允许下次重试 */
+              setConfettiOn(false)
+            }
+            return
+          }
+          startOnNode(res[0].node, res[0].width, res[0].height)
+        })
+    }
+
+    const startOnNode = (canvas: any, w: number, h: number) => {
+      canvasRef.current = canvas
+      let dpr = 2
+      try {
+        dpr = Taro.getSystemInfoSync().pixelRatio || 2
+      } catch (e) {
+        /* 默认值兜底 */
+      }
+      canvas.width = w * dpr
+      canvas.height = h * dpr
+      const ctx = canvas.getContext('2d')
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
+      const pieces: ConfettiPiece[] = []
+      const count = 150
+      for (let i = 0; i < count; i++) {
           pieces.push({
             x: Math.random() * w,
             y: -30 - Math.random() * h * 0.6,
@@ -121,7 +192,6 @@ export default function Index() {
           })
         }
         piecesRef.current = pieces
-        setConfettiOn(true)
         runningRef.current = true
 
         let frame = 0
@@ -150,18 +220,22 @@ export default function Index() {
           }
         }
         canvas.requestAnimationFrame(render)
-      })
-  }, [])
-
-  const stopConfetti = useCallback(() => {
-    runningRef.current = false
-    setConfettiOn(false)
+    }
+    tryStart(3)
   }, [])
 
   const handleTitleTap = () => {
     if (runningRef.current) return
-    startConfetti()
+    /* 先挂载彩带 Canvas，等它渲染完成后再查询节点启动动画 */
+    setConfettiOn(true)
   }
+
+  /* confettiOn 置真后 Canvas 才存在，延迟一拍再启动 */
+  useEffect(() => {
+    if (!confettiOn) return
+    const timer = setTimeout(() => startConfetti(), 60)
+    return () => clearTimeout(timer)
+  }, [confettiOn, startConfetti])
 
   const handleSloganTap = () => {
     let next = slogan
@@ -201,6 +275,7 @@ export default function Index() {
 
   return (
     <View className='page-root home-root' style={{ background: theme.bg }}>
+      <Canvas type='2d' id='patternCanvas' className='pattern-canvas' />
       <View className='home-header' style={{ paddingTop: `${layout.headerPad}px` }}>
         <View
           className='home-gear'
