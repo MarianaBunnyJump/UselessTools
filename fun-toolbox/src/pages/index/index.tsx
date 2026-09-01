@@ -198,8 +198,11 @@ export default function Index() {
         ))}
       </View>
 
-      <View className='home-footer' onClick={goAbout}>
-        已收录 {TOOLS.length} 个工具 · 关于
+      <View className='home-footer-wrap'>
+        <View className='home-footer' onClick={goAbout}>
+          已收录 {TOOLS.length} 个工具 · 关于
+        </View>
+        <View className='home-author'>design by mariana</View>
       </View>
 
       {confettiOn && (

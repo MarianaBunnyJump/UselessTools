@@ -70,13 +70,27 @@
   margin-bottom: 24px;
 }
 
+.home-footer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 60px;
+}
+
 .home-footer {
   text-align: center;
   font-size: 22px;
   color: #b8a99e;
-  padding: 26px 0 60px;
+  padding: 26px 0 0;
   text-decoration: underline;
   text-decoration-color: rgba(184, 169, 158, 0.4);
+}
+
+.home-author {
+  margin-top: 12px;
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: #cfc3ba;
 }
 
 .confetti-canvas {
