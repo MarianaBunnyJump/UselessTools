@@ -61,7 +61,7 @@
 /* ---------- 巨大数字 ---------- */
 .life-hero {
   text-align: center;
-  padding: 34px 0 10px;
+  padding: 30px 0 6px;
   animation: fade-up 0.5s ease-out;
 }
 
@@ -74,7 +74,6 @@
   font-size: 130px;
   font-weight: 800;
   line-height: 1.15;
-  color: #4a3b32;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 3px 0 rgba(255, 255, 255, 0.8);
   background: linear-gradient(135deg, #9575cd, #b39ddb);
@@ -84,48 +83,16 @@
 }
 
 .life-hero-unit {
-  font-size: 30px;
+  font-size: 26px;
   color: #8d7b70;
   margin-top: -6px;
 }
 
-/* ---------- 数据卡片 ---------- */
-.life-card {
-  margin-top: 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  animation: fade-up 0.5s ease-out 0.1s both;
-}
-
-.life-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 6px;
-}
-
-.life-row + .life-row {
-  border-top: 1px dashed rgba(141, 123, 112, 0.18);
-}
-
-.life-row-label {
-  font-size: 28px;
-  color: #8d7b70;
-}
-
-.life-row-value {
-  font-size: 32px;
-  font-weight: 800;
-  color: #4a3b32;
-  font-variant-numeric: tabular-nums;
-}
-
 /* ---------- 进度条 ---------- */
 .life-progress {
-  margin-top: 18px;
-  padding-top: 20px;
-  border-top: 1px dashed rgba(141, 123, 112, 0.18);
+  margin-top: 20px;
+  padding: 24px 30px;
+  animation: fade-up 0.5s ease-out 0.05s both;
 }
 
 .life-progress-head {
@@ -156,25 +123,87 @@
   transition: width 1s ease;
 }
 
-.life-expectancy {
-  margin-top: 20px;
-  padding: 18px 6px 6px;
+/* ---------- 指标小卡片 ---------- */
+.life-grid {
+  margin-top: 24px;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.life-metric-card {
+  width: 314px;
+  padding: 28px 24px 22px;
+  box-sizing: border-box;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 26px -14px rgba(149, 117, 205, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fade-up 0.5s ease-out both;
+
+  &:nth-child(1) { animation-delay: 0.08s; }
+  &:nth-child(2) { animation-delay: 0.14s; }
+  &:nth-child(3) { animation-delay: 0.2s; }
+  &:nth-child(4) { animation-delay: 0.26s; }
+  &:nth-child(5) { animation-delay: 0.32s; }
+}
+
+.life-metric-card--wide {
+  width: 100%;
+}
+
+.life-metric-value {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #4a3b32;
+  font-variant-numeric: tabular-nums;
+}
+
+.life-metric-unit {
+  margin-top: 2px;
+  font-size: 24px;
+  color: #9575cd;
+  font-weight: 700;
+}
+
+.life-metric-label {
+  margin-top: 10px;
   font-size: 26px;
   color: #8d7b70;
+  text-align: center;
+}
+
+.life-metric-share {
+  margin-top: 18px;
+  padding: 10px 36px;
+  border-radius: 30px;
+  background: rgba(179, 157, 219, 0.14);
+  border: 1px solid rgba(179, 157, 219, 0.45);
+  color: #7e57c2;
+  font-size: 24px;
+  font-weight: 600;
+
+  &:active {
+    background: rgba(179, 157, 219, 0.3);
+  }
 }
 
 /* ---------- 假期提示 ---------- */
 .life-holiday {
-  margin-top: 26px;
+  margin-top: 28px;
   text-align: center;
   font-size: 24px;
   color: #8d7b70;
   animation: fade-up 0.5s ease-out 0.2s both;
 }
 
-.life-share {
-  margin-top: 40px;
-  background: linear-gradient(135deg, #c5b0e3, #9575cd);
+.life-footnote {
+  margin-top: 30px;
+  text-align: center;
+  font-size: 22px;
+  color: #c9bdb4;
 }

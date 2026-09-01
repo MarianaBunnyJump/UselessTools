@@ -240,6 +240,7 @@ export default function CrusherAnimation() {
   }, [animKey, mode, text, done])
 
   const again = () => {
+    Taro.eventCenter.trigger('crusher:again')
     Taro.navigateBack()
   }
 

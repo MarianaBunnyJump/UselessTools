@@ -41,7 +41,7 @@
   color: #00897b;
 }
 
-/* ---------- 音轨 ---------- */
+/* ---------- 音轨（暗色长条卡片） ---------- */
 .mixer-tracks {
   display: flex;
   flex-direction: column;
@@ -49,63 +49,72 @@
 }
 
 .mixer-track {
-  position: relative;
-  padding: 22px 26px;
+  padding: 24px 26px 6px;
   border-radius: 26px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 2px solid rgba(255, 255, 255, 0.75);
+  background: linear-gradient(150deg, #3a4a52 0%, #2c3a41 100%);
+  border: 2px solid rgba(255, 255, 255, 0.06);
   transition: all 0.25s ease;
 }
 
 .mixer-track--on {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(77, 182, 172, 0.55);
-  box-shadow: 0 10px 24px -12px rgba(77, 182, 172, 0.5);
+  background: linear-gradient(150deg, #2f6e66 0%, #22454e 100%);
+  border-color: rgba(100, 216, 203, 0.65);
+  box-shadow: 0 14px 30px -14px rgba(38, 166, 154, 0.8);
 }
 
-.mixer-track-left {
+.mixer-track-head {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 .mixer-track-icon {
   font-size: 44px;
   line-height: 1.2;
+  filter: grayscale(0.35) brightness(0.95);
+  transition: filter 0.25s ease;
+}
+
+.mixer-track--on .mixer-track-icon {
+  filter: none;
 }
 
 .mixer-track-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .mixer-track-name {
   font-size: 28px;
   font-weight: 700;
-  color: #4a3b32;
+  color: #b7c4ca;
+}
+
+.mixer-track--on .mixer-track-name {
+  color: #ffffff;
 }
 
 .mixer-track-desc {
   font-size: 20px;
-  color: #b8a99e;
+  color: #7d8f97;
 }
 
 /* ---------- EQ 律动 ---------- */
 .mixer-eq {
-  position: absolute;
-  right: 30px;
-  top: 24px;
   display: flex;
   align-items: flex-end;
   gap: 5px;
   height: 30px;
+  flex-shrink: 0;
 }
 
 .mixer-eq-bar {
   width: 6px;
   height: 100%;
   border-radius: 3px;
-  background: #4db6ac;
+  background: #64d8cb;
   transform-origin: bottom;
   animation: eq-bar 0.8s ease-in-out infinite;
 }
@@ -117,19 +126,15 @@
 
 .mixer-eq-bar--3 {
   animation-delay: 0.36s;
-  background: #80cbc4;
+  background: #9de8df;
 }
 
-/* ---------- 滑块行 ---------- */
-.mixer-track-right {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-top: 14px;
+/* ---------- 整条音量滑杆 ---------- */
+.mixer-slider-row {
+  margin: 6px -6px 0;
 }
 
 .mixer-slider {
-  flex: 1;
   margin: 0;
 }
 
@@ -138,12 +143,13 @@
   text-align: right;
   font-size: 26px;
   font-weight: 700;
-  color: #00897b;
+  color: #78909c;
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 
-.mixer-track:not(.mixer-track--on) .mixer-track-vol {
-  color: #b8a99e;
+.mixer-track--on .mixer-track-vol {
+  color: #64d8cb;
 }
 
 /* ---------- 播放按钮 ---------- */

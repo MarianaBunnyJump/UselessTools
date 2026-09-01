@@ -3,11 +3,11 @@
 }
 
 .nav-bar-inner {
-  height: 88px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
+  box-sizing: border-box;
 }
 
 .nav-back {
@@ -48,4 +48,5 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  box-sizing: border-box;
 }

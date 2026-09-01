@@ -1,6 +1,6 @@
 import { View, Text, Textarea } from '@tarojs/components'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { CRUSHER_QUOTES } from '../../data/crusherQuotes'
 import { CRUSHER_PRESETS } from '../../data/crusherPresets'
 import { getTheme } from '../../utils/theme'
@@ -25,14 +25,23 @@ export default function Crusher() {
   const today = getDailyCount('crusher_today').count
   const [todayCount, setTodayCount] = useState(today)
 
-  /* 每次进入随机 2 条入场文案 */
+  /* 每次进入随机 3 条入场文案 */
   const quotes = useMemo(() => {
-    const first = randomOf(CRUSHER_QUOTES)
-    let second = first
-    while (second === first) {
-      second = randomOf(CRUSHER_QUOTES)
+    const picked: string[] = []
+    while (picked.length < 3 && picked.length < CRUSHER_QUOTES.length) {
+      const q = randomOf(CRUSHER_QUOTES)
+      if (!picked.includes(q)) picked.push(q)
     }
-    return [first, second]
+    return picked
+  }, [])
+
+  /* 动画页点「再来一次」返回时清空输入 */
+  useEffect(() => {
+    const clearInput = () => setText('')
+    Taro.eventCenter.on('crusher:again', clearInput)
+    return () => {
+      Taro.eventCenter.off('crusher:again', clearInput)
+    }
   }, [])
 
   useShareAppMessage(() => ({
@@ -65,6 +74,18 @@ export default function Crusher() {
   return (
     <View className='page-root crusher-root' style={{ background: theme.bg }}>
       <NavBar title='情绪粉碎机' />
+
+      <View className='crusher-stats-card'>
+        <View className='crusher-stats-cell'>
+          <Text className='crusher-stats-num'>{todayCount}</Text>
+          <Text className='crusher-stats-label'>今日已粉碎</Text>
+        </View>
+        <View className='crusher-stats-divider' />
+        <View className='crusher-stats-cell'>
+          <Text className='crusher-stats-num'>{get<number>('crusher_total', 0)}</Text>
+          <Text className='crusher-stats-label'>累计粉碎</Text>
+        </View>
+      </View>
 
       <View className='crusher-quotes'>
         {quotes.map((q, i) => (
@@ -129,10 +150,6 @@ export default function Crusher() {
 
       <View className={`crusher-go btn-primary ${!text.trim() ? 'disabled' : ''}`} onClick={crush}>
         开始粉碎
-      </View>
-
-      <View className='crusher-stats'>
-        今日已粉碎 {todayCount} 件 · 累计 {get<number>('crusher_total', 0)} 件
       </View>
     </View>
   )

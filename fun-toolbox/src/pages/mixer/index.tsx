@@ -39,6 +39,10 @@ export default function Mixer() {
   const [timerMinutes, setTimerMinutes] = useState(get<number>('mixer_timer_pref', 0))
   const [remainSeconds, setRemainSeconds] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  /* 点击开关音轨时记住上次的音量 */
+  const lastVolRef = useRef<number[]>(
+    get<number[]>('mixer_last_vols', MIXER_TRACKS.map(() => 50))
+  )
 
   useEffect(() => {
     return () => {
@@ -60,6 +64,7 @@ export default function Mixer() {
   const handleSlider = (index: number, value: number) => {
     const next = [...volumes]
     next[index] = value
+    if (value > 0) lastVolRef.current[index] = value
     persistVolumes(next)
     if (!playing || !supported) return
     const id = MIXER_TRACKS[index].id
@@ -69,6 +74,20 @@ export default function Mixer() {
     } else {
       stopTrack(id)
     }
+  }
+
+  /* 点击卡片：开 → 记住音量并关闭；关 → 恢复上次音量 */
+  const toggleTrack = (index: number) => {
+    const next = [...volumes]
+    if (next[index] > 0) {
+      lastVolRef.current[index] = next[index]
+      next[index] = 0
+      if (playing && supported) stopTrack(MIXER_TRACKS[index].id)
+    } else {
+      next[index] = lastVolRef.current[index] || 50
+      if (playing && supported) startTrack(MIXER_TRACKS[index].id, next[index])
+    }
+    persistVolumes(next)
   }
 
   const play = () => {
@@ -142,9 +161,9 @@ export default function Mixer() {
         if (!res.confirm) return
         const name = (res.content || '').trim() || '我的混音'
         let next = [...customPresets]
-        if (next.length >= 3) {
+        if (next.length >= 5) {
           Taro.showModal({
-            title: '自定义预设已满 3 个',
+            title: '自定义预设已满 5 个',
             content: `将替换最早的"${next[0].name}"？`,
             success: (r2: any) => {
               if (!r2.confirm) return
@@ -218,44 +237,40 @@ export default function Mixer() {
 
       {/* ---------- 音轨 ---------- */}
       <View className='mixer-section-label'>
-        音轨混音{activeCount > 0 ? ` · ${activeCount} 条在响` : ''}
+        音轨混音{activeCount > 0 ? ` · ${activeCount} 条在响` : ' · 点击卡片开关'}
       </View>
       <View className='mixer-tracks'>
         {MIXER_TRACKS.map((t, i) => (
-          <View
-            key={t.id}
-            className={`mixer-track ${volumes[i] > 0 ? 'mixer-track--on' : ''}`}
-          >
-            <View className='mixer-track-left'>
+          <View key={t.id} className={`mixer-track ${volumes[i] > 0 ? 'mixer-track--on' : ''}`}>
+            <View className='mixer-track-head' onClick={() => toggleTrack(i)}>
               <Text className='mixer-track-icon'>{t.icon}</Text>
               <View className='mixer-track-info'>
                 <Text className='mixer-track-name'>{t.name}</Text>
                 <Text className='mixer-track-desc'>{t.desc}</Text>
               </View>
+              <Text className='mixer-track-vol'>{volumes[i]}%</Text>
+              {playing && volumes[i] > 0 && (
+                <View className='mixer-eq'>
+                  <View className='mixer-eq-bar' />
+                  <View className='mixer-eq-bar mixer-eq-bar--2' />
+                  <View className='mixer-eq-bar mixer-eq-bar--3' />
+                </View>
+              )}
             </View>
 
-            {playing && volumes[i] > 0 && (
-              <View className='mixer-eq'>
-                <View className='mixer-eq-bar' />
-                <View className='mixer-eq-bar mixer-eq-bar--2' />
-                <View className='mixer-eq-bar mixer-eq-bar--3' />
-              </View>
-            )}
-
-            <View className='mixer-track-right'>
+            <View className='mixer-slider-row'>
               <Slider
                 className='mixer-slider'
                 value={volumes[i]}
                 min={0}
                 max={100}
                 step={5}
-                activeColor='#4DB6AC'
-                backgroundColor='rgba(77, 182, 172, 0.18)'
-                blockSize={22}
+                activeColor='#64D8CB'
+                backgroundColor='rgba(255, 255, 255, 0.14)'
+                blockSize={26}
                 blockColor='#ffffff'
                 onChange={e => handleSlider(i, e.detail.value as number)}
               />
-              <Text className='mixer-track-vol'>{volumes[i]}%</Text>
             </View>
           </View>
         ))}
@@ -290,7 +305,9 @@ export default function Mixer() {
       </View>
 
       <View className='mixer-tip'>
-        {supported ? '所有声音实时合成，不打烊' : '当前微信版本过低，暂时无法发声'}
+        {supported
+          ? '点击卡片开关音轨 · 拖动长条调节音量 · 所有声音实时合成'
+          : '当前微信版本过低，暂时无法发声'}
       </View>
     </View>
   )

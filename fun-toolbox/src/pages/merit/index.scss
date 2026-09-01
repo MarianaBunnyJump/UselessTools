@@ -51,7 +51,9 @@
 }
 
 .merit-fish-inner {
-  animation: fish-tap 0.18s ease-out;
+  /* 转轴放在尾部：敲击时头部下沉、尾部不动 */
+  transform-origin: 50% 88%;
+  animation: fish-tap 0.22s ease-out;
 }
 
 .merit-fish-icon {
@@ -71,6 +73,7 @@
   transform: rotate(-38deg);
   z-index: 2;
   pointer-events: none;
+  animation: stick-hit 0.22s ease-out;
 }
 
 .merit-stick {
@@ -82,8 +85,6 @@
   margin-left: -7px;
   border-radius: 8px;
   background: linear-gradient(180deg, #c9a877, #a0784e);
-  animation: stick-hit 0.22s ease-out;
-  transform-origin: 50% 0;
 }
 
 .merit-stick-ball {
@@ -96,7 +97,6 @@
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #f3d9a8, #c9a877);
   box-shadow: 0 6px 10px -4px rgba(74, 59, 50, 0.4);
-  animation: stick-hit 0.22s ease-out;
 }
 
 /* ---------- 浮字 ---------- */

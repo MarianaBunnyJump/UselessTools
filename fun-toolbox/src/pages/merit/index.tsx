@@ -127,9 +127,9 @@ export default function Merit() {
           </Text>
         ))}
 
-        <View className='merit-stick-wrap'>
-          <View key={`stick-${tapKey}`} className='merit-stick' />
-          <View key={`ball-${tapKey}`} className='merit-stick-ball' />
+        <View key={`stick-${tapKey}`} className='merit-stick-wrap'>
+          <View className='merit-stick' />
+          <View className='merit-stick-ball' />
         </View>
 
         <View className='merit-fish-area' onClick={handleTap}>

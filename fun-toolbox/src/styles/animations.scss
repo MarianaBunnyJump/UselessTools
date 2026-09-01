@@ -67,16 +67,16 @@
   }
 }
 
-/* 木鱼敲击缩放 */
+/* 木鱼敲击：转轴在尾部，头被敲得沉下去再回弹 */
 @keyframes fish-tap {
   0% {
-    transform: scale(1);
+    transform: rotate(0deg) translateY(0) scale(1);
   }
-  35% {
-    transform: scale(0.9) rotate(-3deg);
+  30% {
+    transform: rotate(5deg) translateY(4px) scale(0.98);
   }
   100% {
-    transform: scale(1);
+    transform: rotate(0deg) translateY(0) scale(1);
   }
 }
 

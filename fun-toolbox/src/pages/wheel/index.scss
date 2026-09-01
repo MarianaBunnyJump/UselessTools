@@ -12,14 +12,14 @@
 .wheel-tabs {
   width: 100%;
   white-space: nowrap;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .wheel-tab {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 30px;
+  padding: 12px 28px;
   margin-right: 14px;
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.55);
@@ -56,27 +56,17 @@
   background: rgba(255, 171, 145, 0.08);
 }
 
-/* ---------- 命运文案 ---------- */
-.wheel-wish {
-  margin-top: 22px;
-  text-align: center;
-  font-size: 26px;
-  color: #8d7b70;
-  min-height: 40px;
-  animation: fade-up 0.4s ease-out;
-}
-
 /* ---------- 转盘 ---------- */
 .wheel-stage {
   position: relative;
-  width: 640px;
-  height: 640px;
-  margin: 16px auto 0;
+  width: 620px;
+  height: 620px;
+  margin: 10px auto 0;
 }
 
 .wheel-canvas {
-  width: 640px;
-  height: 640px;
+  width: 620px;
+  height: 620px;
 }
 
 .wheel-pointer {
@@ -93,17 +83,28 @@
   z-index: 5;
 }
 
+/* 浮动动画必须带上居中位移，否则 GO 会偏离圆心 */
+@keyframes go-bob {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-8px);
+  }
+}
+
 .wheel-go {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 116px;
-  height: 116px;
+  width: 108px;
+  height: 108px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ffab91, #ff7043);
   color: #fff;
-  font-size: 38px;
+  font-size: 36px;
   font-weight: 800;
   letter-spacing: 1px;
   display: flex;
@@ -111,7 +112,7 @@
   justify-content: center;
   box-shadow: 0 14px 30px -10px rgba(255, 112, 67, 0.7), inset 0 -4px 8px rgba(0, 0, 0, 0.12);
   z-index: 6;
-  animation: float-bob 2.2s ease-in-out infinite;
+  animation: go-bob 2.2s ease-in-out infinite;
 
   &:active {
     transform: translate(-50%, -50%) scale(0.92);
@@ -120,8 +121,8 @@
 
 /* ---------- 结果 ---------- */
 .wheel-result {
-  margin-top: 22px;
-  min-height: 120px;
+  margin-top: 18px;
+  min-height: 110px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.6);
   border: 2px solid rgba(255, 255, 255, 0.8);
@@ -129,8 +130,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 20px;
+  gap: 8px;
+  padding: 16px 20px;
   transition: all 0.3s ease;
 }
 
@@ -156,20 +157,21 @@
 
 .wheel-result-idle {
   font-size: 26px;
-  color: #b8a99e;
+  color: #8d7b70;
+  text-align: center;
 }
 
 /* ---------- 种子 ---------- */
 .wheel-seed-row {
   display: flex;
   gap: 16px;
-  margin-top: 26px;
+  margin-top: 20px;
 }
 
 .wheel-seed-input {
   flex: 1;
-  height: 84px;
-  padding: 0 28px;
+  height: 76px;
+  padding: 0 26px;
   box-sizing: border-box;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.75);
@@ -180,7 +182,7 @@
 
 .wheel-seed-random {
   width: 130px;
-  height: 84px;
+  height: 76px;
   border-radius: 22px;
   background: rgba(255, 171, 145, 0.15);
   border: 2px dashed rgba(255, 138, 101, 0.5);
@@ -194,51 +196,97 @@
 
 /* ---------- 选项列表 ---------- */
 .wheel-section-label {
-  margin: 30px 8px 16px;
+  margin: 26px 8px 14px;
   font-size: 28px;
   font-weight: 700;
   color: #4a3b32;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wheel-reset-weight {
+  font-size: 22px;
+  font-weight: 500;
+  color: #ff8a65;
+  padding: 6px 18px;
+  border-radius: 24px;
+  background: rgba(255, 171, 145, 0.12);
+}
+
+.wheel-history-more {
+  font-size: 22px;
+  font-weight: 500;
+  color: #ff8a65;
 }
 
 .wheel-items {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+}
+
+.wheel-items-empty {
+  padding: 36px 0;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 2px dashed rgba(255, 255, 255, 0.8);
+  text-align: center;
+  font-size: 24px;
+  color: #b8a99e;
 }
 
 .wheel-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 28px;
+  padding: 16px 24px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.6);
   border: 2px solid rgba(255, 255, 255, 0.8);
   animation: slide-in-left 0.3s ease-out both;
 }
 
+.wheel-item-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
 .wheel-item-text {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 600;
   color: #4a3b32;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wheel-item-prob {
+  flex-shrink: 0;
+  font-size: 22px;
+  color: #ff8a65;
+  font-variant-numeric: tabular-nums;
 }
 
 .wheel-item-weight {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  flex-shrink: 0;
 }
 
 .wheel-weight-btn {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: rgba(255, 171, 145, 0.16);
   color: #ff8a65;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 700;
   text-align: center;
-  line-height: 52px;
+  line-height: 48px;
 
   &:active {
     background: rgba(255, 171, 145, 0.4);
@@ -258,12 +306,12 @@
 .wheel-add-row {
   display: flex;
   gap: 16px;
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .wheel-add-input {
   flex: 1;
-  height: 88px;
+  height: 84px;
   padding: 0 28px;
   box-sizing: border-box;
   border-radius: 24px;
@@ -275,7 +323,7 @@
 
 .wheel-add-btn {
   width: 150px;
-  height: 88px;
+  height: 84px;
   border-radius: 24px;
   background: linear-gradient(135deg, #ffab91, #ff7043);
   color: #fff;
@@ -289,6 +337,89 @@
   &:active {
     transform: scale(0.95);
   }
+}
+
+/* ---------- 导入导出分享 ---------- */
+.wheel-tool-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.wheel-tool-btn {
+  flex: 1;
+  height: 76px;
+  margin: 0;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  color: #6d5f56;
+  font-size: 25px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  line-height: 1;
+
+  &::after {
+    border: none;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.wheel-tool-btn--share {
+  background: rgba(255, 171, 145, 0.14);
+  border: 2px solid rgba(255, 138, 101, 0.45);
+  color: #ff7043;
+}
+
+/* ---------- 历史记录 ---------- */
+.wheel-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wheel-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.wheel-history-main {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+
+.wheel-history-result {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.wheel-history-config {
+  font-size: 22px;
+  color: #b8a99e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wheel-history-time {
+  flex-shrink: 0;
+  font-size: 22px;
+  color: #b8a99e;
+  font-variant-numeric: tabular-nums;
 }
 
 .wheel-tip {

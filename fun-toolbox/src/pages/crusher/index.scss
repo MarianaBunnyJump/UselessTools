@@ -4,12 +4,52 @@
   min-height: 100vh;
 }
 
+/* ---------- 顶部统计卡片 ---------- */
+.crusher-stats-card {
+  margin-top: 20px;
+  padding: 26px 0;
+  border-radius: 30px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 236, 230, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 32px -16px rgba(255, 138, 128, 0.5);
+  display: flex;
+  align-items: center;
+  animation: fade-up 0.4s ease-out;
+}
+
+.crusher-stats-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.crusher-stats-num {
+  font-size: 56px;
+  font-weight: 800;
+  color: #ff7043;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.crusher-stats-label {
+  font-size: 24px;
+  color: #8d7b70;
+}
+
+.crusher-stats-divider {
+  width: 1px;
+  height: 64px;
+  background: rgba(255, 138, 128, 0.25);
+}
+
 /* ---------- 入场文案 ---------- */
 .crusher-quotes {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 14px 8px 6px;
+  padding: 20px 8px 6px;
 }
 
 .crusher-quote-line {
@@ -20,7 +60,7 @@
   animation: line-in 0.7s ease-out forwards;
 }
 
-/* ---------- 输入卡片 ---------- */
+/* ---------- 输入卡片（便签纸） ---------- */
 .crusher-input-card {
   margin-top: 22px;
   padding: 30px;
@@ -32,10 +72,22 @@
 
 .crusher-textarea {
   width: 100%;
-  min-height: 200px;
+  min-height: 224px;
+  box-sizing: border-box;
+  padding: 4px 8px 20px;
+  font-family: $font-hand;
   font-size: 30px;
-  line-height: 1.6;
+  line-height: 56px;
   color: #4a3b32;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 55px,
+    rgba(255, 160, 140, 0.35) 55px,
+    rgba(255, 160, 140, 0.35) 56px
+  );
+  background-size: 100% 56px;
+  background-attachment: local;
 }
 
 .crusher-placeholder {
@@ -152,14 +204,7 @@
   color: #b8a99e;
 }
 
-/* ---------- 主按钮与统计 ---------- */
+/* ---------- 主按钮 ---------- */
 .crusher-go {
   margin-top: 44px;
-}
-
-.crusher-stats {
-  margin-top: 26px;
-  text-align: center;
-  font-size: 24px;
-  color: #8d7b70;
 }
