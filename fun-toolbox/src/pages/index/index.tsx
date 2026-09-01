@@ -38,11 +38,39 @@ export default function Index() {
   const [slogan, setSlogan] = useState(SLOGANS[dayOfYear() % SLOGANS.length])
   const [openingId, setOpeningId] = useState('')
   const [confettiOn, setConfettiOn] = useState(false)
+  /* 设置按钮与微信胶囊对齐（位于胶囊左侧），标题避开胶囊；H5 用固定值兜底 */
+  const [layout, setLayout] = useState({ gearTop: 40, gearRight: 12, headerPad: 60 })
 
   const canvasRef = useRef<any>(null)
   const piecesRef = useRef<ConfettiPiece[]>([])
   const rafRef = useRef<number>(0)
   const runningRef = useRef(false)
+
+  useEffect(() => {
+    try {
+      const info = Taro.getSystemInfoSync()
+      const sbh = info.statusBarHeight || 20
+      const winW = info.windowWidth || 375
+      /* home-root 的 padding-top: 20(设计px) 折算成真实 px，按钮定位相对 home-header */
+      const rootPad = (20 * winW) / 750
+      let gearTop = sbh + 8 - rootPad
+      let gearRight = 12
+      let headerPad = sbh + 48 - rootPad
+      if (process.env.TARO_ENV === 'weapp' && Taro.getMenuButtonBoundingClientRect) {
+        const menu = Taro.getMenuButtonBoundingClientRect()
+        if (menu && menu.top > 0 && menu.height > 0) {
+          /* 齿轮 CSS 高 76(设计px) 折算真实 px，与胶囊垂直居中对齐 */
+          const gearSize = (76 * winW) / 750
+          gearTop = menu.top + (menu.height - gearSize) / 2 - rootPad
+          gearRight = winW - menu.left + 10
+          headerPad = Math.max(menu.bottom + 12 - rootPad, sbh + 48)
+        }
+      }
+      setLayout({ gearTop, gearRight, headerPad })
+    } catch (e) {
+      /* 默认值兜底 */
+    }
+  }, [])
 
   useEffect(() => {
     const listener = (bg: BackgroundPreset) => setTh(bg)
@@ -173,8 +201,12 @@ export default function Index() {
 
   return (
     <View className='page-root home-root' style={{ background: theme.bg }}>
-      <View className='home-header'>
-        <View className='home-gear' onClick={handleSettings}>
+      <View className='home-header' style={{ paddingTop: `${layout.headerPad}px` }}>
+        <View
+          className='home-gear'
+          style={{ top: `${layout.gearTop}px`, right: `${layout.gearRight}px` }}
+          onClick={handleSettings}
+        >
           <Text className='home-gear-icon'>⚙️</Text>
         </View>
         <View className='home-title' onClick={handleTitleTap}>
