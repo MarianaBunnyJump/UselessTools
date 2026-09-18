@@ -85,6 +85,8 @@ export default function Index() {
   const [pinPulseId, setPinPulseId] = useState('')
   const [hintVisible, setHintVisible] = useState(() => !get<boolean>('drag_hint_done', false))
   const [metrics, setMetrics] = useState<GridMetrics | null>(null)
+  /* 落地反馈（弹跳+震动），设置可关；返回首页时从存储刷新 */
+  const [dropFeedback, setDropFeedback] = useState(() => get<boolean>('drop_feedback_enabled', true))
 
   const canvasRef = useRef<any>(null)
   const ctxRef = useRef<any>(null)
@@ -106,6 +108,9 @@ export default function Index() {
   const orderRef = useRef<string[]>(order)
   const metricsRef = useRef<GridMetrics | null>(null)
   const slotsRef = useRef<GridSlot[]>([])
+  const openingRef = useRef('')
+  const containerHRef = useRef(0)
+  const dropFeedbackRef = useRef(dropFeedback)
 
   const setPhaseBoth = (p: DragPhase) => {
     phaseRef.current = p
@@ -129,6 +134,12 @@ export default function Index() {
     return maxY + metrics.bottomPad
   }, [metrics, slots])
 
+  /* 非拖动卡片的静止视图：引用稳定，配合 ToolCard 的 memo 跳过触摸帧重渲染 */
+  const idleViews = useMemo(
+    () => slots.map(s => ({ translate: { x: s.x, y: s.y }, z: s.z })),
+    [slots]
+  )
+
   useEffect(() => {
     slotsRef.current = slots
   }, [slots])
@@ -138,6 +149,12 @@ export default function Index() {
   useEffect(() => {
     orderRef.current = order
   }, [order])
+  useEffect(() => {
+    openingRef.current = openingId
+  }, [openingId])
+  useEffect(() => {
+    containerHRef.current = containerH
+  }, [containerH])
 
   /* ---------- 首帧尺寸标定：真实卡片宽高反推槽位（兼容安卓字体高度差异） ---------- */
   useEffect(() => {
@@ -403,28 +420,32 @@ export default function Index() {
     set('home_recent', ids.slice(0, 4))
   }, [])
 
-  const handleOpen = (tool: ToolMeta) => {
+  const handleOpen = useCallback((tool: ToolMeta) => {
     /* 拖动中（多指场景）忽略卡片点击 */
-    if (phaseRef.current !== 'idle' || openingId) return
+    if (phaseRef.current !== 'idle' || openingRef.current) return
+    openingRef.current = tool.id
     setOpeningId(tool.id)
     addTotalCount(`usage_${tool.id}`)
     bumpRecent(tool.id)
     track('tool_open', { tool_id: tool.id })
     setTimeout(() => {
       Taro.navigateTo({ url: tool.path })
-      setTimeout(() => setOpeningId(''), 500)
+      setTimeout(() => {
+        openingRef.current = ''
+        setOpeningId('')
+      }, 500)
     }, 480)
-  }
+  }, [bumpRecent])
 
   /* 最近使用胶囊：直达，无开盒动画 */
-  const handleQuickOpen = (tool: ToolMeta) => {
+  const handleQuickOpen = useCallback((tool: ToolMeta) => {
     addTotalCount(`usage_${tool.id}`)
     bumpRecent(tool.id)
     track('tool_open', { tool_id: tool.id, via: 'recent' })
     Taro.navigateTo({ url: tool.path })
-  }
+  }, [bumpRecent])
 
-  const handleLongPress = (tool: ToolMeta) => {
+  const handleLongPress = useCallback((tool: ToolMeta) => {
     const usage = get<number>(`usage_${tool.id}`, 0)
     Taro.showModal({
       title: `${tool.icon} ${tool.name}`,
@@ -432,11 +453,20 @@ export default function Index() {
       showCancel: false,
       confirmText: '关掉'
     })
-  }
+  }, [])
+
+  /* ---------- 提示气泡 ---------- */
+  const dismissHint = useCallback((by: string) => {
+    if (!hintRef.current) return
+    hintRef.current = false
+    setHintVisible(false)
+    set('drag_hint_done', true)
+    track('hint_dismiss', { by })
+  }, [])
 
   /* ---------- 长按拖动状态机 ---------- */
-  const handleGrabStart = (tool: ToolMeta, e: any) => {
-    if (phaseRef.current !== 'idle' || openingId || !metricsRef.current) return
+  const handleGrabStart = useCallback((tool: ToolMeta, e: any) => {
+    if (phaseRef.current !== 'idle' || openingRef.current || !metricsRef.current) return
     const t = e.touches && e.touches[0]
     if (!t) return
     if (typeof e.preventDefault === 'function') {
@@ -476,18 +506,11 @@ export default function Index() {
       setTiltDeg(0)
       vxRef.current.reset()
       setPhaseBoth('grabbed')
-      if (DRAG_CONFIG.grabVibrate && process.env.TARO_ENV === 'weapp') {
-        try {
-          const r = Taro.vibrateShort({ type: 'light' } as any)
-          if (r && typeof r.catch === 'function') r.catch(() => {})
-        } catch (err) {
-          /* 低版本基础库无 type 参数，忽略 */
-        }
-      }
+      /* 抓起不弹不震：顿挫感移除，爽感集中在松手落地（finishDrag） */
     }, DRAG_CONFIG.pressActivateMs)
-  }
+  }, [])
 
-  const handleGrabMove = (e: any) => {
+  const handleGrabMove = useCallback((e: any) => {
     const p = phaseRef.current
     if (p !== 'pressing' && p !== 'grabbed' && p !== 'dragging') return
     const m = metricsRef.current
@@ -519,14 +542,17 @@ export default function Index() {
     let x = t.clientX - g.gridX - g.grabDX
     let y = t.clientY - g.gridY - g.grabDY
     const maxX = m.gridW - m.cardW + DRAG_CONFIG.clampOvershootPx
-    const maxY = containerH - m.cardH + DRAG_CONFIG.clampOvershootPx
+    const maxY = containerHRef.current - m.cardH + DRAG_CONFIG.clampOvershootPx
     x = Math.max(-DRAG_CONFIG.clampOvershootPx, Math.min(maxX, x))
     y = Math.max(-DRAG_CONFIG.clampOvershootPx, Math.min(maxY, y))
     setDragPos({ x, y })
 
-    /* 惯性倾斜 */
+    /* 惯性倾斜：变化小于阈值不更新状态，省一次渲染 */
     vxRef.current.push(Date.now(), t.clientX)
-    setTiltDeg(prev => tiltTowards(prev, vxRef.current.get(), DRAG_CONFIG))
+    setTiltDeg(prev => {
+      const next = tiltTowards(prev, vxRef.current.get(), DRAG_CONFIG)
+      return Math.abs(next - prev) < 0.08 ? prev : next
+    })
 
     /* 让位判定：拖动卡中心进入某槽位矩形 → 实时重排 */
     const idx = orderRef.current.indexOf(dragIdRef.current)
@@ -541,9 +567,10 @@ export default function Index() {
         setOrder(next)
       }
     }
-  }
+  }, [])
 
-  const finishDrag = () => {
+  /* 松手：位移落位 + 惯性回转；落地压扁回弹与轻震动组成「放下」的爽感（设置可关） */
+  const finishDrag = useCallback(() => {
     const p = phaseRef.current
     if (p !== 'grabbed' && p !== 'dragging') return
     const idx = orderRef.current.indexOf(dragIdRef.current)
@@ -551,6 +578,14 @@ export default function Index() {
     setDragPos({ x: slot.x, y: slot.y })
     setTiltDeg(0)
     setPhaseBoth('settling')
+    if (dropFeedbackRef.current && process.env.TARO_ENV === 'weapp') {
+      try {
+        const r = Taro.vibrateShort({ type: 'light' } as any)
+        if (r && typeof r.catch === 'function') r.catch(() => {})
+      } catch (err) {
+        /* 低版本基础库无 type 参数，忽略 */
+      }
+    }
     if (orderChangedRef.current) {
       saveHomeOrder(orderRef.current)
       track('drag_reorder', { tool_id: dragIdRef.current })
@@ -561,19 +596,19 @@ export default function Index() {
       setPhaseBoth('idle')
       setOrigin(null)
     }, DRAG_CONFIG.settleRotateMs + 80)
-  }
+  }, [dismissHint])
 
-  const handleGrabEnd = (_e: any) => {
+  const handleGrabEnd = useCallback((_e: any) => {
     clearTimeout(pressTimer.current)
     if (phaseRef.current === 'pressing') {
       setPhaseBoth('idle')
       return
     }
     finishDrag()
-  }
+  }, [finishDrag])
 
   /* ---------- 置顶 ---------- */
-  const handlePinTop = (tool: ToolMeta) => {
+  const handlePinTop = useCallback((tool: ToolMeta) => {
     if (phaseRef.current !== 'idle') return
     const next = [tool.id, ...orderRef.current.filter(id => id !== tool.id)]
     orderRef.current = next
@@ -583,22 +618,16 @@ export default function Index() {
     dismissHint('pin')
     setPinPulseId(tool.id)
     setTimeout(() => setPinPulseId(''), 450)
-  }
-
-  /* ---------- 提示气泡 ---------- */
-  const dismissHint = (by: string) => {
-    if (!hintRef.current) return
-    hintRef.current = false
-    setHintVisible(false)
-    set('drag_hint_done', true)
-    track('hint_dismiss', { by })
-  }
+  }, [dismissHint])
 
   /* ---------- 埋点与生命周期 ---------- */
   useDidShow(() => {
     track('home_show')
-    /* 从工具页返回时刷新最近使用顺序 */
+    /* 从工具页返回时刷新最近使用顺序与拖放反馈开关 */
     loadRecent()
+    const df = get<boolean>('drop_feedback_enabled', true)
+    dropFeedbackRef.current = df
+    setDropFeedback(df)
   })
   useDidHide(() => {
     dismissHint('leave')
@@ -618,8 +647,9 @@ export default function Index() {
     if (active) {
       state = phase === 'settling' ? 'settling' : phase === 'dragging' ? 'dragging' : 'grabbed'
     }
-    const slot = slots[i] || { x: 0, y: 0, z: i }
-    const translate = active ? dragPos : { x: slot.x, y: slot.y }
+    /* 静止卡片取稳定引用（配合 memo 跳过触摸帧重渲染），拖动卡取实时位置 */
+    const idle = idleViews[i] || { translate: { x: 0, y: 0 }, z: i }
+    const translate = active ? dragPos : idle.translate
     return (
       <ToolCard
         key={tool.id}
@@ -628,10 +658,10 @@ export default function Index() {
         state={state}
         pressing={phase === 'pressing' && tool.id === dragId}
         translate={translate}
-        z={active ? 900 : slot.z}
+        z={active ? 900 : idle.z}
         tiltDeg={active ? tiltDeg : 0}
-        scale={active && state !== 'settling' ? DRAG_CONFIG.grabScale : 1}
         origin={active ? origin : null}
+        landEffect={dropFeedback}
         pinnedTop={i === 0}
         pinPulse={tool.id === pinPulseId}
         showHint={hintVisible && i === 0}

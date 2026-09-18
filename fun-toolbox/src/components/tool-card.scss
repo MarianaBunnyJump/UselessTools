@@ -37,6 +37,8 @@
 .tc-tilt {
   width: 100%;
   border-radius: 28px;
+  /* 拎起/落下的投影淡入淡出（transform 不在列表内，不干扰逐帧倾斜） */
+  transition: box-shadow 200ms ease;
 }
 
 /* 拎起投影 */
@@ -72,6 +74,18 @@
 @keyframes tc-sway {
   0%, 100% { transform: rotate(-2.5deg); }
   50% { transform: rotate(2.5deg); }
+}
+
+/* 落地压扁回弹：爽感放在「放下」这一刻（时长由 dragConfig.landDurationMs 驱动） */
+.tc-sway--land {
+  animation: tc-land cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+@keyframes tc-land {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.04, 0.93); }
+  70% { transform: scale(0.99, 1.02); }
+  100% { transform: scale(1); }
 }
 
 /* 右上角长按热区（H5 用 touch-action 防滚动） */

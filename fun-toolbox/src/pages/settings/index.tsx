@@ -22,6 +22,7 @@ export default function Settings() {
   const [patternOpen, setPatternOpen] = useState(true)
   const [expectancy, setExpectancy] = useState(get<number>('life_expectancy', 77))
   const [soundOn, setSoundOn] = useState(get<boolean>('sound_enabled', true))
+  const [dropFeedback, setDropFeedback] = useState(get<boolean>('drop_feedback_enabled', true))
 
   useEffect(() => {
     return () => {
@@ -105,6 +106,12 @@ export default function Settings() {
     set('sound_enabled', next)
   }
 
+  const onDropFeedbackChange = e => {
+    const next = Boolean(e.detail.value)
+    setDropFeedback(next)
+    set('drop_feedback_enabled', next)
+  }
+
   const resetAll = () => {
     Taro.showModal({
       title: '清空全部数据',
@@ -153,6 +160,15 @@ export default function Settings() {
             <Text className='set-row-sub'>木鱼 / 粉碎机</Text>
           </View>
           <Switch checked={soundOn} color={theme.accent} onChange={onSoundChange} />
+        </View>
+
+        <View className='set-row'>
+          <View className='set-row-left'>
+            <Text className='set-row-icon'>🫳</Text>
+            <Text className='set-row-name'>拖放反馈</Text>
+            <Text className='set-row-sub'>放下卡片时弹跳与震动</Text>
+          </View>
+          <Switch checked={dropFeedback} color={theme.accent} onChange={onDropFeedbackChange} />
         </View>
 
         {process.env.TARO_ENV === 'weapp' && (

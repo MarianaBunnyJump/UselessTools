@@ -7,8 +7,10 @@ export const DRAG_CONFIG = {
   /* ---- 长按激活（右上角 ⠿ 热区）---- */
   pressActivateMs: 350,      /* 满此时长激活拖动 */
   pressCancelDist: 10,       /* 激活前手指移动超此距离（px）即取消计时 */
-  grabScale: 1.06,           /* 激活瞬间卡片放大 */
-  grabVibrate: true,         /* 激活瞬间轻震动（weapp） */
+  /* 抓起不弹不震（2026-09-19 用户反馈：激活瞬间有顿挫感）；爽感集中在松手落地 */
+
+  /* ---- 落地反馈（设置「拖放反馈」可关）---- */
+  landDurationMs: 380,       /* 着地压扁回弹时长（与 tool-card.scss 的 tc-land 保持同步） */
 
   /* ---- 惯性倾斜 ---- */
   tiltGain: 8,               /* 速度 → 角度增益：目标角 = clamp(vx × tiltGain, ±tiltMaxDeg) */

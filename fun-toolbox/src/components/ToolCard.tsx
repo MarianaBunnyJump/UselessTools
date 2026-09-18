@@ -1,4 +1,5 @@
 import { View, Text } from '@tarojs/components'
+import { memo } from 'react'
 import type { ToolMeta } from '../data/tools'
 import { DRAG_CONFIG } from '../data/dragConfig'
 import GiftBox from './GiftBox'
@@ -15,8 +16,8 @@ interface ToolCardProps {
   translate: { x: number; y: number }   /* 容器系左上角（真实 px） */
   z: number
   tiltDeg: number
-  scale: number
   origin: { x: number; y: number } | null   /* 旋转中心：手指触点相对卡片 */
+  landEffect: boolean        /* 落地压扁回弹（设置「拖放反馈」） */
   pinnedTop: boolean
   pinPulse: boolean
   showHint: boolean
@@ -29,8 +30,9 @@ interface ToolCardProps {
   onPinTop: (tool: ToolMeta) => void
 }
 
-export default function ToolCard(props: ToolCardProps) {
-  const { tool, opening, state, pressing, translate, z, tiltDeg, scale, origin, pinnedTop, pinPulse, showHint } = props
+/* memo：触摸移动只更新被拖卡片，其余卡片 props 引用稳定即跳过重渲染 */
+function ToolCard(props: ToolCardProps) {
+  const { tool, opening, state, pressing, translate, z, tiltDeg, origin, landEffect, pinnedTop, pinPulse, showHint } = props
   const lifted = state === 'grabbed' || state === 'dragging'
 
   return (
@@ -39,16 +41,19 @@ export default function ToolCard(props: ToolCardProps) {
       className={`tool-card ${state === 'dragging' ? 'tool-card--dragging' : ''} ${state === 'settling' ? 'tool-card--settle' : ''}`}
       style={{ transform: `translate3d(${translate.x}px, ${translate.y}px, 0)`, zIndex: z }}
     >
-      {/* 位移（外层）与旋转/缩放（本层）分层：松手时位移与惯性回转可用不同时长曲线 */}
+      {/* 位移（外层）与旋转（本层）分层：松手时位移与惯性回转可用不同时长曲线 */}
       <View
         className={`tc-tilt ${state === 'settling' ? 'tc-tilt--settle' : ''} ${lifted ? 'tc-tilt--lift' : ''} ${pinPulse ? 'tc-tilt--pulse' : ''}`}
         style={{
-          transform: `rotate(${tiltDeg}deg) scale(${scale})`,
+          transform: `rotate(${tiltDeg}deg)`,
           transformOrigin: origin ? `${origin.x}px ${origin.y}px` : undefined
         }}
       >
-        {/* 空中晃动（内层），与外层位移/旋转互不打架 */}
-        <View className={`tc-sway ${state === 'dragging' ? 'tc-sway--active' : ''}`} style={{ animationDuration: `${DRAG_CONFIG.swayPeriodMs}ms` }}>
+        {/* 空中晃动（内层），与外层位移/旋转互不打架；落地动画也挂这层，避免和回转过渡抢 transform */}
+        <View
+          className={`tc-sway ${state === 'dragging' ? 'tc-sway--active' : ''} ${state === 'settling' && landEffect ? 'tc-sway--land' : ''}`}
+          style={{ animationDuration: `${state === 'dragging' ? DRAG_CONFIG.swayPeriodMs : DRAG_CONFIG.landDurationMs}ms` }}
+        >
           <GiftBox tool={tool} opening={opening} onOpen={props.onOpen} onLongPress={props.onLongPressInfo} />
         </View>
 
@@ -79,3 +84,5 @@ export default function ToolCard(props: ToolCardProps) {
     </View>
   )
 }
+
+export default memo(ToolCard)
