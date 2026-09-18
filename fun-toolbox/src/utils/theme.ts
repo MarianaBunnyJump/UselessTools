@@ -17,7 +17,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
   {
     id: 'cream',
     name: '奶油橙',
-    bg: 'linear-gradient(160deg, #FFF9F2 0%, #FFE8D6 100%)',
+    bg: 'linear-gradient(172deg, #FFFDF9 0%, #FFF6EC 42%, #FFE9D2 100%)',
     accent: '#FF8A80',
     accentDeep: '#FF7043',
     wheelColors: ['#FFD3C8', '#FFE5D9', '#FFC9BA', '#FFDCCE', '#FFD9CC', '#FFE8DE']
@@ -25,7 +25,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
   {
     id: 'sakura',
     name: '樱花粉',
-    bg: 'linear-gradient(160deg, #FFF5F7 0%, #FFDDE5 100%)',
+    bg: 'linear-gradient(172deg, #FFFBFD 0%, #FFF0F4 42%, #FFDEE8 100%)',
     accent: '#F48FB1',
     accentDeep: '#EC6F9C',
     wheelColors: ['#FFD6E0', '#FFC2D1', '#FFB3C6', '#FFDCE3', '#FFC8D4', '#FFE3E9']
@@ -33,7 +33,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
   {
     id: 'matcha',
     name: '抹茶绿',
-    bg: 'linear-gradient(160deg, #F4FBF2 0%, #D7EEE0 100%)',
+    bg: 'linear-gradient(172deg, #FBFFFA 0%, #F0F9F1 42%, #DDF0E3 100%)',
     accent: '#66BB8A',
     accentDeep: '#4CAF7D',
     wheelColors: ['#C8E6C9', '#A5D6A7', '#B9E4C0', '#D5EFDA', '#CDEBCF', '#B2DFDB']
@@ -41,7 +41,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
   {
     id: 'sky',
     name: '天空蓝',
-    bg: 'linear-gradient(160deg, #F3F9FF 0%, #D9ECFA 100%)',
+    bg: 'linear-gradient(172deg, #FBFDFF 0%, #EFF7FD 42%, #DCF0FA 100%)',
     accent: '#64B5F6',
     accentDeep: '#4A9FE5',
     wheelColors: ['#B3E5FC', '#B4E0F5', '#A8D8F0', '#C5E9FA', '#BBDEFB', '#CFEBFB']
@@ -49,7 +49,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
   {
     id: 'lavender',
     name: '薰衣草',
-    bg: 'linear-gradient(160deg, #F9F5FF 0%, #E6DEF7 100%)',
+    bg: 'linear-gradient(172deg, #FCFBFF 0%, #F5F0FB 42%, #E8DFF6 100%)',
     accent: '#A98BD4',
     accentDeep: '#9575CD',
     wheelColors: ['#E1BEE7', '#D1B3E8', '#DCCEF0', '#E8D4F3', '#D5C0EA', '#EDDFF5']

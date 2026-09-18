@@ -1,60 +1,174 @@
-.settings-section-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #4a3b32;
-  margin: 30px 8px 20px;
-}
+@import '../../styles/theme.scss';
 
-.settings-bg-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.settings-bg-card {
-  position: relative;
-  width: calc(50% - 12px);
-  height: 160px;
-  margin-bottom: 24px;
+/* ---------- 通用设置行 ---------- */
+.set-group {
+  margin-top: 26px;
   border-radius: 28px;
-  border: 3px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 26px -12px rgba(74, 59, 50, 0.18);
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+.set-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  justify-content: space-between;
+  padding: 26px 28px;
 
-  &.active {
-    transform: scale(0.96);
+  & + & {
+    border-top: 1px solid rgba(74, 59, 50, 0.06);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.35);
   }
 }
 
-.settings-bg-card--active {
-  border-color: #ff8a80;
-  box-shadow: 0 0 0 6px rgba(255, 138, 128, 0.25);
+.set-row-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.settings-bg-accent {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+.set-row-icon {
+  font-size: 36px;
+  line-height: 1.2;
 }
 
-.settings-bg-name {
-  font-size: 30px;
+.set-row-name {
+  font-size: 28px;
   font-weight: 700;
   color: #4a3b32;
 }
 
-.settings-bg-check {
+.set-row-sub {
+  font-size: 20px;
+  color: #b8a99e;
+}
+
+.set-row-value {
+  font-size: 26px;
+  font-weight: 600;
+  color: $color-text-sub;
+}
+
+.set-row-value--danger {
+  color: $color-danger;
+}
+
+.set-row-arrow {
+  font-size: 22px;
+  color: #c9bdb4;
+}
+
+/* ---------- 收纳分区 ---------- */
+.set-section {
+  margin-top: 34px;
+}
+
+.set-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 16px;
+}
+
+.set-section-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.set-section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.set-section-sub {
+  font-size: 20px;
+  color: #b8a99e;
+}
+
+/* 收纳小按钮 */
+.set-fold-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px -6px rgba(74, 59, 50, 0.25);
+  @include flex-center;
+  font-size: 26px;
+  color: $color-text-sub;
+  transition: transform 0.25s ease;
+}
+
+.set-fold-btn--open {
+  transform: rotate(0deg);
+}
+
+.set-fold-btn:not(.set-fold-btn--open) {
+  transform: rotate(-90deg);
+}
+
+/* ---------- 背景长条列表 ---------- */
+.set-bg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.set-bg-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  height: 96px;
+  padding: 0 26px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.set-bg-row--active {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 22px -12px rgba(74, 59, 50, 0.35);
+}
+
+.set-bg-swatch {
+  position: relative;
+  width: 104px;
+  height: 56px;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 -8px 14px -10px rgba(74, 59, 50, 0.4);
+  flex-shrink: 0;
+}
+
+.set-bg-dot {
   position: absolute;
-  right: 20px;
-  bottom: 16px;
-  font-size: 30px;
-  color: #ff7043;
+  top: 8px;
+  right: 8px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.set-bg-name {
+  flex: 1;
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.set-bg-check {
+  font-size: 34px;
   font-weight: 800;
 }
 
@@ -65,7 +179,11 @@
   margin-top: 6px;
 }
 
-/* ---------- 背景印花 ---------- */
+/* ---------- 印花 ---------- */
+.set-pattern-body {
+  animation: fade-up 0.3s ease-out;
+}
+
 .settings-pattern-preview-wrap {
   position: relative;
   height: 220px;

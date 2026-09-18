@@ -4,17 +4,50 @@
   min-height: 100vh;
 }
 
-/* ---------- 顶部统计卡片 ---------- */
+/* 标题固定在顶上，正文整体下移（固定像素，避免小程序 vh 不稳） */
+.crusher-body {
+  padding-top: 64px;
+}
+
+/* ---------- 底部统计小条 ---------- */
+/* 外层只挂入场动画，晃动动画挂在内层：同元素动画互相顶掉会让入场动画重播、卡片闪没 */
 .crusher-stats-card {
-  margin-top: 20px;
-  padding: 26px 0;
-  border-radius: 30px;
+  margin-top: 44px;
+  animation: fade-up 0.5s ease-out 2.15s both;
+}
+
+.crusher-stats-inner {
+  padding: 18px 0;
+  border-radius: 26px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 236, 230, 0.9));
   border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 14px 32px -16px rgba(255, 138, 128, 0.5);
+  box-shadow: 0 10px 24px -14px rgba(255, 138, 128, 0.5);
   display: flex;
   align-items: center;
-  animation: fade-up 0.4s ease-out;
+}
+
+/* 点击左右晃动（不用缩放，避免闪一下） */
+.crusher-stats-inner--bump {
+  animation: stats-wiggle 0.6s ease;
+}
+
+@keyframes stats-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-2.4deg);
+  }
+  40% {
+    transform: rotate(2deg);
+  }
+  60% {
+    transform: rotate(-1.4deg);
+  }
+  80% {
+    transform: rotate(1deg);
+  }
 }
 
 .crusher-stats-cell {
@@ -22,11 +55,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .crusher-stats-num {
-  font-size: 56px;
+  font-size: 42px;
   font-weight: 800;
   color: #ff7043;
   line-height: 1.1;
@@ -34,22 +67,31 @@
 }
 
 .crusher-stats-label {
-  font-size: 24px;
+  font-size: 21px;
   color: #8d7b70;
 }
 
 .crusher-stats-divider {
   width: 1px;
-  height: 64px;
+  height: 48px;
   background: rgba(255, 138, 128, 0.25);
 }
 
-/* ---------- 入场文案 ---------- */
+/* ---------- 入场文案：先一行行出现，再整块上移让位 ---------- */
 .crusher-quotes {
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding: 20px 8px 6px;
+  /* 初始偏下：文字先出现在画面中部，随后向上收起 */
+  margin-top: 130px;
+  animation: quotes-settle 0.7s cubic-bezier(0.3, 0.7, 0.3, 1) 1.3s forwards;
+}
+
+@keyframes quotes-settle {
+  to {
+    margin-top: 0;
+  }
 }
 
 .crusher-quote-line {
@@ -60,7 +102,7 @@
   animation: line-in 0.7s ease-out forwards;
 }
 
-/* ---------- 输入卡片（便签纸） ---------- */
+/* ---------- 输入卡片（便签纸）：文字上移时逐步渐显 ---------- */
 .crusher-input-card {
   margin-top: 22px;
   padding: 30px;
@@ -68,17 +110,13 @@
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 12px 30px -14px rgba(255, 138, 128, 0.35);
+  animation: fade-up 0.55s ease-out 1.55s both;
 }
 
-.crusher-textarea {
-  width: 100%;
-  min-height: 224px;
-  box-sizing: border-box;
-  padding: 4px 8px 20px;
-  font-family: $font-hand;
-  font-size: 30px;
-  line-height: 56px;
-  color: #4a3b32;
+/* 便签纸：横线画在包裹层上（真机 Textarea 原生组件不支持渐变背景） */
+.crusher-paper {
+  position: relative;
+  border-radius: 12px;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
@@ -87,7 +125,18 @@
     rgba(255, 160, 140, 0.35) 56px
   );
   background-size: 100% 56px;
-  background-attachment: local;
+}
+
+.crusher-textarea {
+  width: 100%;
+  min-height: 224px;
+  box-sizing: border-box;
+  padding: 0 8px 20px;
+  font-family: $font-hand;
+  font-size: 30px;
+  line-height: 56px;
+  color: #4a3b32;
+  background: transparent;
 }
 
 .crusher-placeholder {
@@ -160,11 +209,13 @@
   font-size: 28px;
   font-weight: 700;
   color: #4a3b32;
+  animation: fade-up 0.5s ease-out 1.75s both;
 }
 
 .crusher-modes {
   display: flex;
   gap: 18px;
+  animation: fade-up 0.5s ease-out 1.9s both;
 }
 
 .crusher-mode-card {
@@ -207,4 +258,5 @@
 /* ---------- 主按钮 ---------- */
 .crusher-go {
   margin-top: 44px;
+  animation: fade-up 0.5s ease-out 2s both;
 }

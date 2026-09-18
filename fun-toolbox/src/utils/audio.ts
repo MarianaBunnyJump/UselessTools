@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro'
+import { get } from './storage'
 
 /* ===================== WebAudio 合成引擎 =====================
  * 白噪音混音台与电子木鱼音效全部由 WebAudio 实时合成，
@@ -27,6 +28,11 @@ const activeVoices: Record<string, ActiveVoice> = {}
 
 export function isSupported(): boolean {
   return typeof Taro.createWebAudioContext === 'function'
+}
+
+/* 设置页的「敲击音效」开关（不影响白噪音混音台） */
+function tapSoundOn(): boolean {
+  return get<boolean>('sound_enabled', true)
 }
 
 function ensureCtx(): AnyCtx | null {
@@ -375,14 +381,77 @@ export function stopTrack(trackId: string) {
 
 export function stopAll() {
   Object.keys(activeVoices).forEach(id => stopTrack(id))
+  stopAllFileTracks()
+}
+
+/* ===================== MP3 文件音轨（InnerAudioContext） =====================
+ * 用户从微信聊天导入的 mp3 保存在小程序用户目录（wx.env.USER_DATA_PATH），
+ * 与 WebAudio 合成音轨互不干扰，可同时混合播放。
+ */
+
+interface FileVoice {
+  audio: Taro.InnerAudioContext
+  volume: number
+}
+
+const fileVoices: Record<string, FileVoice> = {}
+
+export function fileTrackPath(fileName: string): string {
+  return `${Taro.env.USER_DATA_PATH}/${fileName}`
+}
+
+export function startFileTrack(trackId: string, fileName: string, volume: number): boolean {
+  try {
+    if (fileVoices[trackId]) {
+      setFileTrackVolume(trackId, volume)
+      return true
+    }
+    const audio = Taro.createInnerAudioContext()
+    audio.src = fileTrackPath(fileName)
+    audio.loop = true
+    audio.volume = Math.max(0, Math.min(100, volume)) / 100
+    audio.onError(() => {
+      /* 文件损坏/格式不支持时清掉并提示 */
+      stopFileTrack(trackId)
+      Taro.showToast({ title: '该 MP3 无法播放，已切回合成', icon: 'none' })
+    })
+    audio.play()
+    fileVoices[trackId] = { audio, volume }
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+export function setFileTrackVolume(trackId: string, volume: number) {
+  const voice = fileVoices[trackId]
+  if (!voice) return
+  voice.audio.volume = Math.max(0, Math.min(100, volume)) / 100
+  voice.volume = volume
+}
+
+export function stopFileTrack(trackId: string) {
+  const voice = fileVoices[trackId]
+  if (!voice) return
+  try {
+    voice.audio.stop()
+    voice.audio.destroy()
+  } catch (e) {
+    /* 已销毁 */
+  }
+  delete fileVoices[trackId]
+}
+
+export function stopAllFileTracks() {
+  Object.keys(fileVoices).forEach(id => stopFileTrack(id))
 }
 
 /* ===================== 电子木鱼音效（振荡器合成） ===================== */
 
-function tone(freqs: number[], gains: number[], decay: number) {
+function tone(freqs: number[], gains: number[], decay: number, when = 0) {
   const c = ensureCtx()
   if (!c) return
-  const t = c.currentTime
+  const t = c.currentTime + when
   freqs.forEach((f, i) => {
     const osc = c.createOscillator()
     osc.type = 'sine'
@@ -400,9 +469,11 @@ function tone(freqs: number[], gains: number[], decay: number) {
 export function playMeritSound(style: string) {
   const c = ensureCtx()
   if (!c) return
+  if (!tapSoundOn()) return
   switch (style) {
+    case 'muyu':
     case 'fish':
-      tone([620, 2100], [0.5, 0.12], 0.14)
+      tone([520, 1600], [0.55, 0.15], 0.12)
       break
     case 'bowl':
       tone([528, 1056, 1584], [0.32, 0.14, 0.07], 2.2)
@@ -425,6 +496,22 @@ export function playMeritSound(style: string) {
       osc.stop(t + 0.25)
       break
     }
+    /* 风铃：多颗高频小铃错落响起 */
+    case 'wind':
+      tone([1568, 2093], [0.22, 0.12], 0.5)
+      tone([1319], [0.16], 0.55, 0.07)
+      tone([1760], [0.18], 0.6, 0.16)
+      tone([2637], [0.1], 0.45, 0.27)
+      break
+    /* 雷鼓：低频闷响 + 短促回弹 */
+    case 'thunder':
+      tone([96, 142], [0.7, 0.25], 0.32)
+      tone([72], [0.4], 0.5, 0.06)
+      break
+    /* 夜钟：低沉绵长的月下钟声 */
+    case 'night':
+      tone([220, 331, 441], [0.32, 0.14, 0.08], 2.6)
+      break
     case 'silent':
     default:
       break
@@ -436,6 +523,7 @@ export function playMeritSound(style: string) {
 export function playTap() {
   const c = ensureCtx()
   if (!c) return
+  if (!tapSoundOn()) return
   tone([880], [0.12], 0.08)
 }
 
@@ -518,6 +606,7 @@ function playFlush() {
 export function playCrushSound(mode: string) {
   const c = ensureCtx()
   if (!c) return
+  if (!tapSoundOn()) return
   switch (mode) {
     case 'shred':
       playShred()

@@ -25,10 +25,10 @@ $page-padding: 32px;
 $card-radius: 28px;
 $btn-radius: 44px;
 
-/* 字体 */
-$font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC',
-  'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-$font-hand: 'ZCOOL KuaiLe', 'KaiTi', '楷体', 'STKaiti', 'Xingkai SC', cursive;
+/* 字体：圆体优先（iOS Yuanti SC / 安卓回退系统默认），可爱放松 */
+$font-family: 'Yuanti SC', 'YouYuan', '幼圆', -apple-system, BlinkMacSystemFont,
+  'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+$font-hand: 'Yuanti SC', 'YouYuan', 'KaiTi', '楷体', 'STKaiti', 'Xingkai SC', 'ZCOOL KuaiLe', cursive;
 
 /* 阴影 */
 $shadow-card: 0 10px 30px -12px rgba(74, 59, 50, 0.18);

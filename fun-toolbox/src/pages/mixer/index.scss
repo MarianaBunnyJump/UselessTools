@@ -41,7 +41,7 @@
   color: #00897b;
 }
 
-/* ---------- 音轨（暗色长条卡片） ---------- */
+/* ---------- 音轨（浅色马卡龙长条卡片） ---------- */
 .mixer-tracks {
   display: flex;
   flex-direction: column;
@@ -51,15 +51,16 @@
 .mixer-track {
   padding: 24px 26px 6px;
   border-radius: 26px;
-  background: linear-gradient(150deg, #3a4a52 0%, #2c3a41 100%);
-  border: 2px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(150deg, #ffffff 0%, #f2faf8 100%);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 20px -12px rgba(74, 59, 50, 0.14);
   transition: all 0.25s ease;
 }
 
 .mixer-track--on {
-  background: linear-gradient(150deg, #2f6e66 0%, #22454e 100%);
-  border-color: rgba(100, 216, 203, 0.65);
-  box-shadow: 0 14px 30px -14px rgba(38, 166, 154, 0.8);
+  background: linear-gradient(150deg, #eef9f6 0%, #d9f2ec 100%);
+  border-color: rgba(77, 182, 172, 0.55);
+  box-shadow: 0 14px 30px -14px rgba(77, 182, 172, 0.55);
 }
 
 .mixer-track-head {
@@ -71,7 +72,7 @@
 .mixer-track-icon {
   font-size: 44px;
   line-height: 1.2;
-  filter: grayscale(0.35) brightness(0.95);
+  filter: grayscale(0.55) opacity(0.75);
   transition: filter 0.25s ease;
 }
 
@@ -89,16 +90,20 @@
 .mixer-track-name {
   font-size: 28px;
   font-weight: 700;
-  color: #b7c4ca;
+  color: #8d7b70;
 }
 
 .mixer-track--on .mixer-track-name {
-  color: #ffffff;
+  color: #00796b;
 }
 
 .mixer-track-desc {
   font-size: 20px;
-  color: #7d8f97;
+  color: #b8a99e;
+}
+
+.mixer-track--on .mixer-track-desc {
+  color: #7fb5ac;
 }
 
 /* ---------- EQ 律动 ---------- */
@@ -114,7 +119,7 @@
   width: 6px;
   height: 100%;
   border-radius: 3px;
-  background: #64d8cb;
+  background: #4db6ac;
   transform-origin: bottom;
   animation: eq-bar 0.8s ease-in-out infinite;
 }
@@ -126,7 +131,7 @@
 
 .mixer-eq-bar--3 {
   animation-delay: 0.36s;
-  background: #9de8df;
+  background: #80cbc4;
 }
 
 /* ---------- 整条音量滑杆 ---------- */
@@ -143,13 +148,13 @@
   text-align: right;
   font-size: 26px;
   font-weight: 700;
-  color: #78909c;
+  color: #b0a59a;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
 
 .mixer-track--on .mixer-track-vol {
-  color: #64d8cb;
+  color: #00897b;
 }
 
 /* ---------- 播放按钮 ---------- */
@@ -223,10 +228,37 @@
   font-weight: 700;
 }
 
+/* ---------- 声源切换（合成 ⇄ MP3） ---------- */
+.mixer-src-chip {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #8d7b70;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(141, 123, 112, 0.22);
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.mixer-src-chip--mp3 {
+  color: #00897b;
+  background: rgba(77, 182, 172, 0.16);
+  border-color: rgba(77, 182, 172, 0.45);
+}
+
 /* ---------- 底部提示 ---------- */
 .mixer-tip {
   margin-top: 36px;
   text-align: center;
   font-size: 22px;
   color: #c9bdb4;
+}
+
+.mixer-tip--sub {
+  margin-top: 10px;
 }

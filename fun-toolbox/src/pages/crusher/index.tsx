@@ -24,6 +24,8 @@ export default function Crusher() {
   const [showPresets, setShowPresets] = useState(false)
   const today = getDailyCount('crusher_today').count
   const [todayCount, setTodayCount] = useState(today)
+  /* 统计条点击小动画 */
+  const [statsBump, setStatsBump] = useState(false)
 
   /* 每次进入随机 3 条入场文案 */
   const quotes = useMemo(() => {
@@ -54,6 +56,11 @@ export default function Crusher() {
     set('crusher_mode', id)
   }
 
+  const bumpStats = () => {
+    setStatsBump(true)
+    setTimeout(() => setStatsBump(false), 500)
+  }
+
   const usePreset = (item: string) => {
     setText(prev => (prev.length > 0 && !prev.endsWith('、') ? `${prev}、${item}` : (prev + item)).slice(0, MAX_LEN))
     setShowPresets(false)
@@ -75,81 +82,88 @@ export default function Crusher() {
     <View className='page-root crusher-root' style={{ background: theme.bg }}>
       <NavBar title='情绪粉碎机' />
 
-      <View className='crusher-stats-card'>
-        <View className='crusher-stats-cell'>
-          <Text className='crusher-stats-num'>{todayCount}</Text>
-          <Text className='crusher-stats-label'>今日已粉碎</Text>
+      <View className='crusher-body'>
+        <View className='crusher-quotes'>
+          {quotes.map((q, i) => (
+            <View key={q} className='crusher-quote-line' style={{ animationDelay: `${i * 0.25}s` }}>
+              {q}
+            </View>
+          ))}
         </View>
-        <View className='crusher-stats-divider' />
-        <View className='crusher-stats-cell'>
-          <Text className='crusher-stats-num'>{get<number>('crusher_total', 0)}</Text>
-          <Text className='crusher-stats-label'>累计粉碎</Text>
-        </View>
-      </View>
 
-      <View className='crusher-quotes'>
-        {quotes.map((q, i) => (
-          <View key={q} className='crusher-quote-line' style={{ animationDelay: `${i * 0.25}s` }}>
-            {q}
+        <View className='crusher-input-card'>
+          <View className='crusher-paper'>
+            <Textarea
+              className='crusher-textarea'
+              value={text}
+              maxlength={MAX_LEN}
+              placeholder='把你的烦心事写在这里'
+              placeholderClass='crusher-placeholder'
+              autoHeight
+              onInput={e => setText(e.detail.value)}
+            />
           </View>
-        ))}
-      </View>
+          <View className='crusher-input-foot'>
+            <Text className='crusher-preset-toggle' onClick={() => setShowPresets(v => !v)}>
+              {showPresets ? '收起预设 ▲' : '没有头绪？点我选一个 ▼'}
+            </Text>
+            <Text className={`crusher-count ${text.length >= MAX_LEN ? 'crusher-count--max' : ''}`}>
+              {text.length}/{MAX_LEN}
+            </Text>
+          </View>
 
-      <View className='crusher-input-card'>
-        <Textarea
-          className='crusher-textarea'
-          value={text}
-          maxlength={MAX_LEN}
-          placeholder='把你的烦心事写在这里'
-          placeholderClass='crusher-placeholder'
-          onInput={e => setText(e.detail.value)}
-        />
-        <View className='crusher-input-foot'>
-          <Text className='crusher-preset-toggle' onClick={() => setShowPresets(v => !v)}>
-            {showPresets ? '收起预设 ▲' : '没有头绪？点我选一个 ▼'}
-          </Text>
-          <Text className={`crusher-count ${text.length >= MAX_LEN ? 'crusher-count--max' : ''}`}>
-            {text.length}/{MAX_LEN}
-          </Text>
-        </View>
-
-        {showPresets && (
-          <View className='crusher-presets'>
-            {CRUSHER_PRESETS.map(g => (
-              <View key={g.category} className='crusher-preset-group'>
-                <View className='crusher-preset-cat'>
-                  {g.icon} {g.category}
+          {showPresets && (
+            <View className='crusher-presets'>
+              {CRUSHER_PRESETS.map(g => (
+                <View key={g.category} className='crusher-preset-group'>
+                  <View className='crusher-preset-cat'>
+                    {g.icon} {g.category}
+                  </View>
+                  <View className='crusher-preset-items'>
+                    {g.items.map(item => (
+                      <Text key={item} className='crusher-preset-item' onClick={() => usePreset(item)}>
+                        {item}
+                      </Text>
+                    ))}
+                  </View>
                 </View>
-                <View className='crusher-preset-items'>
-                  {g.items.map(item => (
-                    <Text key={item} className='crusher-preset-item' onClick={() => usePreset(item)}>
-                      {item}
-                    </Text>
-                  ))}
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
+              ))}
+            </View>
+          )}
+        </View>
 
-      <View className='crusher-section-label'>选择粉碎方式</View>
-      <View className='crusher-modes'>
-        {CRUSH_MODES.map(m => (
-          <View
-            key={m.id}
-            className={`crusher-mode-card ${mode === m.id ? 'crusher-mode-card--active' : ''}`}
-            onClick={() => pickMode(m.id)}
-          >
-            <Text className='crusher-mode-icon'>{m.icon}</Text>
-            <Text className='crusher-mode-name'>{m.name}</Text>
-            <Text className='crusher-mode-desc'>{m.desc}</Text>
-          </View>
-        ))}
-      </View>
+        <View className='crusher-section-label'>选择粉碎方式</View>
+        <View className='crusher-modes'>
+          {CRUSH_MODES.map(m => (
+            <View
+              key={m.id}
+              className={`crusher-mode-card ${mode === m.id ? 'crusher-mode-card--active' : ''}`}
+              onClick={() => pickMode(m.id)}
+            >
+              <Text className='crusher-mode-icon'>{m.icon}</Text>
+              <Text className='crusher-mode-name'>{m.name}</Text>
+              <Text className='crusher-mode-desc'>{m.desc}</Text>
+            </View>
+          ))}
+        </View>
 
-      <View className={`crusher-go btn-primary ${!text.trim() ? 'disabled' : ''}`} onClick={crush}>
-        开始粉碎
+        <View className={`crusher-go btn-primary ${!text.trim() ? 'disabled' : ''}`} onClick={crush}>
+          开始粉碎
+        </View>
+
+        <View className='crusher-stats-card' onClick={bumpStats}>
+          <View className={`crusher-stats-inner ${statsBump ? 'crusher-stats-inner--bump' : ''}`}>
+            <View className='crusher-stats-cell'>
+              <Text className='crusher-stats-num'>{todayCount}</Text>
+              <Text className='crusher-stats-label'>今日已粉碎</Text>
+            </View>
+            <View className='crusher-stats-divider' />
+            <View className='crusher-stats-cell'>
+              <Text className='crusher-stats-num'>{get<number>('crusher_total', 0)}</Text>
+              <Text className='crusher-stats-label'>累计粉碎</Text>
+            </View>
+          </View>
+        </View>
       </View>
     </View>
   )

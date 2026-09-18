@@ -1,5 +1,6 @@
 import { View, Text } from '@tarojs/components'
 import type { ToolMeta } from '../data/tools'
+import Muyu from './Muyu'
 import './gift-box.scss'
 
 interface GiftBoxProps {
@@ -18,7 +19,7 @@ export default function GiftBox({ tool, opening, onOpen, onLongPress }: GiftBoxP
     >
       <View className='gb-stage'>
         <View className='gb-pop'>
-          <Text className='gb-pop-icon'>{tool.icon}</Text>
+          {tool.iconType === 'muyu' ? <Muyu size={76} /> : <Text className='gb-pop-icon'>{tool.icon}</Text>}
         </View>
         <View className='gb-lid' style={{ background: tool.boxColorDeep }}>
           <View className='gb-lid-ribbon' style={{ background: tool.ribbonColor }} />

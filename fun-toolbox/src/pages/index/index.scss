@@ -1,3 +1,5 @@
+@import '../../styles/theme.scss';
+
 .home-root {
   padding-top: 20px;
   min-height: 100vh;
@@ -20,8 +22,9 @@
 
 .home-gear {
   position: absolute;
-  width: 76px;
-  height: 76px;
+  left: 8px;
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -37,16 +40,61 @@
 }
 
 .home-gear-icon {
-  font-size: 40px;
+  font-size: 38px;
   line-height: 1;
 }
 
+/* 设置右边的分享按钮：沿用齿轮圆形样式，重置 Button 默认外观 */
+.home-share-btn {
+  left: 96px;
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+  font-weight: normal;
+
+  &::after {
+    border: none;
+  }
+}
+
+/* 标题：彩色贴纸字（白描边 + 微投影，可爱放松） */
 .home-title {
-  font-size: 48px;
+  font-family: $font-hand;
+  font-size: 60px;
   font-weight: 800;
-  letter-spacing: 2px;
-  color: #4a3b32;
-  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.8);
+  letter-spacing: 8px;
+  line-height: 1.2;
+}
+
+.home-title-char {
+  display: inline-block;
+  color: #ff8a80;
+  text-shadow: -2px 0 0 #fff, 2px 0 0 #fff, 0 -2px 0 #fff, 0 2px 0 #fff,
+    0 6px 14px rgba(74, 59, 50, 0.18);
+  animation: title-bob 3.2s ease-in-out infinite;
+}
+
+.home-title-char--2 {
+  color: #ffb74d;
+  animation-delay: 0.4s;
+}
+
+.home-title-char--3 {
+  color: #4db6ac;
+  animation-delay: 0.8s;
+}
+
+@keyframes title-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(-6px) rotate(-2deg);
+  }
+  60% {
+    transform: translateY(2px) rotate(2deg);
+  }
 }
 
 .home-slogan {
@@ -107,4 +155,6 @@
   top: 0;
   left: 0;
   z-index: 999;
+  /* 常驻画布只负责显示彩带，不挡住下层标题/标语的点击 */
+  pointer-events: none;
 }

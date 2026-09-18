@@ -14,6 +14,7 @@ interface WheelItem {
 }
 
 interface WheelConfig {
+  id: string
   name: string
   items: WheelItem[]
   seed: string
@@ -23,7 +24,10 @@ interface HistoryEntry {
   ts: number
   config: string
   result: string
+  seed?: number
 }
+
+type HistoryMap = Record<string, HistoryEntry[]>
 
 const MAX_ITEMS = 30
 const SPIN_MS = 3800
@@ -31,8 +35,17 @@ const SPIN_MS = 3800
 const WEIGHT_DEFAULT = 50
 const WEIGHT_STEP = 5
 
+const CONFIGS_KEY = 'wheel_configs'
+const HISTORY_KEY = 'wheel_history_v2'
+const LEGACY_HISTORY_KEY = 'wheel_history'
+
+function genId(): string {
+  return `c${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`
+}
+
 function defaultConfig(): WheelConfig {
   return {
+    id: genId(),
     name: '今天吃什么',
     items: [
       { text: '火锅', weight: WEIGHT_DEFAULT },
@@ -77,20 +90,59 @@ function normalizeItems(raw: any[]): WheelItem[] {
     .slice(0, MAX_ITEMS)
 }
 
-/* 旧数据迁移：v4 把所有权重统一重置为默认 50（旧 1-9 倍数体系 × 50 会产生 100 等值） */
+/* 读取时补齐方案 id（老数据迁移），v4 权重体系只迁移一次 */
 function loadConfigs(): WheelConfig[] {
-  const raw = get<WheelConfig[]>('wheel_configs', [defaultConfig()])
-  if (get<number>('wheel_weight_v4', 0) === 1) return raw
-  const next = raw.map(c => ({
-    ...c,
-    items: (c.items || []).map(it => ({ text: it.text, weight: WEIGHT_DEFAULT }))
-  }))
-  set('wheel_configs', next)
-  set('wheel_weight_v4', 1)
-  return next
+  const raw = get<any[]>(CONFIGS_KEY, null)
+  let list: WheelConfig[]
+  if (Array.isArray(raw) && raw.length > 0) {
+    list = raw.map(c => ({
+      id: String((c && c.id) || genId()),
+      name: String((c && c.name) || `方案`),
+      items: normalizeItems(c && c.items),
+      seed: String((c && c.seed) || '')
+    }))
+  } else {
+    list = [defaultConfig()]
+  }
+  if (get<number>('wheel_weight_v4', 0) !== 1) {
+    list = list.map(c => ({
+      ...c,
+      items: c.items.map(it => ({ text: it.text, weight: WEIGHT_DEFAULT }))
+    }))
+    set('wheel_weight_v4', 1)
+  }
+  set(CONFIGS_KEY, list)
+  return list
 }
 
-const INITIAL_CONFIGS: WheelConfig[] = loadConfigs()
+/* 旧全局历史按方案名归位到各自名下；无匹配方案的记录丢弃 */
+function loadHistoryMap(configs: WheelConfig[]): HistoryMap {
+  const map = get<HistoryMap>(HISTORY_KEY, {})
+  const legacy = get<HistoryEntry[]>(LEGACY_HISTORY_KEY, null)
+  if (Array.isArray(legacy) && legacy.length > 0) {
+    for (let i = legacy.length - 1; i >= 0; i--) {
+      const h = legacy[i]
+      const cfg = configs.find(c => c.name === h.config)
+      if (!cfg) continue
+      if (!Array.isArray(map[cfg.id])) map[cfg.id] = []
+      map[cfg.id].push(h)
+    }
+    Object.keys(map).forEach(k => {
+      map[k] = map[k].slice(0, 100)
+    })
+    set(HISTORY_KEY, map)
+    set(LEGACY_HISTORY_KEY, [])
+  }
+  return map
+}
+
+/* 每次挂载都重新读库：修复返回再进入后新建方案丢数据的问题 */
+function loadWheelState() {
+  const configs = loadConfigs()
+  const historyMap = loadHistoryMap(configs)
+  const lastIdx = Math.min(Math.max(0, get<number>('wheel_last_config', 0)), configs.length - 1)
+  return { configs, historyMap, lastIdx }
+}
 
 function formatTime(ts: number): string {
   const d = new Date(ts)
@@ -102,16 +154,28 @@ function formatTime(ts: number): string {
 }
 
 export default function Wheel() {
+  const initRef = useRef<ReturnType<typeof loadWheelState> | null>(null)
+  if (!initRef.current) initRef.current = loadWheelState()
+
   const [theme, setTh] = useState<BackgroundPreset>(getTheme())
-  const [configs, setConfigs] = useState<WheelConfig[]>(INITIAL_CONFIGS)
-  const [activeIndex, setActiveIndex] = useState(() =>
-    Math.min(Math.max(0, get<number>('wheel_last_config', 0)), INITIAL_CONFIGS.length - 1)
-  )
+  const [configs, setConfigs] = useState<WheelConfig[]>(initRef.current.configs)
+  const [historyMap, setHistoryMap] = useState<HistoryMap>(initRef.current.historyMap)
+  const [activeIndex, setActiveIndex] = useState(initRef.current.lastIdx)
   const [newItemText, setNewItemText] = useState('')
   const [seedText, setSeedText] = useState('')
   const [result, setResult] = useState('')
   const [wish, setWish] = useState('')
-  const [history, setHistory] = useState<HistoryEntry[]>(get<HistoryEntry[]>('wheel_history', []))
+  /* 本次旋转实际采用的种子（没填就现场摇一个） */
+  const [spinSeed, setSpinSeed] = useState(0)
+  /* 历史记录区收纳开关（记住偏好） */
+  const [historyOpen, setHistoryOpen] = useState(!get<boolean>('wheel_history_collapsed', false))
+
+  const toggleHistory = () => {
+    setHistoryOpen(v => {
+      set('wheel_history_collapsed', !v)
+      return !v
+    })
+  }
 
   const canvasRef = useRef<any>(null)
   const rotRef = useRef(0)
@@ -122,20 +186,24 @@ export default function Wheel() {
   const drawRef = useRef<((rot: number) => void) | null>(null)
   const configRef = useRef<WheelConfig | null>(null)
   const themeRef = useRef<BackgroundPreset>(theme)
+  /* 拖拽转盘：画布尺寸/视口中心与拖拽瞬时状态 */
+  const centerRef = useRef({ x: 0, y: 0, w: 0, h: 0 })
+  const dragRef = useRef({ active: false, lastAngle: 0, lastT: 0, vel: 0, moved: 0, startT: 0 })
 
   const config = configs[Math.min(activeIndex, configs.length - 1)]
   configRef.current = config
   themeRef.current = theme
 
   const totalWeight = config ? config.items.reduce((s, i) => s + i.weight, 0) : 0
+  const history = (config && historyMap[config.id]) || []
 
   useEffect(() => {
     setSeedText(config ? config.seed : '')
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [activeIndex])
+  }, [activeIndex, configs])
 
   useDidShow(() => {
-    setHistory(get<HistoryEntry[]>('wheel_history', []))
+    setHistoryMap(get<HistoryMap>(HISTORY_KEY, {}))
   })
 
   useEffect(() => {
@@ -162,14 +230,14 @@ export default function Wheel() {
   const persistConfigs = (next: WheelConfig[], active: number) => {
     setConfigs(next)
     setActiveIndex(active)
-    set('wheel_configs', next)
+    set(CONFIGS_KEY, next)
     set('wheel_last_config', active)
   }
 
   const updateItems = (updater: (items: WheelItem[]) => WheelItem[]) => {
     const next = configs.map((c, i) => (i === activeIndex ? { ...c, items: updater(c.items) } : c))
     setConfigs(next)
-    set('wheel_configs', next)
+    set(CONFIGS_KEY, next)
   }
 
   /* ---------- 转盘绘制（从 ref 读取最新数据，避免过期闭包） ---------- */
@@ -239,17 +307,34 @@ export default function Wheel() {
 
     /* 中心 GO 与顶部指针直接画进 canvas：原生组件层级会把普通 View 盖住 */
     if (!spinningRef.current) {
+      /* 奶白底座 */
+      ctx.save()
+      ctx.shadowColor = 'rgba(255, 112, 67, 0.35)'
+      ctx.shadowBlur = 14
+      ctx.shadowOffsetY = 6
       ctx.beginPath()
-      ctx.arc(cx, cy, 52, 0, Math.PI * 2)
+      ctx.arc(cx, cy, 54, 0, Math.PI * 2)
       ctx.fillStyle = '#FFFFFF'
       ctx.fill()
-      const grad = ctx.createLinearGradient(cx - 42, cy - 42, cx + 42, cy + 42)
-      grad.addColorStop(0, '#FFAB91')
+      ctx.restore()
+      /* 暖阳珊瑚渐变主体 */
+      const grad = ctx.createLinearGradient(cx - 44, cy - 44, cx + 44, cy + 44)
+      grad.addColorStop(0, '#FFCC80')
+      grad.addColorStop(0.55, '#FF9E80')
       grad.addColorStop(1, '#FF7043')
       ctx.beginPath()
-      ctx.arc(cx, cy, 42, 0, Math.PI * 2)
+      ctx.arc(cx, cy, 44, 0, Math.PI * 2)
       ctx.fillStyle = grad
       ctx.fill()
+      /* 高光小月牙 */
+      ctx.save()
+      ctx.beginPath()
+      ctx.arc(cx, cy, 34, Math.PI * 1.08, Math.PI * 1.42)
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)'
+      ctx.lineWidth = 5
+      ctx.lineCap = 'round'
+      ctx.stroke()
+      ctx.restore()
       ctx.fillStyle = '#FFFFFF'
       ctx.font = '800 30px sans-serif'
       ctx.textAlign = 'center'
@@ -279,7 +364,7 @@ export default function Wheel() {
     const query = Taro.createSelectorQuery()
     query
       .select('#wheelCanvas')
-      .fields({ node: true, size: true })
+      .fields({ node: true, size: true, rect: true })
       .exec(res => {
         if (!res || !res[0] || !res[0].node) return
         const canvas = res[0].node
@@ -296,6 +381,14 @@ export default function Wheel() {
         canvas.height = h * dpr
         const ctx = canvas.getContext('2d')
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        if (typeof res[0].left === 'number') {
+          centerRef.current = {
+            x: res[0].left + w / 2,
+            y: res[0].top + h / 2,
+            w,
+            h
+          }
+        }
         drawRef.current = (rot: number) => drawWheel(ctx, w, h, rot)
         cb()
       })
@@ -316,8 +409,71 @@ export default function Wheel() {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [config && config.items, config && config.items.length, theme])
 
-  /* ---------- 旋转 ---------- */
-  const spin = () => {
+  /* ---------- 物理拖动 ---------- */
+  const angleOfTouch = (e: any): number => {
+    const t = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0] : e.touches && e.touches[0]
+    if (!t) return 0
+    const c = centerRef.current
+    /* 小程序 canvas 触摸事件的坐标是相对画布的 x/y；H5 只有视口坐标 clientX/clientY */
+    if (typeof t.x === 'number' && typeof t.y === 'number') {
+      return Math.atan2(t.y - c.h / 2, t.x - c.w / 2)
+    }
+    if (typeof t.clientX === 'number' && typeof t.clientY === 'number') {
+      return Math.atan2(t.clientY - c.y, t.clientX - c.x)
+    }
+    return 0
+  }
+
+  const handleWheelTouchStart = (e: any) => {
+    if (spinningRef.current) return
+    const d = dragRef.current
+    d.active = true
+    d.lastAngle = angleOfTouch(e)
+    d.startT = d.lastT = Date.now()
+    d.vel = 0
+    d.moved = 0
+  }
+
+  const handleWheelTouchMove = (e: any) => {
+    const d = dragRef.current
+    if (!d.active || spinningRef.current) return
+    const a = angleOfTouch(e)
+    let delta = a - d.lastAngle
+    if (delta > Math.PI) delta -= Math.PI * 2
+    else if (delta < -Math.PI) delta += Math.PI * 2
+    const now = Date.now()
+    const dt = Math.max(1, now - d.lastT)
+    rotRef.current += delta
+    d.moved += Math.abs(delta)
+    d.vel = d.vel * 0.6 + (delta / dt) * 0.4
+    d.lastAngle = a
+    d.lastT = now
+    if (drawRef.current) drawRef.current(rotRef.current)
+  }
+
+  const handleWheelTouchEnd = () => {
+    const d = dragRef.current
+    if (!d.active) return
+    d.active = false
+    if (spinningRef.current) return
+    const dur = Date.now() - d.startT
+    /* 几乎没动 → 视作点按 GO */
+    if (d.moved < 0.06 && dur < 350) {
+      spin(1)
+      return
+    }
+    /* 甩得够快才触发挥霍旋转；慢速拖动只把盘留在原地 */
+    if (Math.abs(d.vel) > 0.004) {
+      spin(d.vel >= 0 ? 1 : -1)
+    }
+  }
+
+  const handleWheelTouchCancel = () => {
+    dragRef.current.active = false
+  }
+
+  /* ---------- 旋转（dir: 1 顺时针 / -1 逆时针，跟随甩动方向） ---------- */
+  const spin = (dir: number = 1) => {
     if (spinningRef.current) return
     const items = config ? config.items : []
     if (items.length < 2) {
@@ -331,9 +487,14 @@ export default function Wheel() {
       setWish(randomOf(WHEEL_WISHES))
 
       const tw = items.reduce((s, i) => s + i.weight, 0)
+      /* 没填种子就现场摇一个（与手填同量级的小数字），本次结果同样可复现 */
       const seedNum = Number(seedText)
-      const useSeed = seedText !== '' && !Number.isNaN(seedNum)
-      const rng = useSeed ? mulberry32(Math.floor(Math.abs(seedNum)) + 1) : Math.random
+      const seedValue =
+        seedText !== '' && !Number.isNaN(seedNum) && seedNum > 0
+          ? Math.floor(seedNum)
+          : Math.floor(Math.random() * 999) + 1
+      const rng = mulberry32(seedValue)
+      setSpinSeed(seedValue)
 
       const pickIndex = (): number => {
         let r = rng() * tw
@@ -362,12 +523,16 @@ export default function Wheel() {
       const sweep = (Math.PI * 2 * items[targetIndex].weight) / tw
       const sectorStart = (Math.PI * 2 * cumWeight) / tw
       const mid = sectorStart + sweep / 2
-      const jitterRatio = useSeed ? rng() : Math.random()
+      const jitterRatio = rng()
       const jitter = (jitterRatio - 0.5) * sweep * 0.8
 
       const startRot = rotRef.current
       let delta = -Math.PI / 2 - (mid + jitter) - startRot
-      while (delta < Math.PI * 10) delta += Math.PI * 2
+      if (dir >= 0) {
+        while (delta < Math.PI * 10) delta += Math.PI * 2
+      } else {
+        while (delta > -Math.PI * 10) delta -= Math.PI * 2
+      }
       const endRot = startRot + delta
 
       const startTime = Date.now()
@@ -382,10 +547,17 @@ export default function Wheel() {
           spinningRef.current = false
           const winner = items[targetIndex].text
           setResult(winner)
-          const nextHistory = get<HistoryEntry[]>('wheel_history', [])
-          nextHistory.unshift({ ts: Date.now(), config: config ? config.name : '', result: winner })
-          set('wheel_history', nextHistory.slice(0, 100))
-          setHistory(nextHistory.slice(0, 100))
+          const cfg = configRef.current
+          if (cfg) {
+            const cur = get<HistoryMap>(HISTORY_KEY, {})
+            const nextList = [
+              { ts: Date.now(), config: cfg.name, result: winner, seed: seedValue },
+              ...(cur[cfg.id] || [])
+            ].slice(0, 100)
+            const nextMap = { ...cur, [cfg.id]: nextList }
+            set(HISTORY_KEY, nextMap)
+            setHistoryMap(nextMap)
+          }
           /* 结束后重绘一次，把中心 GO 画回来 */
           if (drawRef.current) drawRef.current(rotRef.current)
         }
@@ -421,7 +593,7 @@ export default function Wheel() {
       success: (res: any) => {
         if (!res.confirm) return
         const name = (res.content || '').trim() || `方案 ${configs.length + 1}`
-        const next = [...configs, { name, items: [], seed: '' }]
+        const next = [...configs, { id: genId(), name, items: [], seed: '' }]
         persistConfigs(next, next.length - 1)
         setResult('')
       }
@@ -443,7 +615,7 @@ export default function Wheel() {
         if (!name || name === configs[index].name) return
         const next = configs.map((c, i) => (i === index ? { ...c, name } : c))
         setConfigs(next)
-        set('wheel_configs', next)
+        set(CONFIGS_KEY, next)
         Taro.showToast({ title: '已重命名', icon: 'success' })
       }
     }
@@ -462,9 +634,15 @@ export default function Wheel() {
       confirmColor: '#EF5350',
       success: res => {
         if (!res.confirm) return
+        const removedId = configs[index].id
         const next = configs.filter((_, i) => i !== index)
         const nextActive = index < activeIndex ? activeIndex - 1 : Math.min(activeIndex, next.length - 1)
         persistConfigs(next, nextActive)
+        /* 方案没了，它的历史记录也一起清掉 */
+        const nextMap = { ...historyMap }
+        delete nextMap[removedId]
+        set(HISTORY_KEY, nextMap)
+        setHistoryMap(nextMap)
         setResult('')
       }
     })
@@ -518,7 +696,7 @@ export default function Wheel() {
     setSeedText(v)
     const next = configs.map((c, i) => (i === activeIndex ? { ...c, seed: v } : c))
     setConfigs(next)
-    set('wheel_configs', next)
+    set(CONFIGS_KEY, next)
   }
 
   /* ---------- 导入 / 导出 / 分享 ---------- */
@@ -564,6 +742,7 @@ export default function Wheel() {
   const applyImport = (mode: 'replace' | 'append' | 'items', payload: any) => {
     if (mode === 'replace') {
       const next: WheelConfig[] = (payload as any[]).map((c: any, i: number) => ({
+        id: genId(),
         name: String((c && c.name) || `方案 ${i + 1}`),
         items: normalizeItems(c && c.items),
         seed: String((c && c.seed) || '')
@@ -592,7 +771,7 @@ export default function Wheel() {
         Taro.showToast({ title: '方案里没有有效选项', icon: 'none' })
         return
       }
-      const next = [...configs, { name, items, seed: String((payload && payload.seed) || '') }]
+      const next = [...configs, { id: genId(), name, items, seed: String((payload && payload.seed) || '') }]
       persistConfigs(next, next.length - 1)
       setResult('')
       Taro.showToast({ title: `已导入「${name}」`, icon: 'success' })
@@ -675,7 +854,7 @@ export default function Wheel() {
       <ScrollView className='wheel-tabs' scrollX enhanced showScrollbar={false}>
         {configs.map((c, i) => (
           <View
-            key={`${c.name}-${i}`}
+            key={c.id}
             className={`wheel-tab ${i === activeIndex ? 'wheel-tab--active' : ''}`}
             onClick={() => switchConfig(i)}
             onLongPress={() => renameConfig(i)}
@@ -697,9 +876,17 @@ export default function Wheel() {
         </View>
       </ScrollView>
 
-      {/* ---------- 转盘（GO/指针画在 canvas 内，点盘面或中心均可转） ---------- */}
+      {/* ---------- 转盘（支持拖动甩动 / 点按启动） ---------- */}
       <View className='wheel-stage'>
-        <Canvas type='2d' id='wheelCanvas' className='wheel-canvas' onClick={spin} />
+        <Canvas
+          type='2d'
+          id='wheelCanvas'
+          className='wheel-canvas'
+          onTouchStart={handleWheelTouchStart}
+          onTouchMove={handleWheelTouchMove}
+          onTouchEnd={handleWheelTouchEnd}
+          onTouchCancel={handleWheelTouchCancel}
+        />
       </View>
 
       {/* ---------- 结果 ---------- */}
@@ -708,10 +895,11 @@ export default function Wheel() {
           <>
             <Text className='wheel-result-label'>转盘替你选了</Text>
             <Text className='wheel-result-text'>{result}</Text>
+            {spinSeed > 0 && <Text className='wheel-result-seed'>🌱 本次种子 {spinSeed}</Text>}
           </>
         ) : (
           <Text className='wheel-result-idle'>
-            {wish !== '' ? wish : '点 GO 开始，让转盘替你决定'}
+            {wish !== '' ? wish : '点 GO 或甩动转盘开始'}
           </Text>
         )}
       </View>
@@ -722,12 +910,12 @@ export default function Wheel() {
           className='wheel-seed-input'
           type='number'
           value={seedText}
-          placeholder='数字种子（可复现结果）'
+          placeholder='埋下种子许个愿'
           onInput={e => setSeed(e.detail.value)}
         />
         <View
           className='wheel-seed-random'
-          onClick={() => setSeed(String(Math.floor(Math.random() * 100000)))}
+          onClick={() => setSeed(String(Math.floor(Math.random() * 999) + 1))}
         >
           随机
         </View>
@@ -795,30 +983,37 @@ export default function Wheel() {
         </Button>
       </View>
 
-      {/* ---------- 历史记录 ---------- */}
+      {/* ---------- 历史记录（仅当前方案，可收纳） ---------- */}
       <View className='wheel-section-label'>
-        历史记录
+        <View className='wheel-history-title' onClick={toggleHistory}>
+          <Text>历史记录 · {history.length}</Text>
+          <Text className={`wheel-history-toggle ${historyOpen ? 'wheel-history-toggle--open' : ''}`}>
+            ▾
+          </Text>
+        </View>
         <Text className='wheel-history-more' onClick={goHistory}>
           查看全部 ›
         </Text>
       </View>
-      {history.length > 0 ? (
-        <View className='wheel-history-list'>
-          {history.slice(0, 8).map((h, i) => (
-            <View key={`${h.ts}-${i}`} className='wheel-history-item'>
-              <View className='wheel-history-main'>
-                <Text className='wheel-history-result'>{h.result}</Text>
-                <Text className='wheel-history-config'>「{h.config}」</Text>
+      {historyOpen &&
+        (history.length > 0 ? (
+          <View className='wheel-history-list'>
+            {history.slice(0, 8).map((h, i) => (
+              <View key={`${h.ts}-${i}`} className='wheel-history-item'>
+                <View className='wheel-history-main'>
+                  <Text className='wheel-history-result'>{h.result}</Text>
+                </View>
+                <Text className='wheel-history-time'>{formatTime(h.ts)}</Text>
               </View>
-              <Text className='wheel-history-time'>{formatTime(h.ts)}</Text>
-            </View>
-          ))}
-        </View>
-      ) : (
-        <View className='wheel-items-empty'>还没有记录，转一次试试</View>
-      )}
+            ))}
+          </View>
+        ) : (
+          <View className='wheel-items-empty'>当前方案还没有记录，转一次试试</View>
+        ))}
 
-      <View className='wheel-tip'>长按选项可删除 · 长按方案名可重命名 · 权重决定扇区大小和中奖概率</View>
+      <View className='wheel-tip'>
+        点 GO 或快速甩动转盘开始 · 长按选项可删除 · 长按方案名可重命名
+      </View>
     </View>
   )
 }

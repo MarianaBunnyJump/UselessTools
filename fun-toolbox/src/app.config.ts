@@ -21,7 +21,7 @@ export default defineAppConfig({
     backgroundColor: '#FFF9F2',
     backgroundTextStyle: 'light',
     navigationBarTextStyle: 'black',
-    navigationBarTitleText: '有点意思工具盒'
+    navigationBarTitleText: '趣工局'
   },
   lazyCodeLoading: 'requiredComponents'
 })

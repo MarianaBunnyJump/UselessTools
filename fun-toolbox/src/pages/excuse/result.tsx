@@ -44,27 +44,30 @@ export default function ExcuseResult() {
   const scene = EXCUSE_SCENES.find(s => s.id === sceneId)
   const tone = EXCUSE_TONES.find(t => t.id === toneId)
 
-  const isFavorited = () => {
+  const [favState, setFavState] = useState(() => {
     const favs = get<FavoriteItem[]>('excuse_favorites', [])
     return favs.some(f => f.text === text)
-  }
-  const [favState, setFavState] = useState(isFavorited)
+  })
 
   const refresh = () => {
-    setText(pickExcuse(pool))
+    const next = pickExcuse(pool)
+    setText(next)
     setCardKey(k => k + 1)
-    setFavState(isFavorited())
+    const favs = get<FavoriteItem[]>('excuse_favorites', [])
+    setFavState(favs.some(f => f.text === next))
   }
 
   const copy = () => {
     Taro.setClipboardData({
       data: text,
-      success: () => Taro.showToast({ title: '已复制', icon: 'success' })
+      success: () => {
+        Taro.showToast({ title: '已复制，去粘贴吧', icon: 'success' })
+      }
     })
   }
 
   const toggleFavorite = () => {
-    const favs = get<FavoriteItem[]>(('excuse_favorites'), [])
+    const favs = get<FavoriteItem[]>('excuse_favorites', [])
     const idx = favs.findIndex(f => f.text === text)
     if (idx >= 0) {
       favs.splice(idx, 1)
@@ -83,42 +86,39 @@ export default function ExcuseResult() {
     <View className='page-root excuse-result-root' style={{ background: theme.bg }}>
       <NavBar title='借口生成器' />
 
-      <View className='excuse-result-tag'>
-        {scene?.icon} {scene?.name} · {tone?.name}风
-      </View>
-
-      <View className='excuse-result-card'>
-        <View key={cardKey} className='excuse-result-text'>
-          "{text}"
+      <View className='excuse-stage'>
+        <View key={cardKey} className='excuse-share-card'>
+          <View className='excuse-card-topbar' />
+          <View className='excuse-card-head'>
+            <View className='excuse-card-tag'>
+              {scene?.icon} {scene?.name} · {tone?.name}风
+            </View>
+            <View className='excuse-card-tools'>
+              <View className='excuse-tool' onClick={refresh}>
+                <Text className='excuse-tool-icon'>🔄</Text>
+              </View>
+              <View className='excuse-tool' onClick={copy}>
+                <Text className='excuse-tool-icon'>📋</Text>
+              </View>
+              <View
+                className={`excuse-tool ${favState ? 'excuse-tool--on' : ''}`}
+                onClick={toggleFavorite}
+              >
+                <Text className='excuse-tool-icon'>{favState ? '❤️' : '🤍'}</Text>
+              </View>
+              <Button className='excuse-tool excuse-tool--btn' openType='share'>
+                <Text className='excuse-tool-icon'>📤</Text>
+              </Button>
+            </View>
+          </View>
+          <Text className='excuse-card-quote'>“</Text>
+          <View className='excuse-card-text'>{text}</View>
+          <View className='excuse-card-foot'>
+            <Text className='excuse-card-brand'>— 趣工局 · 借口生成器 —</Text>
+          </View>
         </View>
+        <View className='excuse-stage-hint'>右上角小图标：换一个 · 复制 · 收藏 · 分享</View>
       </View>
-
-      <View className='excuse-result-ops'>
-        <View className='excuse-op-btn' onClick={refresh}>
-          <Text className='excuse-op-icon'>🔄</Text>
-          <Text>换一个</Text>
-        </View>
-        <View className='excuse-op-btn' onClick={copy}>
-          <Text className='excuse-op-icon'>📋</Text>
-          <Text>复制</Text>
-        </View>
-        <Button
-          className='excuse-op-btn excuse-op-share'
-          openType='share'
-        >
-          <Text className='excuse-op-icon'>📤</Text>
-          <Text>分享</Text>
-        </Button>
-      </View>
-
-      <View
-        className={`excuse-fav-bar ${favState ? 'excuse-fav-bar--done' : ''}`}
-        onClick={toggleFavorite}
-      >
-        {favState ? '❤️ 已收藏，点击取消' : '🤍 收藏到常用'}
-      </View>
-
-      <View className='excuse-result-tip'>点击右上角菜单也可以转发给朋友</View>
     </View>
   )
 }

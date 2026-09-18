@@ -1,13 +1,14 @@
 import { View, Text } from '@tarojs/components'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useState, useCallback } from 'react'
-import { FISH_STYLES } from '../../data/fishStyles'
+import { FISH_STYLES, type FishStyle } from '../../data/fishStyles'
 import { ACHIEVEMENTS } from '../../data/achievements'
 import { MERIT_PHRASES } from '../../data/meritPhrases'
 import { getTheme } from '../../utils/theme'
 import { playMeritSound, isSupported } from '../../utils/audio'
 import { get, set, getDailyCount, bumpStreak } from '../../utils/storage'
 import { randomOf } from '../../utils/format'
+import Muyu from '../../components/Muyu'
 import NavBar from '../../components/NavBar'
 import './index.scss'
 
@@ -19,15 +20,24 @@ interface FloatText {
 
 let floatKey = 0
 
+/* 老数据里存过 'fish'（小鱼形象），迁移到木鱼 */
+const LEGACY_STYLE_MAP: Record<string, string> = { fish: 'muyu' }
+
+function loadStyle(): string {
+  const saved = get<string>('merit_style', 'muyu')
+  return LEGACY_STYLE_MAP[saved] || saved
+}
+
 export default function Merit() {
   const [theme] = useState(getTheme())
   const daily = getDailyCount('merit_today')
   const [todayCount, setTodayCount] = useState(daily.count)
   const [totalCount, setTotalCount] = useState(get<number>('merit_total', 0))
-  const [style, setStyle] = useState(get<string>('merit_style', 'fish'))
+  const [style, setStyle] = useState(loadStyle())
   const [tapKey, setTapKey] = useState(0)
   const [floats, setFloats] = useState<FloatText[]>([])
   const [banner, setBanner] = useState('')
+  const [unlockedIds, setUnlockedIds] = useState<string[]>(get<string[]>('merit_achievements', []))
 
   useShareAppMessage(() => ({
     title: randomOf(MERIT_PHRASES).replace('N', String(todayCount)),
@@ -35,6 +45,8 @@ export default function Merit() {
   }))
 
   const currentStyle = FISH_STYLES.find(s => s.id === style) || FISH_STYLES[0]
+
+  const isStyleUnlocked = (s: FishStyle) => !s.unlockBy || unlockedIds.includes(s.unlockBy)
 
   const checkAchievements = useCallback((total: number, dailyCount: number, streak: number) => {
     const unlocked = get<string[]>('merit_achievements', [])
@@ -48,6 +60,7 @@ export default function Merit() {
     if (fresh.length > 0) {
       fresh.forEach(a => unlocked.push(a.id))
       set('merit_achievements', unlocked)
+      setUnlockedIds([...unlocked])
       const name = fresh[fresh.length - 1]
       setBanner(`${name.icon} 成就解锁：${name.name}`)
       setTimeout(() => setBanner(''), 2600)
@@ -91,10 +104,18 @@ export default function Merit() {
     checkAchievements(nextTotal, nextDaily, streak)
   }
 
-  const pickStyle = (id: string) => {
-    setStyle(id)
-    set('merit_style', id)
-    playMeritSound(id)
+  const pickStyle = (s: FishStyle) => {
+    if (s.coming) {
+      Taro.showToast({ title: '敬请期待后续版本', icon: 'none' })
+      return
+    }
+    if (!isStyleUnlocked(s)) {
+      Taro.showToast({ title: `解锁条件：${s.lockHint}`, icon: 'none', duration: 1800 })
+      return
+    }
+    setStyle(s.id)
+    set('merit_style', s.id)
+    playMeritSound(s.id)
   }
 
   const goAchievement = () => {
@@ -134,23 +155,41 @@ export default function Merit() {
 
         <View className='merit-fish-area' onClick={handleTap}>
           <View key={`fish-${tapKey}`} className='merit-fish-inner'>
-            <Text className='merit-fish-icon'>{currentStyle.icon}</Text>
+            {currentStyle.id === 'muyu' ? (
+              <Muyu size={330} />
+            ) : (
+              <Text className='merit-fish-icon'>{currentStyle.icon}</Text>
+            )}
           </View>
         </View>
       </View>
 
       <View className='merit-styles'>
-        {FISH_STYLES.map(s => (
-          <View
-            key={s.id}
-            className={`merit-style-card ${style === s.id ? 'merit-style-card--active' : ''}`}
-            onClick={() => pickStyle(s.id)}
-          >
-            <Text className='merit-style-icon'>{s.icon}</Text>
-            <Text className='merit-style-name'>{s.name}</Text>
-            <Text className='merit-style-desc'>{s.desc}</Text>
-          </View>
-        ))}
+        {FISH_STYLES.map(s => {
+          const unlocked = isStyleUnlocked(s)
+          return (
+            <View
+              key={s.id}
+              className={[
+                'merit-style-card',
+                style === s.id && unlocked ? 'merit-style-card--active' : '',
+                s.coming ? 'merit-style-card--coming' : '',
+                s.locked && !unlocked ? 'merit-style-card--locked' : ''
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => pickStyle(s)}
+            >
+              <View className='merit-style-icon-wrap'>
+                {s.id === 'muyu' && !s.coming ? <Muyu size={46} /> : <Text className='merit-style-icon'>{s.icon}</Text>}
+                {(s.locked && !unlocked) || s.coming ? (
+                  <Text className='merit-style-lock'>{s.coming ? '🚧' : '🔒'}</Text>
+                ) : null}
+              </View>
+              <Text className='merit-style-name'>{s.name}</Text>
+            </View>
+          )
+        })}
       </View>
 
       <View className='merit-rank'>

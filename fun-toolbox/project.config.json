@@ -9,7 +9,7 @@
     "es6": false,
     "enhance": false,
     "postcss": false,
-    "minified": false,
+    "minified": true,
     "urlCheck": false,
     "coverView": true,
     "lazyloadPlaceholderEnable": false,

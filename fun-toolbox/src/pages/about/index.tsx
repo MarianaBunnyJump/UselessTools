@@ -10,17 +10,17 @@ export default function About() {
   const [theme] = useState(getTheme())
 
   useShareAppMessage(() => ({
-    title: '我在有点意思工具盒发现了一堆好玩的，来看看',
+    title: '我在趣工局发现了一堆好玩的，来看看',
     path: '/pages/index/index'
   }))
 
   const handleFeedback = () => {
     Taro.setClipboardData({
-      data: 'funtoolbox@example.com',
+      data: 'nikangd5300@163.com',
       success: () => {
         Taro.showModal({
           title: '意见反馈',
-          content: '反馈邮箱已复制到剪贴板，欢迎告诉我们你想加的新工具～',
+          content: '反馈邮箱 nikangd5300@163.com 已复制到剪贴板，欢迎告诉我们你想加的新工具～',
           showCancel: false
         })
       }
@@ -33,7 +33,7 @@ export default function About() {
 
       <View className='about-hero'>
         <Text className='about-logo'>🎁</Text>
-        <Text className='about-name'>有点意思工具盒</Text>
+        <Text className='about-name'>趣工局</Text>
         <Text className='about-version'>v1.0.0</Text>
         <Text className='about-slogan'>收录了一些有点意思的东西</Text>
       </View>

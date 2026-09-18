@@ -174,10 +174,45 @@
   background: rgba(255, 171, 145, 0.12);
 }
 
+.wheel-history-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* 收纳开关小圆钮 */
+.wheel-history-toggle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  color: #8d7b70;
+  font-size: 20px;
+  line-height: 38px;
+  text-align: center;
+  box-shadow: 0 4px 10px -6px rgba(74, 59, 50, 0.25);
+  transform: rotate(-90deg);
+  transition: transform 0.25s ease;
+}
+
+.wheel-history-toggle--open {
+  transform: rotate(0deg);
+}
+
+/* 查看全部：实底小胶囊，和普通文字拉开区分度 */
 .wheel-history-more {
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 600;
   color: #ff8a65;
+  padding: 10px 24px;
+  border-radius: 26px;
+  background: rgba(255, 171, 145, 0.18);
+  border: 2px solid rgba(255, 138, 101, 0.42);
+
+  &:active {
+    background: rgba(255, 171, 145, 0.38);
+  }
 }
 
 .wheel-items {

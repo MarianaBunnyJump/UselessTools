@@ -1,3 +1,5 @@
+@import '../../styles/theme.scss';
+
 .merit-root {
   min-height: 100vh;
 }
@@ -14,12 +16,17 @@
 }
 
 .merit-today {
-  font-size: 110px;
+  /* 手写体 + 暖橙渐变：可爱一点 */
+  font-family: $font-hand;
+  font-size: 104px;
   font-weight: 800;
-  line-height: 1.15;
-  color: #4a3b32;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #ffa94d, #ff7043);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.8);
+  filter: drop-shadow(0 3px 6px rgba(255, 112, 67, 0.22));
 }
 
 .merit-total {
@@ -48,10 +55,11 @@
   justify-content: center;
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 
 .merit-fish-inner {
-  /* 转轴放在尾部：敲击时头部下沉、尾部不动 */
+  /* 敲击时轻微下沉再回弹（与槌头落下时机同步） */
   transform-origin: 50% 88%;
   animation: fish-tap 0.22s ease-out;
 }
@@ -112,21 +120,22 @@
   pointer-events: none;
 }
 
-/* ---------- 样式选择 ---------- */
+/* ---------- 音色选择（5 列自适应网格） ---------- */
 .merit-styles {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 0 4px;
 }
 
 .merit-style-card {
-  flex: 1;
+  width: calc((100% - 48px) / 5);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px 4px 16px;
-  border-radius: 22px;
+  padding: 14px 0 12px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.55);
   border: 2px solid rgba(255, 255, 255, 0.75);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -139,21 +148,46 @@
   transform: translateY(-4px);
 }
 
+.merit-style-card--locked {
+  opacity: 0.75;
+}
+
+/* 待开发：暗色占位 */
+.merit-style-card--coming {
+  background: rgba(74, 59, 50, 0.07);
+  border-color: rgba(74, 59, 50, 0.12);
+
+  .merit-style-name {
+    color: #b8a99e;
+  }
+}
+
+.merit-style-icon-wrap {
+  position: relative;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .merit-style-icon {
   font-size: 44px;
-  line-height: 1.3;
+  line-height: 1.2;
+}
+
+.merit-style-lock {
+  position: absolute;
+  right: -10px;
+  top: -4px;
+  font-size: 24px;
+  line-height: 1;
 }
 
 .merit-style-name {
   margin-top: 8px;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: #4a3b32;
-}
-
-.merit-style-desc {
-  font-size: 20px;
-  color: #b8a99e;
 }
 
 .merit-ach-btn {
@@ -163,7 +197,7 @@
 /* ---------- 排名行 ---------- */
 .merit-rank {
   text-align: center;
-  margin-top: 36px;
+  margin-top: 30px;
   font-size: 24px;
   color: #8d7b70;
 }

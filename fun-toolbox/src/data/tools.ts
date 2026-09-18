@@ -11,6 +11,8 @@ export interface ToolMeta {
   boxColor: string
   boxColorDeep: string
   ribbonColor: string
+  /* 自定义弹出形象（默认渲染 icon emoji） */
+  iconType?: 'muyu'
 }
 
 export const TOOLS: ToolMeta[] = [
@@ -52,7 +54,8 @@ export const TOOLS: ToolMeta[] = [
     path: '/pages/merit/index',
     boxColor: '#FFE5C4',
     boxColorDeep: '#FFD6A0',
-    ribbonColor: '#FF9800'
+    ribbonColor: '#FF9800',
+    iconType: 'muyu'
   },
   {
     id: 'excuse',

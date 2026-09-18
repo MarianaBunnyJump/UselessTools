@@ -1,3 +1,5 @@
+@import '../../styles/theme.scss';
+
 .life-root {
   min-height: 100vh;
 }
@@ -58,25 +60,25 @@
   font-size: 28px;
 }
 
-/* ---------- 巨大数字 ---------- */
+/* ---------- 巨大数字：手写体 + 主题同色系渐变 ---------- */
 .life-hero {
   text-align: center;
-  padding: 30px 0 6px;
+  padding: 26px 0 6px;
   animation: fade-up 0.5s ease-out;
 }
 
 .life-hero-label {
   font-size: 28px;
   color: #8d7b70;
+  font-weight: 600;
 }
 
 .life-hero-num {
-  font-size: 130px;
+  font-family: $font-hand;
+  font-size: 104px;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 3px 0 rgba(255, 255, 255, 0.8);
-  background: linear-gradient(135deg, #9575cd, #b39ddb);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -84,13 +86,14 @@
 
 .life-hero-unit {
   font-size: 26px;
-  color: #8d7b70;
-  margin-top: -6px;
+  color: #7d6b5f;
+  margin-top: -4px;
+  font-weight: 600;
 }
 
 /* ---------- 进度条 ---------- */
 .life-progress {
-  margin-top: 20px;
+  margin-top: 18px;
   padding: 24px 30px;
   animation: fade-up 0.5s ease-out 0.05s both;
 }
@@ -99,31 +102,29 @@
   display: flex;
   justify-content: space-between;
   font-size: 24px;
-  color: #8d7b70;
+  color: #7d6b5f;
+  font-weight: 600;
 }
 
 .life-progress-pct {
   font-weight: 800;
-  color: #9575cd;
+  color: #7d6b5f;
 }
 
 .life-progress-track {
   margin-top: 14px;
   height: 22px;
   border-radius: 11px;
-  background: rgba(179, 157, 219, 0.18);
   overflow: hidden;
 }
 
 .life-progress-fill {
   height: 100%;
   border-radius: 11px;
-  background: linear-gradient(90deg, #b39ddb, #9575cd);
-  box-shadow: 0 0 12px rgba(149, 117, 205, 0.6);
   transition: width 1s ease;
 }
 
-/* ---------- 指标小卡片 ---------- */
+/* ---------- 指标卡片（可翻转） ---------- */
 .life-grid {
   margin-top: 24px;
   display: flex;
@@ -131,17 +132,10 @@
   gap: 20px;
 }
 
-.life-metric-card {
+/* 入场动画放在最外层，避免覆盖正/背面自身的 transform */
+.life-flip {
   width: 314px;
-  padding: 28px 24px 22px;
-  box-sizing: border-box;
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 26px -14px rgba(149, 117, 205, 0.4);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  perspective: 1200px;
   animation: fade-up 0.5s ease-out both;
 
   &:nth-child(1) { animation-delay: 0.08s; }
@@ -151,45 +145,107 @@
   &:nth-child(5) { animation-delay: 0.32s; }
 }
 
-.life-metric-card--wide {
+.life-flip--wide {
   width: 100%;
 }
 
-.life-metric-value {
-  font-size: 64px;
-  font-weight: 800;
-  line-height: 1.1;
+/* 不依赖 backface-visibility（小程序 WebView 不支持），
+   用透明度在 90° 中点交叉切换正反面 */
+.life-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.15, 0.25, 1);
+}
+
+.life-flip-inner--on {
+  transform: rotateY(180deg);
+}
+
+/* 正面：默认可见；回到正面时下半程渐显（延迟 0.3s） */
+.life-flip-front {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+/* 背面：默认隐藏，自带反向旋转保证文字正向 */
+.life-flip-back {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 30px;
+  box-sizing: border-box;
+  transform: rotateY(180deg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* 翻到背面：正面立刻渐隐（上半程），背面延迟渐显（下半程） */
+.life-flip-inner--on .life-flip-front {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.life-flip-inner--on .life-flip-back {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.3s;
+}
+
+.life-back-text {
+  font-family: $font-hand;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.6;
   color: #4a3b32;
+  text-align: center;
+}
+
+.life-metric-card {
+  width: 100%;
+  padding: 28px 24px 20px;
+  box-sizing: border-box;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 26px -14px rgba(74, 59, 50, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.life-metric-value {
+  font-family: $font-hand;
+  font-size: 54px;
+  font-weight: 800;
+  line-height: 1.15;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   font-variant-numeric: tabular-nums;
 }
 
 .life-metric-unit {
-  margin-top: 2px;
+  margin-top: 4px;
   font-size: 24px;
-  color: #9575cd;
   font-weight: 700;
 }
 
 .life-metric-label {
   margin-top: 10px;
   font-size: 26px;
-  color: #8d7b70;
+  color: #7d6b5f;
   text-align: center;
+  font-weight: 600;
 }
 
-.life-metric-share {
-  margin-top: 18px;
-  padding: 10px 36px;
-  border-radius: 30px;
-  background: rgba(179, 157, 219, 0.14);
-  border: 1px solid rgba(179, 157, 219, 0.45);
-  color: #7e57c2;
-  font-size: 24px;
-  font-weight: 600;
-
-  &:active {
-    background: rgba(179, 157, 219, 0.3);
-  }
+.life-metric-hint {
+  margin-top: 12px;
+  font-size: 20px;
+  color: #c9bdb4;
 }
 
 /* ---------- 假期提示 ---------- */
@@ -197,7 +253,7 @@
   margin-top: 28px;
   text-align: center;
   font-size: 24px;
-  color: #8d7b70;
+  color: #7d6b5f;
   animation: fade-up 0.5s ease-out 0.2s both;
 }
 
@@ -205,5 +261,128 @@
   margin-top: 30px;
   text-align: center;
   font-size: 22px;
-  color: #c9bdb4;
+  color: #b3a69a;
+}
+
+/* ---------- 右下角小分享按钮 ---------- */
+.life-share-fab {
+  position: fixed;
+  right: 34px;
+  bottom: calc(90px + constant(safe-area-inset-bottom));
+  bottom: calc(90px + env(safe-area-inset-bottom));
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid rgba(255, 138, 128, 0.4);
+  @include flex-center;
+  z-index: 40;
+  animation: fade-up 0.5s ease-out 0.5s both;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.life-share-fab-icon {
+  font-size: 42px;
+  line-height: 1;
+}
+
+/* ---------- 分享勾选弹层 ---------- */
+.life-share-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(46, 38, 52, 0.45);
+  display: flex;
+  align-items: flex-end;
+  animation: fade-in 0.2s ease-out;
+}
+
+.life-share-panel {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 40px 36px calc(36px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(36px + env(safe-area-inset-bottom));
+  border-radius: 40px 40px 0 0;
+  background: #fffdfb;
+  animation: sheet-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.life-share-panel-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.life-share-pick-grid {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.life-share-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 30px;
+  border-radius: 34px;
+  background: rgba(74, 59, 50, 0.05);
+  border: 2px solid rgba(74, 59, 50, 0.12);
+  font-size: 26px;
+  font-weight: 600;
+  color: #6d5f56;
+  transition: all 0.2s ease;
+}
+
+.life-share-pick-check {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  @include flex-center;
+}
+
+.life-share-panel-tip {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 22px;
+  color: #b3a69a;
+}
+
+.life-share-confirm {
+  margin-top: 28px;
+  height: 92px;
+  border-radius: 44px;
+  @include flex-center;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-rise {
+  from {
+    transform: translateY(60%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }

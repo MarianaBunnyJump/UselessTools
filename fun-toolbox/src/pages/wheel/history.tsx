@@ -12,6 +12,12 @@ interface HistoryEntry {
   result: string
 }
 
+type HistoryMap = Record<string, HistoryEntry[]>
+
+/* 与主页写入的存储键保持一致（按方案 id 分组的 map） */
+const HISTORY_KEY = 'wheel_history_v2'
+const LEGACY_HISTORY_KEY = 'wheel_history'
+
 function formatTime(ts: number): string {
   const d = new Date(ts)
   const mm = String(d.getMonth() + 1).padStart(2, '0')
@@ -21,9 +27,21 @@ function formatTime(ts: number): string {
   return `${mm}-${dd} ${hh}:${mi}`
 }
 
+/* 展开所有方案的记录，按时间倒序 */
+function loadAll(): HistoryEntry[] {
+  const map = get<HistoryMap>(HISTORY_KEY, {})
+  const list: HistoryEntry[] = []
+  Object.keys(map).forEach(k => {
+    const arr = map[k]
+    if (Array.isArray(arr)) list.push(...arr)
+  })
+  list.sort((a, b) => b.ts - a.ts)
+  return list
+}
+
 export default function WheelHistory() {
   const [theme] = useState(getTheme())
-  const [list, setList] = useState<HistoryEntry[]>(get<HistoryEntry[]>('wheel_history', []))
+  const [list, setList] = useState<HistoryEntry[]>(loadAll)
 
   const clear = () => {
     if (list.length === 0) return
@@ -34,7 +52,8 @@ export default function WheelHistory() {
       success: res => {
         if (!res.confirm) return
         setList([])
-        set('wheel_history', [])
+        set(HISTORY_KEY, {})
+        set(LEGACY_HISTORY_KEY, [])
         Taro.showToast({ title: '已清空', icon: 'success' })
       }
     })
