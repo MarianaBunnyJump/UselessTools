@@ -1,14 +1,18 @@
 import { View, Text, Canvas, Button } from '@tarojs/components'
-import Taro, { useShareAppMessage, useDidShow } from '@tarojs/taro'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import Taro, { useShareAppMessage, useDidShow, useDidHide } from '@tarojs/taro'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { TOOLS, type ToolMeta } from '../../data/tools'
 import { SLOGANS } from '../../data/slogans'
 import { HAPPY_QUIPS } from '../../data/happyQuips'
 import { SHARE_PHRASES } from '../../data/sharePhrases'
 import { PATTERNS, getPatternConfig, renderPattern } from '../../data/patterns'
+import { DRAG_CONFIG } from '../../data/dragConfig'
 import { getTheme, type BackgroundPreset } from '../../utils/theme'
 import { get, set, addTotalCount } from '../../utils/storage'
-import GiftBox from '../../components/GiftBox'
+import { getHomeOrder, saveHomeOrder } from '../../utils/homeOrder'
+import { computeGridSlots, hitSlot, moveItem, VxTracker, tiltTowards, type GridSlot } from '../../utils/dragSort'
+import { track } from '../../utils/analytics'
+import ToolCard, { type CardState } from '../../components/ToolCard'
 import './index.scss'
 
 interface ConfettiPiece {
@@ -35,6 +39,24 @@ function dayOfYear(): number {
   return Math.floor((now.getTime() - start.getTime()) / 86400000)
 }
 
+/* ---- 拖动上下文（高频数据走 ref，状态机走 state）---- */
+type DragPhase = 'idle' | 'pressing' | 'grabbed' | 'dragging' | 'settling'
+
+interface DragGeom {
+  gridX: number      /* 容器 viewport 系偏移（抓起时查询） */
+  gridY: number
+  grabDX: number      /* 手指相对卡片左上角的偏移 */
+  grabDY: number
+}
+
+interface GridMetrics {
+  gridW: number
+  cardW: number
+  cardH: number
+  rowGap: number      /* 24 设计 px 换算 */
+  bottomPad: number
+}
+
 export default function Index() {
   const [theme, setTh] = useState<BackgroundPreset>(getTheme())
   const [slogan, setSlogan] = useState(SLOGANS[dayOfYear() % SLOGANS.length])
@@ -46,12 +68,21 @@ export default function Index() {
   }))
 
   const [openingId, setOpeningId] = useState('')
-  /* 最近使用：按最近打开顺序存 tool id（不含时间戳），展示前 3 个直达胶囊 */
-  const [recentTools, setRecentTools] = useState<ToolMeta[]>([])
   /* 设置按钮固定在左上角（避开微信胶囊区域）；H5 用固定值兜底 */
   const [layout, setLayout] = useState({ gearTop: 40, headerPad: 60 })
   /* 彩带画布尺寸用真实 px：小程序 inline style 的 vh 不可靠，半屏设置会失效 */
   const [confettiSize, setConfettiSize] = useState({ w: 375, h: 400 })
+
+  /* ---------- 排序与拖动 ---------- */
+  const [order, setOrder] = useState<string[]>(() => getHomeOrder())
+  const [phase, setPhase] = useState<DragPhase>('idle')
+  const [dragId, setDragId] = useState('')
+  const [dragPos, setDragPos] = useState({ x: 0, y: 0 })
+  const [tiltDeg, setTiltDeg] = useState(0)
+  const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null)
+  const [pinPulseId, setPinPulseId] = useState('')
+  const [hintVisible, setHintVisible] = useState(() => !get<boolean>('drag_hint_done', false))
+  const [metrics, setMetrics] = useState<GridMetrics | null>(null)
 
   const canvasRef = useRef<any>(null)
   const ctxRef = useRef<any>(null)
@@ -59,6 +90,54 @@ export default function Index() {
   const loopActiveRef = useRef(false)
   const lastTsRef = useRef(0)
 
+  /* 拖动 refs：事件回调里读写，避免闭包过期 */
+  const phaseRef = useRef<DragPhase>('idle')
+  const pressTimer = useRef<any>(null)
+  const settleTimer = useRef<any>(null)
+  const touchIdRef = useRef<number>(-1)
+  const startRef = useRef({ x: 0, y: 0 })
+  const geomRef = useRef<DragGeom | null>(null)
+  const vxRef = useRef(new VxTracker(DRAG_CONFIG.speedSamples))
+  const orderChangedRef = useRef(false)
+  const hintRef = useRef(!get<boolean>('drag_hint_done', false))
+  const dragIdRef = useRef('')
+  const orderRef = useRef<string[]>(order)
+  const metricsRef = useRef<GridMetrics | null>(null)
+  const slotsRef = useRef<GridSlot[]>([])
+
+  const setPhaseBoth = (p: DragPhase) => {
+    phaseRef.current = p
+    setPhase(p)
+  }
+
+  const toolsOrdered = useMemo(
+    () => order.map(id => TOOLS.find(t => t.id === id)).filter(Boolean) as ToolMeta[],
+    [order]
+  )
+
+  /* 槽位：只与数量和尺寸相关 */
+  const slots = useMemo(() => {
+    if (!metrics) return []
+    return computeGridSlots(order.length, metrics.gridW, metrics.cardW, metrics.cardH, metrics.rowGap)
+  }, [metrics, order.length])
+
+  const containerH = useMemo(() => {
+    if (!metrics || slots.length === 0) return 0
+    const maxY = slots[slots.length - 1].y + metrics.cardH
+    return maxY + metrics.bottomPad
+  }, [metrics, slots])
+
+  useEffect(() => {
+    slotsRef.current = slots
+  }, [slots])
+  useEffect(() => {
+    metricsRef.current = metrics
+  }, [metrics])
+  useEffect(() => {
+    orderRef.current = order
+  }, [order])
+
+  /* ---------- 首帧尺寸标定：真实卡片宽高反推槽位（兼容安卓字体高度差异） ---------- */
   useEffect(() => {
     try {
       const info = Taro.getSystemInfoSync()
@@ -83,6 +162,28 @@ export default function Index() {
       })
     } catch (e) {
       /* 默认值兜底 */
+    }
+
+    const query = Taro.createSelectorQuery()
+    query.select('.home-grid').boundingClientRect()
+    query.select('.tool-card').boundingClientRect()
+    query.exec(res => {
+      const grid = res && res[0]
+      const card = res && res[1]
+      if (!grid || !card || !(card.width > 0)) return
+      const windowW = (Taro.getSystemInfoSync().windowWidth) || grid.width
+      const scale = windowW / 750
+      setMetrics({
+        gridW: grid.width,
+        cardW: card.width,
+        cardH: card.height,
+        rowGap: 24 * scale,
+        bottomPad: 30 * scale
+      })
+    })
+    return () => {
+      clearTimeout(pressTimer.current)
+      clearTimeout(settleTimer.current)
     }
   }, [])
 
@@ -284,44 +385,16 @@ export default function Index() {
     setSlogan(next)
   }
 
-  /* ---------- 最近使用 ---------- */
-  const RECENT_SHOW = 3
-  const RECENT_KEEP = 4
-
-  const loadRecent = useCallback(() => {
-    const ids = get<string[]>('home_recent', [])
-    const metas = ids
-      .map(id => TOOLS.find(t => t.id === id))
-      .filter((t): t is ToolMeta => Boolean(t))
-      .slice(0, RECENT_SHOW)
-    setRecentTools(metas)
-  }, [])
-
-  const bumpRecent = useCallback((id: string) => {
-    const ids = get<string[]>('home_recent', []).filter(x => x !== id)
-    ids.unshift(id)
-    set('home_recent', ids.slice(0, RECENT_KEEP))
-  }, [])
-
-  /* 从工具页返回时刷新顺序（useDidShow 首次进入也会触发） */
-  useDidShow(loadRecent)
-
   const handleOpen = (tool: ToolMeta) => {
-    if (openingId) return
+    /* 拖动中（多指场景）忽略卡片点击 */
+    if (phaseRef.current !== 'idle' || openingId) return
     setOpeningId(tool.id)
     addTotalCount(`usage_${tool.id}`)
-    bumpRecent(tool.id)
+    track('tool_open', { tool_id: tool.id })
     setTimeout(() => {
       Taro.navigateTo({ url: tool.path })
       setTimeout(() => setOpeningId(''), 500)
     }, 480)
-  }
-
-  /* 最近使用胶囊：直达，无开盒动画 */
-  const handleQuickOpen = (tool: ToolMeta) => {
-    addTotalCount(`usage_${tool.id}`)
-    bumpRecent(tool.id)
-    Taro.navigateTo({ url: tool.path })
   }
 
   const handleLongPress = (tool: ToolMeta) => {
@@ -334,12 +407,214 @@ export default function Index() {
     })
   }
 
+  /* ---------- 长按拖动状态机 ---------- */
+  const handleGrabStart = (tool: ToolMeta, e: any) => {
+    if (phaseRef.current !== 'idle' || openingId || !metricsRef.current) return
+    const t = e.touches && e.touches[0]
+    if (!t) return
+    if (typeof e.preventDefault === 'function') {
+      try { e.preventDefault() } catch (err) { /* 忽略 */ }
+    }
+    touchIdRef.current = t.identifier || 0
+    startRef.current = { x: t.clientX, y: t.clientY }
+    dragIdRef.current = tool.id
+    setDragId(tool.id)
+    setPhaseBoth('pressing')
+
+    /* 立即查询卡片与容器的实时位置（viewport 系），350ms 计时结束前就绪 */
+    const query = Taro.createSelectorQuery()
+    query.select('.home-grid').boundingClientRect()
+    query.select(`#tc-${tool.id}`).boundingClientRect()
+    query.exec(res => {
+      const grid = res && res[0]
+      const card = res && res[1]
+      if (!grid || !card) {
+        geomRef.current = null
+        return
+      }
+      geomRef.current = {
+        gridX: grid.left,
+        gridY: grid.top,
+        grabDX: startRef.current.x - card.left,
+        grabDY: startRef.current.y - card.top
+      }
+    })
+
+    pressTimer.current = setTimeout(() => {
+      if (phaseRef.current !== 'pressing' || !geomRef.current) return
+      const idx = orderRef.current.indexOf(dragIdRef.current)
+      const slot = slotsRef.current[idx]
+      if (slot) setDragPos({ x: slot.x, y: slot.y })
+      setOrigin({ x: geomRef.current.grabDX, y: geomRef.current.grabDY })
+      setTiltDeg(0)
+      vxRef.current.reset()
+      setPhaseBoth('grabbed')
+      if (DRAG_CONFIG.grabVibrate && process.env.TARO_ENV === 'weapp') {
+        try {
+          const r = Taro.vibrateShort({ type: 'light' } as any)
+          if (r && typeof r.catch === 'function') r.catch(() => {})
+        } catch (err) {
+          /* 低版本基础库无 type 参数，忽略 */
+        }
+      }
+    }, DRAG_CONFIG.pressActivateMs)
+  }
+
+  const handleGrabMove = (e: any) => {
+    const p = phaseRef.current
+    if (p !== 'pressing' && p !== 'grabbed' && p !== 'dragging') return
+    const m = metricsRef.current
+    if (!m) return
+    const touches = e.touches || []
+    const t = touches.find((tt: any) => tt.identifier === touchIdRef.current) || touches[0]
+    if (!t) return
+
+    const dx = t.clientX - startRef.current.x
+    const dy = t.clientY - startRef.current.y
+
+    if (p === 'pressing') {
+      /* 激活前滑走即取消计时 */
+      if (Math.hypot(dx, dy) > DRAG_CONFIG.pressCancelDist) {
+        clearTimeout(pressTimer.current)
+        setPhaseBoth('idle')
+      }
+      return
+    }
+
+    const g = geomRef.current
+    if (!g) return
+    if (typeof e.preventDefault === 'function') {
+      try { e.preventDefault() } catch (err) { /* 忽略 */ }
+    }
+    if (p === 'grabbed') setPhaseBoth('dragging')
+
+    /* 容器系坐标 + 边界 clamp（允许小越界，松手弹回） */
+    let x = t.clientX - g.gridX - g.grabDX
+    let y = t.clientY - g.gridY - g.grabDY
+    const maxX = m.gridW - m.cardW + DRAG_CONFIG.clampOvershootPx
+    const maxY = containerH - m.cardH + DRAG_CONFIG.clampOvershootPx
+    x = Math.max(-DRAG_CONFIG.clampOvershootPx, Math.min(maxX, x))
+    y = Math.max(-DRAG_CONFIG.clampOvershootPx, Math.min(maxY, y))
+    setDragPos({ x, y })
+
+    /* 惯性倾斜 */
+    vxRef.current.push(Date.now(), t.clientX)
+    setTiltDeg(prev => tiltTowards(prev, vxRef.current.get(), DRAG_CONFIG))
+
+    /* 让位判定：拖动卡中心进入某槽位矩形 → 实时重排 */
+    const idx = orderRef.current.indexOf(dragIdRef.current)
+    if (idx < 0) return
+    const center = { x: x + m.cardW / 2, y: y + m.cardH / 2 }
+    const target = hitSlot(center, slotsRef.current, m.cardW, m.cardH, idx, DRAG_CONFIG.slotInsetPx)
+    if (target >= 0) {
+      const next = moveItem(orderRef.current, idx, target)
+      if (next !== orderRef.current) {
+        orderRef.current = next
+        orderChangedRef.current = true
+        setOrder(next)
+      }
+    }
+  }
+
+  const finishDrag = () => {
+    const p = phaseRef.current
+    if (p !== 'grabbed' && p !== 'dragging') return
+    const idx = orderRef.current.indexOf(dragIdRef.current)
+    const slot = slotsRef.current[idx] || { x: 0, y: 0 }
+    setDragPos({ x: slot.x, y: slot.y })
+    setTiltDeg(0)
+    setPhaseBoth('settling')
+    if (orderChangedRef.current) {
+      saveHomeOrder(orderRef.current)
+      track('drag_reorder', { tool_id: dragIdRef.current })
+      dismissHint('drag')
+    }
+    orderChangedRef.current = false
+    settleTimer.current = setTimeout(() => {
+      setPhaseBoth('idle')
+      setOrigin(null)
+    }, DRAG_CONFIG.settleRotateMs + 80)
+  }
+
+  const handleGrabEnd = (_e: any) => {
+    clearTimeout(pressTimer.current)
+    if (phaseRef.current === 'pressing') {
+      setPhaseBoth('idle')
+      return
+    }
+    finishDrag()
+  }
+
+  /* ---------- 置顶 ---------- */
+  const handlePinTop = (tool: ToolMeta) => {
+    if (phaseRef.current !== 'idle') return
+    const next = [tool.id, ...orderRef.current.filter(id => id !== tool.id)]
+    orderRef.current = next
+    setOrder(next)
+    saveHomeOrder(next)
+    track('pin_top', { tool_id: tool.id })
+    dismissHint('pin')
+    setPinPulseId(tool.id)
+    setTimeout(() => setPinPulseId(''), 450)
+  }
+
+  /* ---------- 提示气泡 ---------- */
+  const dismissHint = (by: string) => {
+    if (!hintRef.current) return
+    hintRef.current = false
+    setHintVisible(false)
+    set('drag_hint_done', true)
+    track('hint_dismiss', { by })
+  }
+
+  /* ---------- 埋点与生命周期 ---------- */
+  useDidShow(() => {
+    track('home_show')
+  })
+  useDidHide(() => {
+    dismissHint('leave')
+  })
+
   const handleSettings = () => {
     Taro.navigateTo({ url: '/pages/settings/index' })
   }
 
   const goAbout = () => {
     Taro.navigateTo({ url: '/pages/about/index' })
+  }
+
+  const renderCard = (tool: ToolMeta, i: number) => {
+    const active = tool.id === dragId && (phase === 'grabbed' || phase === 'dragging' || phase === 'settling')
+    let state: CardState = 'idle'
+    if (active) {
+      state = phase === 'settling' ? 'settling' : phase === 'dragging' ? 'dragging' : 'grabbed'
+    }
+    const slot = slots[i] || { x: 0, y: 0, z: i }
+    const translate = active ? dragPos : { x: slot.x, y: slot.y }
+    return (
+      <ToolCard
+        key={tool.id}
+        tool={tool}
+        opening={openingId === tool.id}
+        state={state}
+        pressing={phase === 'pressing' && tool.id === dragId}
+        translate={translate}
+        z={active ? 900 : slot.z}
+        tiltDeg={active ? tiltDeg : 0}
+        scale={active && state !== 'settling' ? DRAG_CONFIG.grabScale : 1}
+        origin={active ? origin : null}
+        pinnedTop={i === 0}
+        pinPulse={tool.id === pinPulseId}
+        showHint={hintVisible && i === 0}
+        onOpen={handleOpen}
+        onLongPressInfo={handleLongPress}
+        onGrabTouchStart={handleGrabStart}
+        onGrabTouchMove={handleGrabMove}
+        onGrabTouchEnd={handleGrabEnd}
+        onGrabTouchCancel={handleGrabEnd}
+        onPinTop={handlePinTop}
+      />
+    )
   }
 
   return (
@@ -366,29 +641,28 @@ export default function Index() {
         </View>
       </View>
 
-      {recentTools.length > 0 && (
-        <View className='home-recent'>
-          <Text className='home-recent-tag'>🕘</Text>
-          {recentTools.map(tool => (
-            <View key={tool.id} className='home-recent-pill' onClick={() => handleQuickOpen(tool)}>
-              <Text className='home-recent-pill-icon'>{tool.icon}</Text>
-              <Text className='home-recent-pill-name'>{tool.name}</Text>
-            </View>
-          ))}
-        </View>
-      )}
+      <View
+        className='home-grid'
+        style={{
+          height: containerH ? `${containerH}px` : undefined,
+          opacity: metrics ? 1 : 0
+        }}
+      >
+        {toolsOrdered.map(renderCard)}
 
-      <View className='home-grid'>
-        {TOOLS.map(tool => (
-          <View className='home-grid-item' key={tool.id}>
-            <GiftBox
-              tool={tool}
-              opening={openingId === tool.id}
-              onOpen={handleOpen}
-              onLongPress={handleLongPress}
-            />
+        {hintVisible && metrics && slots.length > 0 && (
+          <View
+            className='home-hint'
+            style={{
+              left: `${Math.max(4, slots[0].x + metrics.cardW - 216)}px`,
+              top: `${slots[0].y - 82}px`
+            }}
+          >
+            <View className='home-hint-text'>{DRAG_CONFIG.hintBubbleText}</View>
+            <View className='home-hint-btn' onClick={() => dismissHint('tap')}>{DRAG_CONFIG.hintBubbleArrow}</View>
+            <View className='home-hint-arrow' />
           </View>
-        ))}
+        )}
       </View>
 
       <View className='home-footer-wrap'>

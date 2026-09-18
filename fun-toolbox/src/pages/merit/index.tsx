@@ -10,6 +10,7 @@ import { get, set, getDailyCount, bumpStreak } from '../../utils/storage'
 import { randomOf } from '../../utils/format'
 import Muyu from '../../components/Muyu'
 import NavBar from '../../components/NavBar'
+import SharePoster from '../../components/SharePoster'
 import './index.scss'
 
 interface FloatText {
@@ -225,6 +226,15 @@ export default function Merit() {
           )
         })}
       </View>
+
+      <SharePoster
+        canvasId='meritShareCanvas'
+        toolName='电子木鱼'
+        accent={theme.accent}
+        hero={String(todayCount)}
+        heroUnit='今日功德'
+        lines={[`累计功德 ${totalCount.toLocaleString('en-US')}`]}
+      />
 
       <View className='merit-rank'>
         {todayCount > 0 ? `今日已超过 ${rankPercent}% 的人` : '敲一下，功德 +1'}

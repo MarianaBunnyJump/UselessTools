@@ -150,17 +150,65 @@
   margin-right: 8px;
 }
 
+/* 卡片区：绝对定位容器（卡片坐标由 JS 按槽位写入 transform）
+ * 尺寸标定期隐藏，量完真实卡片宽高后淡入 */
 .home-grid {
   position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 10px 0 30px;
+  margin-top: 10px;
+  transition: opacity 0.28s ease;
 }
 
-.home-grid-item {
-  width: calc(50% - 12px);
-  margin-bottom: 24px;
+/* 拖动提示气泡：悬浮在第一张卡片 ⠿ 上方 */
+.home-hint {
+  position: absolute;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 26px -10px rgba(74, 59, 50, 0.3);
+  animation: hint-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.home-hint-text {
+  font-size: 22px;
+  color: #6b5a4f;
+  white-space: nowrap;
+}
+
+.home-hint-btn {
+  margin-left: 14px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 22px;
+  color: #fff;
+  background: linear-gradient(135deg, #FF9A8B, #FF6A88);
+}
+
+/* 气泡小尾巴：指向下方第一张卡片的 ⠿ */
+.home-hint-arrow {
+  position: absolute;
+  right: 34px;
+  bottom: -10px;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border-right: 1px solid rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.9);
+  transform: rotate(45deg);
+}
+
+@keyframes hint-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .home-footer-wrap {

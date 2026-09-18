@@ -5,6 +5,7 @@ import { EXCUSES, EXCUSE_SCENES, EXCUSE_TONES } from '../../data/excuses'
 import { getTheme } from '../../utils/theme'
 import { get, set, addTotalCount } from '../../utils/storage'
 import NavBar from '../../components/NavBar'
+import SharePoster from '../../components/SharePoster'
 import './result.scss'
 
 interface FavoriteItem {
@@ -119,6 +120,14 @@ export default function ExcuseResult() {
         </View>
         <View className='excuse-stage-hint'>右上角小图标：换一个 · 复制 · 收藏 · 分享</View>
       </View>
+
+      <SharePoster
+        canvasId='excuseShareCanvas'
+        toolName='借口生成器'
+        accent={theme.accent}
+        longText={text}
+        lines={[`${scene?.icon || ''} ${scene?.name || ''} · ${tone?.name || ''}风`]}
+      />
     </View>
   )
 }

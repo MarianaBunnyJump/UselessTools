@@ -1,0 +1,147 @@
+@import '../styles/theme.scss';
+
+/* ===================== 工具卡片外壳 =====================
+ * 分层：tool-card（绝对定位 + 位移）
+ *        └ tc-tilt（旋转/缩放，松手回弹）
+ *            └ tc-sway（拖动中的空中晃动）
+ *                └ GiftBox（原纯视觉组件，不动）
+ * 时长曲线与 data/dragConfig.ts 保持同步，调手感以 dragConfig 为准
+ */
+
+.tool-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(50% - 12px);
+  /* 让位动画：非拖动卡片滑向新槽位 */
+  transition: transform 240ms cubic-bezier(0.25, 0.8, 0.35, 1);
+}
+
+/* 松手落位：位移曲线（旋转回正在 tc-tilt 层单独控制） */
+.tool-card--settle {
+  transition: transform 260ms cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+/* 拖动跟手：关过渡 */
+.tool-card--dragging {
+  transition: none;
+  will-change: transform;
+}
+
+/* 抓起时暂停礼盒浮动动画，突出「被拎住」 */
+.tool-card--grabbed .gb-stage,
+.tool-card--dragging .gb-stage {
+  animation-play-state: paused;
+}
+
+.tc-tilt {
+  width: 100%;
+  border-radius: 28px;
+}
+
+/* 拎起投影 */
+.tc-tilt--lift {
+  box-shadow: 0 24px 48px -16px rgba(74, 59, 50, 0.35);
+}
+
+/* 松手惯性回转：过冲回弹 */
+.tc-tilt--settle {
+  transition: transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 420ms ease;
+}
+
+/* 置顶键原地脉冲 */
+.tc-tilt--pulse {
+  animation: tc-pulse 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tc-pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* 内层晃动：拖动中轻微左右摆 */
+.tc-sway {
+  width: 100%;
+}
+
+.tc-sway--active {
+  animation: tc-sway ease-in-out infinite;
+}
+
+@keyframes tc-sway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+
+/* 右上角长按热区（H5 用 touch-action 防滚动） */
+.tc-grab {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  touch-action: none;
+}
+
+.tc-grab-icon {
+  font-size: 40px;
+  line-height: 1;
+  color: rgba(141, 123, 112, 0.45);
+  transition: color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* 计时中：图标微沉，暗示「正在抓取」 */
+.tc-grab-icon--pressing {
+  color: rgba(74, 59, 50, 0.75);
+}
+
+/* 激活：点亮 */
+.tc-grab-icon--on {
+  color: #FF7043;
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* 首次提示：⠿ 图标演示性左右晃动 */
+.tc-grab-icon--hint {
+  animation: tc-grab-hint 2s ease-in-out 3;
+}
+
+@keyframes tc-grab-hint {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+/* 底部置顶键 */
+.tc-pin {
+  position: absolute;
+  right: 18px;
+  bottom: 10px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  z-index: 5;
+}
+
+.tc-pin-icon {
+  font-size: 34px;
+  line-height: 1;
+  color: $color-text-sub;
+}
+
+.tc-pin--disabled {
+  opacity: 0.3;
+}

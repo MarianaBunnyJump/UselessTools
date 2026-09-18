@@ -1,0 +1,42 @@
+/* 统一分享卡片：触发按钮 + 离屏导出画布 */
+.sp-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.sp-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 34px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #8d7b70;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 30px;
+  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.18);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &.sp-btn--busy {
+    opacity: 0.6;
+  }
+}
+
+.sp-btn-icon {
+  font-size: 26px;
+  margin-right: 10px;
+}
+
+/* 离屏导出画布：移出可视区，仅用于生成图片 */
+.sp-export-canvas {
+  position: fixed;
+  left: 9999rpx;
+  top: 0;
+  width: 750rpx;
+  height: 1150rpx;
+  pointer-events: none;
+}

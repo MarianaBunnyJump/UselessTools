@@ -88,7 +88,7 @@ export default function LifeShare() {
 
     ctx.fillStyle = '#b39ddb'
     ctx.font = '600 30px sans-serif'
-    ctx.fillText('有 点 意 思 工 具 盒', CANVAS_W / 2, 120)
+    ctx.fillText('趣 工 局', CANVAS_W / 2, 120)
 
     ctx.fillStyle = '#8d7b70'
     ctx.font = '500 46px sans-serif'
@@ -141,7 +141,7 @@ export default function LifeShare() {
 
     ctx.fillStyle = '#c9bdb4'
     ctx.font = '400 28px sans-serif'
-    ctx.fillText('有点意思工具盒 · 人生倒计时', CANVAS_W / 2, CANVAS_H - 70)
+    ctx.fillText('趣工局 · 人生倒计时', CANVAS_W / 2, CANVAS_H - 70)
   }
 
   const saveImage = () => {
@@ -219,7 +219,7 @@ export default function LifeShare() {
       </View>
 
       <View className='share-card'>
-        <View className='share-card-brand'>有点意思工具盒</View>
+        <View className='share-card-brand'>趣工局</View>
 
         <View className='share-card-title'>你的人生还剩</View>
         <View className='share-card-num'>{formatNumber(primary ? primary.value : 0)}</View>
