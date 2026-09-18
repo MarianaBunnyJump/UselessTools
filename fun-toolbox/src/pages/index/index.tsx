@@ -68,6 +68,8 @@ export default function Index() {
   }))
 
   const [openingId, setOpeningId] = useState('')
+  /* 最近使用：按最近打开顺序存 tool id（不含时间戳），展示前 3 个直达胶囊 */
+  const [recentTools, setRecentTools] = useState<ToolMeta[]>([])
   /* 设置按钮固定在左上角（避开微信胶囊区域）；H5 用固定值兜底 */
   const [layout, setLayout] = useState({ gearTop: 40, headerPad: 60 })
   /* 彩带画布尺寸用真实 px：小程序 inline style 的 vh 不可靠，半屏设置会失效 */
@@ -385,16 +387,41 @@ export default function Index() {
     setSlogan(next)
   }
 
+  /* ---------- 最近使用 ---------- */
+  const loadRecent = useCallback(() => {
+    const ids = get<string[]>('home_recent', [])
+    const metas = ids
+      .map(id => TOOLS.find(t => t.id === id))
+      .filter((t): t is ToolMeta => Boolean(t))
+      .slice(0, 3)
+    setRecentTools(metas)
+  }, [])
+
+  const bumpRecent = useCallback((id: string) => {
+    const ids = get<string[]>('home_recent', []).filter(x => x !== id)
+    ids.unshift(id)
+    set('home_recent', ids.slice(0, 4))
+  }, [])
+
   const handleOpen = (tool: ToolMeta) => {
     /* 拖动中（多指场景）忽略卡片点击 */
     if (phaseRef.current !== 'idle' || openingId) return
     setOpeningId(tool.id)
     addTotalCount(`usage_${tool.id}`)
+    bumpRecent(tool.id)
     track('tool_open', { tool_id: tool.id })
     setTimeout(() => {
       Taro.navigateTo({ url: tool.path })
       setTimeout(() => setOpeningId(''), 500)
     }, 480)
+  }
+
+  /* 最近使用胶囊：直达，无开盒动画 */
+  const handleQuickOpen = (tool: ToolMeta) => {
+    addTotalCount(`usage_${tool.id}`)
+    bumpRecent(tool.id)
+    track('tool_open', { tool_id: tool.id, via: 'recent' })
+    Taro.navigateTo({ url: tool.path })
   }
 
   const handleLongPress = (tool: ToolMeta) => {
@@ -570,6 +597,8 @@ export default function Index() {
   /* ---------- 埋点与生命周期 ---------- */
   useDidShow(() => {
     track('home_show')
+    /* 从工具页返回时刷新最近使用顺序 */
+    loadRecent()
   })
   useDidHide(() => {
     dismissHint('leave')
@@ -640,6 +669,18 @@ export default function Index() {
           {slogan}
         </View>
       </View>
+
+      {recentTools.length > 0 && (
+        <View className='home-recent'>
+          <Text className='home-recent-tag'>🕘</Text>
+          {recentTools.map(tool => (
+            <View key={tool.id} className='home-recent-pill' onClick={() => handleQuickOpen(tool)}>
+              <Text className='home-recent-pill-icon'>{tool.icon}</Text>
+              <Text className='home-recent-pill-name'>{tool.name}</Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       <View
         className='home-grid'
