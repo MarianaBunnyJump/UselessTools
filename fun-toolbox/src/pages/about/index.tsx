@@ -1,4 +1,4 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useState } from 'react'
 import { TOOLS } from '../../data/tools'
@@ -50,11 +50,17 @@ export default function About() {
       </View>
 
       <View className='about-actions'>
+        {process.env.TARO_ENV === 'weapp' && (
+          <Button className='btn-primary about-btn about-contact-btn' openType='contact'>
+            💬 联系客服
+          </Button>
+        )}
         <View className='btn-primary about-btn' onClick={handleFeedback}>
           意见反馈
         </View>
         <View className='about-tip'>
           所有数据仅保存在你的手机本地，无账号、无联网、无广告
+          {process.env.TARO_ENV === 'weapp' ? '' : '，反馈请发邮件 nikangd5300@163.com'}
         </View>
       </View>
     </View>

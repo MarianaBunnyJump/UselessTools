@@ -61,6 +61,22 @@
   color: #c9bdb4;
 }
 
+/* 客服会话行：weapp Button 重置为普通行外观，分隔线由 .set-row + .set-row 提供 */
+.set-contact-row {
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: inherit;
+  font-weight: normal;
+  line-height: inherit;
+  text-align: left;
+
+  &::after {
+    border: none;
+  }
+}
+
 /* ---------- 收纳分区 ---------- */
 .set-section {
   margin-top: 34px;

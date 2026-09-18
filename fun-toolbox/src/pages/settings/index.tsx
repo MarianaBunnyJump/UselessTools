@@ -1,4 +1,4 @@
-import { View, Text, Slider, Canvas, Picker, Switch } from '@tarojs/components'
+import { View, Text, Slider, Canvas, Picker, Switch, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useState, useEffect } from 'react'
 import { BACKGROUNDS, getTheme, setTheme, type BackgroundPreset } from '../../utils/theme'
@@ -154,6 +154,19 @@ export default function Settings() {
           </View>
           <Switch checked={soundOn} color={theme.accent} onChange={onSoundChange} />
         </View>
+
+        {process.env.TARO_ENV === 'weapp' && (
+          <Button className='set-row set-contact-row' openType='contact'>
+            <View className='set-row-left'>
+              <Text className='set-row-icon'>💬</Text>
+              <Text className='set-row-name'>联系客服</Text>
+              <Text className='set-row-sub'>问题和建议直接聊</Text>
+            </View>
+            <Text className='set-row-value'>
+              开聊 <Text className='set-row-arrow'>▸</Text>
+            </Text>
+          </Button>
+        )}
 
         <View className='set-row' onClick={resetAll}>
           <View className='set-row-left'>

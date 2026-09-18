@@ -1,6 +1,6 @@
 import { View, Text } from '@tarojs/components'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { FISH_STYLES, type FishStyle } from '../../data/fishStyles'
 import { ACHIEVEMENTS } from '../../data/achievements'
 import { MERIT_PHRASES } from '../../data/meritPhrases'
@@ -20,6 +20,10 @@ interface FloatText {
 
 let floatKey = 0
 
+/* 连击判定窗口：窗口内再敲算连击，超时归零 */
+const COMBO_WINDOW = 1200
+const COMBO_MIN = 3
+
 /* 老数据里存过 'fish'（小鱼形象），迁移到木鱼 */
 const LEGACY_STYLE_MAP: Record<string, string> = { fish: 'muyu' }
 
@@ -38,6 +42,10 @@ export default function Merit() {
   const [floats, setFloats] = useState<FloatText[]>([])
   const [banner, setBanner] = useState('')
   const [unlockedIds, setUnlockedIds] = useState<string[]>(get<string[]>('merit_achievements', []))
+  const [combo, setCombo] = useState(0)
+  const comboRef = useRef(0)
+  const lastTapRef = useRef(0)
+  const comboTimerRef = useRef<any>(null)
 
   useShareAppMessage(() => ({
     title: randomOf(MERIT_PHRASES).replace('N', String(todayCount)),
@@ -83,6 +91,25 @@ export default function Merit() {
     if (isSupported()) {
       playMeritSound(style)
     }
+
+    /* 连击：快速连敲时数字跳动 + 轻微震动，强化爽感 */
+    const now = Date.now()
+    const nextCombo = now - lastTapRef.current <= COMBO_WINDOW ? comboRef.current + 1 : 1
+    lastTapRef.current = now
+    comboRef.current = nextCombo
+    setCombo(nextCombo)
+    if (nextCombo >= COMBO_MIN) {
+      try {
+        Taro.vibrateShort({ type: 'light' })
+      } catch (err) {
+        /* H5 或低版本基础库不支持，忽略 */
+      }
+    }
+    if (comboTimerRef.current) clearTimeout(comboTimerRef.current)
+    comboTimerRef.current = setTimeout(() => {
+      comboRef.current = 0
+      setCombo(0)
+    }, COMBO_WINDOW)
 
     let x = 375
     let y = 400
@@ -142,6 +169,13 @@ export default function Merit() {
       </View>
 
       <View className='merit-tap-area'>
+        {combo >= COMBO_MIN && (
+          <View key={combo} className='merit-combo'>
+            <Text className='merit-combo-num'>×{combo}</Text>
+            <Text className='merit-combo-label'>连击</Text>
+          </View>
+        )}
+
         {floats.map(f => (
           <Text key={f.key} className='merit-float' style={{ left: `${f.x}px`, top: `${f.y - 40}px` }}>
             功德 +1
