@@ -6,6 +6,7 @@ import { getTheme } from '../../utils/theme'
 import { playCrushSound, isSupported } from '../../utils/audio'
 import { randomOf } from '../../utils/format'
 import NavBar from '../../components/NavBar'
+import SharePoster from '../../components/SharePoster'
 import './animation.scss'
 
 interface Particle {
@@ -37,6 +38,7 @@ const HOLD_MS = 500
 const ANIM_MS = 2200
 
 const MODE_ICON: Record<string, string> = { shred: '✂️', burn: '🔥', flush: '🌊' }
+const MODE_NAME: Record<string, string> = { shred: '撕碎', burn: '焚烧', flush: '冲走' }
 
 export default function CrusherAnimation() {
   const [theme] = useState(getTheme())
@@ -294,6 +296,13 @@ export default function CrusherAnimation() {
               分享结果
             </Button>
           </View>
+          <SharePoster
+            canvasId='crusherShareCanvas'
+            toolName='情绪粉碎机'
+            accent={theme.accent}
+            longText={text}
+            lines={[`${MODE_ICON[mode] || '✅'} 用「${MODE_NAME[mode] || '粉碎'}」送走了它 · 烦恼清零`]}
+          />
           <View className='crush-done-tip'>不可恢复，请放心生活</View>
         </View>
       )}

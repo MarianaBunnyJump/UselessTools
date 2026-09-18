@@ -88,6 +88,42 @@
   100% { transform: scale(1); }
 }
 
+/* 静置摆动（树皮肤挂件）：极慢 ±1°，相位由 animationDelay 错开 */
+.tc-sway--idle {
+  animation: tc-idle 4s ease-in-out infinite;
+}
+
+@keyframes tc-idle {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+}
+
+/* 顶部挂绳：从枝桠垂到卡片顶（树皮肤），拎起时隐藏 */
+.tc-string {
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  margin-left: -1px;
+  width: 2px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+/* 挂绳末端小挂环 */
+.tc-string::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+}
+
 /* 右上角长按热区（H5 用 touch-action 防滚动） */
 .tc-grab {
   position: absolute;

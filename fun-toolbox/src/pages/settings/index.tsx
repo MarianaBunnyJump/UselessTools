@@ -10,6 +10,20 @@ import {
   type PatternConfig
 } from '../../data/patterns'
 import { get, set } from '../../utils/storage'
+import { track } from '../../utils/analytics'
+import {
+  SKINS,
+  SKIN_EVENT,
+  getSkinById,
+  getActiveSkinId,
+  getOwnedSkins,
+  ownsSkin,
+  claimSkin,
+  activateSkin,
+  skinCost,
+  type SkinDefinition
+} from '../../skins/registry'
+import { getWorkPoints, getWorkLevel } from '../../skins/workPoints'
 import NavBar from '../../components/NavBar'
 import './index.scss'
 
@@ -23,6 +37,11 @@ export default function Settings() {
   const [expectancy, setExpectancy] = useState(get<number>('life_expectancy', 77))
   const [soundOn, setSoundOn] = useState(get<boolean>('sound_enabled', true))
   const [dropFeedback, setDropFeedback] = useState(get<boolean>('drop_feedback_enabled', true))
+  /* ---------- 皮肤工坊 ---------- */
+  const [skinOpen, setSkinOpen] = useState(true)
+  const [activeSkinId, setActiveSkinId] = useState(getActiveSkinId())
+  const [ownedSkins, setOwnedSkins] = useState<string[]>(getOwnedSkins())
+  const [points, setPoints] = useState(getWorkPoints())
 
   useEffect(() => {
     return () => {
@@ -134,6 +153,41 @@ export default function Settings() {
     Taro.navigateTo({ url: '/pages/about/index' })
   }
 
+  /* ---------- 皮肤工坊 ---------- */
+  const handleSkinTap = (skin: SkinDefinition) => {
+    if (ownsSkin(skin.id)) {
+      if (skin.id === activeSkinId) return
+      activateSkin(skin.id)
+      Taro.eventCenter.trigger(SKIN_EVENT, skin.id)
+      setActiveSkinId(skin.id)
+      Taro.showToast({ title: `已切换为${skin.name}`, icon: 'none', duration: 1200 })
+      track('skin_change', { skin_id: skin.id })
+      return
+    }
+    if (claimSkin(skin.id)) {
+      activateSkin(skin.id)
+      Taro.eventCenter.trigger(SKIN_EVENT, skin.id)
+      setActiveSkinId(skin.id)
+      setOwnedSkins(getOwnedSkins())
+      setPoints(getWorkPoints())
+      Taro.showToast({ title: `${skin.name} 已解锁`, icon: 'success' })
+      track('skin_change', { skin_id: skin.id, claimed: true })
+    } else {
+      const cost = skinCost(skin)
+      Taro.showToast({
+        title: `还差 ${Math.max(0, cost - points)} 工分（多打开工具就能攒）`,
+        icon: 'none',
+        duration: 2000
+      })
+    }
+  }
+
+  const level = getWorkLevel(points)
+  const levelPct = level.nextAt > level.curBase
+    ? Math.min(100, Math.round(((points - level.curBase) / (level.nextAt - level.curBase)) * 100))
+    : 100
+  const activeSkin = getSkinById(activeSkinId)
+
   return (
     <View className='page-root' style={{ background: theme.bg }}>
       <NavBar title='设置' />
@@ -191,6 +245,64 @@ export default function Settings() {
           </View>
           <Text className='set-row-value set-row-value--danger'>重置 <Text className='set-row-arrow'>▸</Text></Text>
         </View>
+      </View>
+
+      {/* ---------- 皮肤工坊 ---------- */}
+      <View className='set-section'>
+        <View className='set-section-head' onClick={() => setSkinOpen(v => !v)}>
+          <View className='set-section-title-wrap'>
+            <Text className='set-section-title'>皮肤工坊</Text>
+            <Text className='set-section-sub'>装扮你的工局</Text>
+          </View>
+          <Text className={`set-fold-btn ${skinOpen ? 'set-fold-btn--open' : ''}`}>▾</Text>
+        </View>
+
+        {skinOpen && (
+          <View className='set-skin-body'>
+            <View className='set-skin-level'>
+              <Text className='set-skin-level-name' style={{ color: theme.accentDeep }}>
+                工局 Lv.{level.level}
+              </Text>
+              <View className='set-skin-level-track' style={{ background: `${theme.accent}24` }}>
+                <View
+                  className='set-skin-level-fill'
+                  style={{ width: `${levelPct}%`, background: `linear-gradient(90deg, ${theme.accent}, ${theme.accentDeep})` }}
+                />
+              </View>
+              <Text className='set-skin-level-remain'>
+                {level.nextAt > level.curBase ? `还差 ${level.nextAt - points} 工分升级` : '已满级'}
+              </Text>
+            </View>
+
+            <View className='set-skin-list'>
+              {SKINS.map(s => {
+                const owned = ownedSkins.includes(s.id)
+                const isActive = s.id === activeSkinId
+                return (
+                  <View
+                    key={s.id}
+                    className={`set-skin-card ${isActive ? 'set-skin-card--active' : ''}`}
+                    style={isActive ? { borderColor: theme.accent } : undefined}
+                    onClick={() => handleSkinTap(s)}
+                  >
+                    <View className='set-skin-swatch' style={{ background: s.preview }} />
+                    <Text className='set-skin-name'>{s.name}</Text>
+                    <Text className='set-skin-desc'>{s.desc}</Text>
+                    <Text
+                      className='set-skin-action'
+                      style={isActive ? { color: theme.accentDeep } : undefined}
+                    >
+                      {isActive ? '使用中' : owned ? '点击使用' : skinCost(s) === 0 ? '免费领取' : `${skinCost(s)} 工分`}
+                    </Text>
+                  </View>
+                )
+              })}
+            </View>
+            <View className='settings-tip'>
+              工分 = 打开工具次数 × 10 · 自带背景的皮肤下印花暂不生效
+            </View>
+          </View>
+        )}
       </View>
 
       {/* ---------- 全局背景（收纳） ---------- */}
@@ -311,7 +423,11 @@ export default function Settings() {
                 </View>
               </View>
             )}
-            <View className='settings-tip'>印花颜色自动跟随全局背景主题色</View>
+            <View className='settings-tip'>
+              {activeSkin.hidePattern
+                ? '当前皮肤自带背景，印花暂不生效'
+                : '印花颜色自动跟随全局背景主题色'}
+            </View>
           </View>
         )}
       </View>

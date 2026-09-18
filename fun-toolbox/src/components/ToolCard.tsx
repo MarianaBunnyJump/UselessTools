@@ -16,8 +16,13 @@ interface ToolCardProps {
   translate: { x: number; y: number }   /* 容器系左上角（真实 px） */
   z: number
   tiltDeg: number
+  slotScale: number          /* 槽位缩放（树挂 0.7）；抓起时由父级传 1 提到全尺寸 */
   origin: { x: number; y: number } | null   /* 旋转中心：手指触点相对卡片 */
   landEffect: boolean        /* 落地压扁回弹（设置「拖放反馈」） */
+  settleMs: number           /* 松手回位时长（随皮肤变化，树挂摆回更慢） */
+  hangingString: boolean     /* 顶部挂绳（树皮肤） */
+  idleSway: boolean          /* 静置缓慢摆动（树皮肤） */
+  swayDelayMs: number        /* 摆动相位错开 */
   pinnedTop: boolean
   pinPulse: boolean
   showHint: boolean
@@ -32,28 +37,55 @@ interface ToolCardProps {
 
 /* memo：触摸移动只更新被拖卡片，其余卡片 props 引用稳定即跳过重渲染 */
 function ToolCard(props: ToolCardProps) {
-  const { tool, opening, state, pressing, translate, z, tiltDeg, origin, landEffect, pinnedTop, pinPulse, showHint } = props
+  const {
+    tool, opening, state, pressing, translate, z, tiltDeg, slotScale, origin,
+    landEffect, settleMs, hangingString, idleSway, swayDelayMs, pinnedTop, pinPulse, showHint
+  } = props
   const lifted = state === 'grabbed' || state === 'dragging'
+  const settling = state === 'settling'
+
+  const swayClass = state === 'dragging'
+    ? 'tc-sway--active'
+    : settling && landEffect
+      ? 'tc-sway--land'
+      : idleSway && state === 'idle'
+        ? 'tc-sway--idle'
+        : ''
+  const swayDuration = state === 'dragging'
+    ? DRAG_CONFIG.swayPeriodMs
+    : settling && landEffect
+      ? DRAG_CONFIG.landDurationMs
+      : 4000
 
   return (
     <View
       id={`tc-${tool.id}`}
-      className={`tool-card ${state === 'dragging' ? 'tool-card--dragging' : ''} ${state === 'settling' ? 'tool-card--settle' : ''}`}
-      style={{ transform: `translate3d(${translate.x}px, ${translate.y}px, 0)`, zIndex: z }}
+      className={`tool-card ${state === 'dragging' ? 'tool-card--dragging' : ''} ${settling ? 'tool-card--settle' : ''}`}
+      style={{
+        transform: `translate3d(${translate.x}px, ${translate.y}px, 0) scale(${slotScale})`,
+        zIndex: z,
+        /* 松手回位时长随皮肤变化（树挂摆回更慢） */
+        transitionDuration: settling ? `${settleMs}ms` : undefined
+      }}
     >
-      {/* 位移（外层）与旋转（本层）分层：松手时位移与惯性回转可用不同时长曲线 */}
+      {/* 位移+缩放（外层）与旋转（本层）分层：松手时位移与惯性回转可用不同时长曲线 */}
       <View
-        className={`tc-tilt ${state === 'settling' ? 'tc-tilt--settle' : ''} ${lifted ? 'tc-tilt--lift' : ''} ${pinPulse ? 'tc-tilt--pulse' : ''}`}
+        className={`tc-tilt ${settling ? 'tc-tilt--settle' : ''} ${lifted ? 'tc-tilt--lift' : ''} ${pinPulse ? 'tc-tilt--pulse' : ''}`}
         style={{
           transform: `rotate(${tiltDeg}deg)`,
-          transformOrigin: origin ? `${origin.x}px ${origin.y}px` : undefined
+          transformOrigin: origin ? `${origin.x}px ${origin.y}px` : undefined,
+          transitionDuration: settling ? `${settleMs}ms` : undefined
         }}
       >
-        {/* 空中晃动（内层），与外层位移/旋转互不打架；落地动画也挂这层，避免和回转过渡抢 transform */}
+        {/* 空中晃动/落地回弹/静置摆动都挂内层，与外层位移互不打架 */}
         <View
-          className={`tc-sway ${state === 'dragging' ? 'tc-sway--active' : ''} ${state === 'settling' && landEffect ? 'tc-sway--land' : ''}`}
-          style={{ animationDuration: `${state === 'dragging' ? DRAG_CONFIG.swayPeriodMs : DRAG_CONFIG.landDurationMs}ms` }}
+          className={`tc-sway ${swayClass}`}
+          style={{
+            animationDuration: `${swayDuration}ms`,
+            animationDelay: swayClass === 'tc-sway--idle' ? `${swayDelayMs}ms` : undefined
+          }}
         >
+          {hangingString && !lifted && <View className='tc-string' />}
           <GiftBox tool={tool} opening={opening} onOpen={props.onOpen} onLongPress={props.onLongPressInfo} />
         </View>
 

@@ -3,6 +3,7 @@ import Taro, { useShareAppMessage, useDidShow } from '@tarojs/taro'
 import { useState, useMemo } from 'react'
 import { HOLIDAYS, type HolidayRange } from '../../data/holidays'
 import { LIFE_CARD_BACKS } from '../../data/lifeCardBacks'
+import { pickOpeners } from '../../data/lifeOpeners'
 import { getTheme } from '../../utils/theme'
 import { get, set } from '../../utils/storage'
 import { formatNumber, daysBetween, parseDate, todayStr } from '../../utils/format'
@@ -32,11 +33,11 @@ export default function Life() {
   const [birthdate, setBirthdate] = useState(get<string>('life_birthdate', ''))
   const [expectancy, setExpectancy] = useState(get<number>('life_expectancy', LIFE_END_DEFAULT))
   const [editing, setEditing] = useState(false)
-  /* 卡片翻转：当前翻到背面的指标 id */
-  const [flipId, setFlipId] = useState('')
+  /* 卡片翻转：支持多张同时翻开，再逐张点回 */
+  const [flippedIds, setFlippedIds] = useState<string[]>([])
   /* 分享勾选弹层 */
   const [shareOpen, setShareOpen] = useState(false)
-  const [picks, setPicks] = useState<string[]>(['fridays'])
+  const [picks, setPicks] = useState<string[]>(['sundays'])
 
   /* 数字配色跟随全局背景主题（同色系强调色） */
   const numGrad = `linear-gradient(135deg, ${theme.accent}, ${theme.accentDeep})`
@@ -48,7 +49,7 @@ export default function Life() {
   })
 
   useShareAppMessage(() => ({
-    title: '看看你还剩多少个周五',
+    title: '看看你还剩多少个周日',
     path: '/pages/index/index'
   }))
 
@@ -59,6 +60,8 @@ export default function Life() {
   const metrics = useMemo(() => (stats ? lifeMetrics(stats) : []), [stats])
 
   const holiday = useMemo(() => nextHoliday(), [])
+  /* 开场冲击文案：当天内固定，跨天轮换 */
+  const openers = useMemo(() => pickOpeners(3, DAY_OF_YEAR), [])
 
   const onBirthdateChange = e => {
     const val = e.detail.value as string
@@ -71,14 +74,14 @@ export default function Life() {
     setEditing(false)
   }
 
-  /* ---------- 卡片翻转 ---------- */
+  /* ---------- 卡片翻转（多张互不影响，点一下翻面、再点翻回） ---------- */
   const flip = (id: string) => {
-    setFlipId(prev => (prev === id ? '' : id))
+    setFlippedIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]))
   }
 
   /* ---------- 分享勾选 ---------- */
   const openShare = () => {
-    setPicks(['fridays'])
+    setPicks(['sundays'])
     setShareOpen(true)
   }
 
@@ -133,6 +136,14 @@ export default function Life() {
         }
       />
 
+      <View className='life-openers'>
+        {openers.map((line, i) => (
+          <View key={line} className='life-opener-line' style={{ animationDelay: `${i * 0.22}s` }}>
+            {line}
+          </View>
+        ))}
+      </View>
+
       <View className='life-hero'>
         <View className='life-hero-label'>你的人生还剩</View>
         <View className='life-hero-num' style={{ backgroundImage: numGrad }}>
@@ -165,7 +176,7 @@ export default function Life() {
             className={`life-flip ${i === metrics.length - 1 && metrics.length % 2 === 1 ? 'life-flip--wide' : ''}`}
             onClick={() => flip(m.id)}
           >
-            <View className={`life-flip-inner ${flipId === m.id ? 'life-flip-inner--on' : ''}`}>
+            <View className={`life-flip-inner ${flippedIds.includes(m.id) ? 'life-flip-inner--on' : ''}`}>
               <View className='life-metric-card life-flip-front'>
                 <View className='life-metric-value' style={{ backgroundImage: numGrad }}>
                   {formatNumber(m.value)}

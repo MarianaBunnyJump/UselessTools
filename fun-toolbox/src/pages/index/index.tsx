@@ -10,7 +10,9 @@ import { DRAG_CONFIG } from '../../data/dragConfig'
 import { getTheme, type BackgroundPreset } from '../../utils/theme'
 import { get, set, addTotalCount } from '../../utils/storage'
 import { getHomeOrder, saveHomeOrder } from '../../utils/homeOrder'
-import { computeGridSlots, hitSlot, moveItem, VxTracker, tiltTowards, type GridSlot } from '../../utils/dragSort'
+import { hitSlot, moveItem, VxTracker, tiltTowards } from '../../utils/dragSort'
+import { getSkinById, getActiveSkinId, SKIN_EVENT, type SkinDefinition, type SkinSlot } from '../../skins/registry'
+import { startSkinFx, type SkinFxHandle } from '../../utils/skinFx'
 import { track } from '../../utils/analytics'
 import ToolCard, { type CardState } from '../../components/ToolCard'
 import './index.scss'
@@ -45,8 +47,8 @@ type DragPhase = 'idle' | 'pressing' | 'grabbed' | 'dragging' | 'settling'
 interface DragGeom {
   gridX: number      /* 容器 viewport 系偏移（抓起时查询） */
   gridY: number
-  grabDX: number      /* 手指相对卡片左上角的偏移 */
-  grabDY: number
+  grabDCX: number    /* 手指相对卡片中心的偏移（缩放无关，树挂卡片也跟手） */
+  grabDCY: number
 }
 
 interface GridMetrics {
@@ -87,6 +89,8 @@ export default function Index() {
   const [metrics, setMetrics] = useState<GridMetrics | null>(null)
   /* 落地反馈（弹跳+震动），设置可关；返回首页时从存储刷新 */
   const [dropFeedback, setDropFeedback] = useState(() => get<boolean>('drop_feedback_enabled', true))
+  /* 皮肤：设置页切换后通过 SKIN_EVENT 热更新，返回首页也会刷新 */
+  const [skinId, setSkinId] = useState(getActiveSkinId())
 
   const canvasRef = useRef<any>(null)
   const ctxRef = useRef<any>(null)
@@ -107,10 +111,14 @@ export default function Index() {
   const dragIdRef = useRef('')
   const orderRef = useRef<string[]>(order)
   const metricsRef = useRef<GridMetrics | null>(null)
-  const slotsRef = useRef<GridSlot[]>([])
+  const slotsRef = useRef<SkinSlot[]>([])
   const openingRef = useRef('')
   const containerHRef = useRef(0)
   const dropFeedbackRef = useRef(dropFeedback)
+  const skinIdRef = useRef(skinId)
+  const skinFxRef = useRef<SkinFxHandle | null>(null)
+
+  const activeSkin: SkinDefinition = useMemo(() => getSkinById(skinId), [skinId])
 
   const setPhaseBoth = (p: DragPhase) => {
     phaseRef.current = p
@@ -122,21 +130,21 @@ export default function Index() {
     [order]
   )
 
-  /* 槽位：只与数量和尺寸相关 */
+  /* 槽位：由当前皮肤决定（网格两列 / 树挂锚点 / 星夜散落），只与数量和尺寸相关 */
   const slots = useMemo(() => {
     if (!metrics) return []
-    return computeGridSlots(order.length, metrics.gridW, metrics.cardW, metrics.cardH, metrics.rowGap)
-  }, [metrics, order.length])
+    return activeSkin.slots(order.length, metrics.gridW, metrics.cardW, metrics.cardH, metrics.rowGap)
+  }, [metrics, order.length, activeSkin])
 
   const containerH = useMemo(() => {
     if (!metrics || slots.length === 0) return 0
-    const maxY = slots[slots.length - 1].y + metrics.cardH
+    const maxY = Math.max(...slots.map(s => s.y + metrics.cardH * (s.scale || 1)))
     return maxY + metrics.bottomPad
   }, [metrics, slots])
 
   /* 非拖动卡片的静止视图：引用稳定，配合 ToolCard 的 memo 跳过触摸帧重渲染 */
   const idleViews = useMemo(
-    () => slots.map(s => ({ translate: { x: s.x, y: s.y }, z: s.z })),
+    () => slots.map(s => ({ translate: { x: s.x, y: s.y }, scale: s.scale || 1, rotate: s.rotate || 0, z: s.z })),
     [slots]
   )
 
@@ -155,6 +163,21 @@ export default function Index() {
   useEffect(() => {
     containerHRef.current = containerH
   }, [containerH])
+  useEffect(() => {
+    skinIdRef.current = skinId
+  }, [skinId])
+
+  /* 皮肤切换事件：设置页触发，热更新槽位与背景 */
+  useEffect(() => {
+    const listener = (id: string) => {
+      skinIdRef.current = id
+      setSkinId(id)
+    }
+    Taro.eventCenter.on(SKIN_EVENT, listener)
+    return () => {
+      Taro.eventCenter.off(SKIN_EVENT, listener)
+    }
+  }, [])
 
   /* ---------- 首帧尺寸标定：真实卡片宽高反推槽位（兼容安卓字体高度差异） ---------- */
   useEffect(() => {
@@ -241,6 +264,8 @@ export default function Index() {
   }
 
   const drawPattern = useCallback(() => {
+    /* 皮肤自带背景时不画印花，保持画布透明（由皮肤画布接管） */
+    if (getSkinById(skinIdRef.current).hidePattern) return
     const cached = patternCanvasRef.current
     if (cached) {
       renderToPatternCanvas(cached.node, cached.w, cached.h)
@@ -262,6 +287,63 @@ export default function Index() {
     const timer = setTimeout(drawPattern, 80)
     return () => clearTimeout(timer)
   }, [drawPattern])
+
+  /* 皮肤切换后：自带背景时清掉全屏印花画布残留，否则照常画印花 */
+  useEffect(() => {
+    const cached = patternCanvasRef.current
+    if (activeSkin.hidePattern) {
+      if (cached) {
+        const ctx = cached.node.getContext('2d')
+        ctx.clearRect(0, 0, cached.w, cached.h)
+      }
+    } else {
+      drawPattern()
+    }
+  }, [activeSkin, drawPattern])
+
+  /* 皮肤画布：静态场景（树/月亮）+ 粒子循环（雪花/星闪），坐标系与槽位一致 */
+  useEffect(() => {
+    if (!activeSkin.draw || !metrics || containerH <= 0) return
+    let destroyed = false
+    const timer = setTimeout(() => {
+      const query = Taro.createSelectorQuery()
+      query
+        .select('#skinCanvas')
+        .fields({ node: true, size: true })
+        .exec(res => {
+          if (destroyed || !res || !res[0] || !res[0].node) return
+          const canvas = res[0].node
+          let dpr = 2
+          try {
+            dpr = Taro.getSystemInfoSync().pixelRatio || 2
+          } catch (e) {
+            /* 默认值兜底 */
+          }
+          const w = res[0].width
+          const h = res[0].height
+          canvas.width = w * dpr
+          canvas.height = h * dpr
+          const ctx = canvas.getContext('2d')
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+          const drawFn = activeSkin.draw
+          skinFxRef.current?.stop()
+          skinFxRef.current = startSkinFx(
+            canvas,
+            ctx,
+            w,
+            h,
+            activeSkin.particles === 'twinkle' ? 'twinkle' : 'snow',
+            drawFn ? () => drawFn(ctx, w, h) : undefined
+          )
+        })
+    }, 80)
+    return () => {
+      destroyed = true
+      clearTimeout(timer)
+      skinFxRef.current?.stop()
+      skinFxRef.current = null
+    }
+  }, [activeSkin, metrics, containerH])
 
   useEffect(() => {
     const listener = (bg: BackgroundPreset) => {
@@ -492,8 +574,8 @@ export default function Index() {
       geomRef.current = {
         gridX: grid.left,
         gridY: grid.top,
-        grabDX: startRef.current.x - card.left,
-        grabDY: startRef.current.y - card.top
+        grabDCX: startRef.current.x - (card.left + card.width / 2),
+        grabDCY: startRef.current.y - (card.top + card.height / 2)
       }
     })
 
@@ -502,7 +584,13 @@ export default function Index() {
       const idx = orderRef.current.indexOf(dragIdRef.current)
       const slot = slotsRef.current[idx]
       if (slot) setDragPos({ x: slot.x, y: slot.y })
-      setOrigin({ x: geomRef.current.grabDX, y: geomRef.current.grabDY })
+      /* 旋转中心 = 手指触点相对卡片的本地坐标（树挂缩放时补偿外扩量） */
+      const m0 = metricsRef.current!
+      const shrink = 1 - (slot ? slot.scale || 1 : 1)
+      setOrigin({
+        x: startRef.current.x - geomRef.current.gridX - (slot ? slot.x : 0) - (m0.cardW * shrink) / 2,
+        y: startRef.current.y - geomRef.current.gridY - (slot ? slot.y : 0) - (m0.cardH * shrink) / 2
+      })
       setTiltDeg(0)
       vxRef.current.reset()
       setPhaseBoth('grabbed')
@@ -538,9 +626,9 @@ export default function Index() {
     }
     if (p === 'grabbed') setPhaseBoth('dragging')
 
-    /* 容器系坐标 + 边界 clamp（允许小越界，松手弹回） */
-    let x = t.clientX - g.gridX - g.grabDX
-    let y = t.clientY - g.gridY - g.grabDY
+    /* 容器系坐标（中心偏移法，缩放无关）+ 边界 clamp（允许小越界，松手弹回） */
+    let x = t.clientX - g.gridX - m.cardW / 2 - g.grabDCX
+    let y = t.clientY - g.gridY - m.cardH / 2 - g.grabDCY
     const maxX = m.gridW - m.cardW + DRAG_CONFIG.clampOvershootPx
     const maxY = containerHRef.current - m.cardH + DRAG_CONFIG.clampOvershootPx
     x = Math.max(-DRAG_CONFIG.clampOvershootPx, Math.min(maxX, x))
@@ -595,7 +683,7 @@ export default function Index() {
     settleTimer.current = setTimeout(() => {
       setPhaseBoth('idle')
       setOrigin(null)
-    }, DRAG_CONFIG.settleRotateMs + 80)
+    }, getSkinById(skinIdRef.current).settleMs + 80)
   }, [dismissHint])
 
   const handleGrabEnd = useCallback((_e: any) => {
@@ -648,7 +736,7 @@ export default function Index() {
       state = phase === 'settling' ? 'settling' : phase === 'dragging' ? 'dragging' : 'grabbed'
     }
     /* 静止卡片取稳定引用（配合 memo 跳过触摸帧重渲染），拖动卡取实时位置 */
-    const idle = idleViews[i] || { translate: { x: 0, y: 0 }, z: i }
+    const idle = idleViews[i] || { translate: { x: 0, y: 0 }, scale: 1, rotate: 0, z: i }
     const translate = active ? dragPos : idle.translate
     return (
       <ToolCard
@@ -659,9 +747,15 @@ export default function Index() {
         pressing={phase === 'pressing' && tool.id === dragId}
         translate={translate}
         z={active ? 900 : idle.z}
-        tiltDeg={active ? tiltDeg : 0}
+        tiltDeg={active ? tiltDeg : idle.rotate}
+        /* 抓起/拖动时提到全尺寸，松手落回槽位缩放（树挂 0.7） */
+        slotScale={active && state !== 'settling' ? 1 : idle.scale}
         origin={active ? origin : null}
         landEffect={dropFeedback}
+        settleMs={activeSkin.settleMs}
+        hangingString={activeSkin.hangingString}
+        idleSway={activeSkin.idleSway}
+        swayDelayMs={(i % 6) * 700}
         pinnedTop={i === 0}
         pinPulse={tool.id === pinPulseId}
         showHint={hintVisible && i === 0}
@@ -677,7 +771,10 @@ export default function Index() {
   }
 
   return (
-    <View className='page-root home-root' style={{ background: theme.bg }}>
+    <View
+      className='page-root home-root'
+      style={{ background: activeSkin.backgroundCss || theme.bg }}
+    >
       <Canvas type='2d' id='patternCanvas' className='pattern-canvas' />
       <View className='home-header' style={{ paddingTop: `${layout.headerPad}px` }}>
         <View className='home-gear' style={{ top: `${layout.gearTop}px` }} onClick={handleSettings}>
@@ -719,6 +816,7 @@ export default function Index() {
           opacity: metrics ? 1 : 0
         }}
       >
+        {activeSkin.draw && <Canvas type='2d' id='skinCanvas' className='skin-canvas' />}
         {toolsOrdered.map(renderCard)}
 
         {hintVisible && metrics && slots.length > 0 && (

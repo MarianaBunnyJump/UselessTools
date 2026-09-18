@@ -77,6 +77,102 @@
   }
 }
 
+/* ---------- 皮肤工坊 ---------- */
+.set-skin-body {
+  padding: 6px 24px 22px;
+}
+
+.set-skin-level {
+  display: flex;
+  align-items: center;
+  padding: 8px 0 16px;
+}
+
+.set-skin-level-name {
+  font-size: 26px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.set-skin-level-track {
+  flex: 1;
+  height: 14px;
+  margin: 0 16px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.set-skin-level-fill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+.set-skin-level-remain {
+  font-size: 20px;
+  color: #b8a99e;
+  white-space: nowrap;
+}
+
+.set-skin-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.set-skin-card {
+  width: calc(50% - 12px);
+  margin: 0 24px 20px 0;
+  padding: 18px;
+  box-sizing: border-box;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 22px -12px rgba(74, 59, 50, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  &:nth-child(2n) {
+    margin-right: 0;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &.set-skin-card--active {
+    background: rgba(255, 255, 255, 0.92);
+  }
+}
+
+.set-skin-swatch {
+  width: 100%;
+  height: 88px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(74, 59, 50, 0.06);
+}
+
+.set-skin-name {
+  margin-top: 12px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.set-skin-desc {
+  margin-top: 4px;
+  font-size: 20px;
+  color: #8d7b70;
+  line-height: 1.5;
+}
+
+.set-skin-action {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #b8a99e;
+}
+
 /* ---------- 收纳分区 ---------- */
 .set-section {
   margin-top: 34px;

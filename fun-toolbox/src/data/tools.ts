@@ -30,7 +30,7 @@ export const TOOLS: ToolMeta[] = [
     id: 'life',
     name: '人生倒计时',
     icon: '⏳',
-    desc: '看看还剩多少个周五',
+    desc: '看看还剩多少个周日',
     path: '/pages/life/index',
     boxColor: '#DCCEF0',
     boxColorDeep: '#C5B0E3',

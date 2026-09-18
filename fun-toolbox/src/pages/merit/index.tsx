@@ -6,7 +6,7 @@ import { ACHIEVEMENTS } from '../../data/achievements'
 import { MERIT_PHRASES } from '../../data/meritPhrases'
 import { getTheme } from '../../utils/theme'
 import { playMeritSound, isSupported } from '../../utils/audio'
-import { get, set, getDailyCount, bumpStreak } from '../../utils/storage'
+import { get, set, getDailyCount, addDailyCount, addTotalCount, getDatePart } from '../../utils/storage'
 import { randomOf } from '../../utils/format'
 import Muyu from '../../components/Muyu'
 import NavBar from '../../components/NavBar'
@@ -57,13 +57,19 @@ export default function Merit() {
 
   const isStyleUnlocked = (s: FishStyle) => !s.unlockBy || unlockedIds.includes(s.unlockBy)
 
-  const checkAchievements = useCallback((total: number, dailyCount: number, streak: number) => {
+  const checkAchievements = useCallback((total: number, dailyCount: number) => {
     const unlocked = get<string[]>('merit_achievements', [])
+    const days = get<number>('merit_days_total', 0)
+    const night = getDailyCount('merit_night_today').count
+    const maxCombo = get<number>('merit_max_combo', 0)
     const fresh = ACHIEVEMENTS.filter(a => {
       if (unlocked.includes(a.id)) return false
-      if (a.threshold.total !== undefined && total >= a.threshold.total) return true
-      if (a.threshold.daily !== undefined && dailyCount >= a.threshold.daily) return true
-      if (a.threshold.streak !== undefined && streak >= a.threshold.streak) return true
+      const t = a.threshold
+      if (t.total !== undefined && total >= t.total) return true
+      if (t.daily !== undefined && dailyCount >= t.daily) return true
+      if (t.days !== undefined && days >= t.days) return true
+      if (t.night !== undefined && night >= t.night) return true
+      if (t.combo !== undefined && maxCombo >= t.combo) return true
       return false
     })
     if (fresh.length > 0) {
@@ -83,7 +89,16 @@ export default function Merit() {
     const nextTotal = get<number>('merit_total', 0) + 1
     set('merit_total', nextTotal)
 
-    const streak = bumpStreak('merit_last_date', 'merit_streak_days')
+    /* 累计使用天数：跨天后的第一次敲击 +1（不要求连续） */
+    if (get<string>('merit_last_date', '') !== getDatePart()) {
+      addTotalCount('merit_days_total')
+      set('merit_last_date', getDatePart())
+    }
+    /* 深夜功德：23:00~05:00 单独按日计数 */
+    const hour = new Date().getHours()
+    if (hour >= 23 || hour < 5) {
+      addDailyCount('merit_night_today')
+    }
 
     setTodayCount(nextDaily)
     setTotalCount(nextTotal)
@@ -99,6 +114,9 @@ export default function Merit() {
     lastTapRef.current = now
     comboRef.current = nextCombo
     setCombo(nextCombo)
+    if (nextCombo > get<number>('merit_max_combo', 0)) {
+      set('merit_max_combo', nextCombo)
+    }
     if (nextCombo >= COMBO_MIN) {
       try {
         Taro.vibrateShort({ type: 'light' })
@@ -129,7 +147,7 @@ export default function Merit() {
       setFloats(prev => prev.filter(f => f.key !== key))
     }, 1100)
 
-    checkAchievements(nextTotal, nextDaily, streak)
+    checkAchievements(nextTotal, nextDaily)
   }
 
   const pickStyle = (s: FishStyle) => {

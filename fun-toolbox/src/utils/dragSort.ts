@@ -35,7 +35,7 @@ export function computeGridSlots(
 }
 
 /* 拖动卡中心进入某槽位矩形（内缩 inset 去抖）→ 让位到该槽
- * 返回目标索引；未命中返回 -1 */
+ * 返回目标索引；未命中返回 -1。槽位含缩放（树挂 0.7）时按缩放后矩形判定 */
 export function hitSlot(
   dragCenter: { x: number; y: number },
   slots: GridSlot[],
@@ -47,11 +47,13 @@ export function hitSlot(
   for (let i = 0; i < slots.length; i++) {
     if (i === currentIndex) continue
     const s = slots[i]
+    const w = cardW * (s.scale || 1)
+    const h = cardH * (s.scale || 1)
     if (
       dragCenter.x > s.x + inset &&
-      dragCenter.x < s.x + cardW - inset &&
+      dragCenter.x < s.x + w - inset &&
       dragCenter.y > s.y + inset &&
-      dragCenter.y < s.y + cardH - inset
+      dragCenter.y < s.y + h - inset
     ) {
       return i
     }

@@ -60,10 +60,23 @@
   font-size: 28px;
 }
 
+/* ---------- 开场冲击文案（跨天轮换，行级渐入） ---------- */
+.life-openers {
+  padding-top: 14px;
+}
+
+.life-opener-line {
+  padding: 5px 36px;
+  font-size: 25px;
+  line-height: 1.7;
+  color: #9b897d;
+  animation: fade-up 0.55s ease-out both;
+}
+
 /* ---------- 巨大数字：手写体 + 主题同色系渐变 ---------- */
 .life-hero {
   text-align: center;
-  padding: 26px 0 6px;
+  padding: 22px 0 6px;
   animation: fade-up 0.5s ease-out;
 }
 
@@ -71,13 +84,15 @@
   font-size: 28px;
   color: #8d7b70;
   font-weight: 600;
+  letter-spacing: 2px;
 }
 
 .life-hero-num {
   font-family: $font-hand;
-  font-size: 104px;
+  font-size: 118px;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: 1px;
   font-variant-numeric: tabular-nums;
   -webkit-background-clip: text;
   background-clip: text;

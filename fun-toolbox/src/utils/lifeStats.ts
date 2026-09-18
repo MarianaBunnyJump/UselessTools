@@ -6,7 +6,7 @@ import { daysBetween, countWeekdays, countBirthdays, parseDate } from './format'
 export interface LifeStats {
   remainDays: number
   remainHours: number
-  remainFridays: number
+  remainSundays: number
   remainBirthdays: number
   remainMeals: number
   remainHolidays: number
@@ -52,8 +52,10 @@ export function computeLifeStats(birthdate: string, expectancy: number): LifeSta
   return {
     remainDays,
     remainHours,
-    remainFridays: countWeekdays(today, endDate, 5),
-    remainBirthdays: countBirthdays(birth, endDate),
+    /* 周日而不是周五：单休的人也有周日，双休的人周日也在（避免扎心） */
+    remainSundays: countWeekdays(today, endDate, 0),
+    /* 只数今天以后的生日：此前误从出生日起算，把过过的生日也算进「剩余」 */
+    remainBirthdays: countBirthdays(today, endDate),
     remainMeals: remainDays * 3,
     remainHolidays: countHolidayTimes(today, endDate),
     livedDays,
@@ -65,7 +67,7 @@ export function computeLifeStats(birthdate: string, expectancy: number): LifeSta
 export function lifeMetrics(stats: LifeStats): LifeMetric[] {
   return [
     { id: 'days', label: '剩余天数', value: stats.remainDays, unit: '天' },
-    { id: 'fridays', label: '剩余周五', value: stats.remainFridays, unit: '个' },
+    { id: 'sundays', label: '剩余周日', value: stats.remainSundays, unit: '个' },
     { id: 'birthdays', label: '剩余生日', value: stats.remainBirthdays, unit: '次' },
     { id: 'meals', label: '还能吃几顿美味的饭', value: stats.remainMeals, unit: '顿' },
     { id: 'holidays', label: '剩余法定节假日', value: stats.remainHolidays, unit: '个' }

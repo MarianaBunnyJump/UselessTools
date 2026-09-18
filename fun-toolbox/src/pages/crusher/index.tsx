@@ -7,7 +7,6 @@ import { getTheme } from '../../utils/theme'
 import { get, set, getDailyCount } from '../../utils/storage'
 import { randomOf } from '../../utils/format'
 import NavBar from '../../components/NavBar'
-import SharePoster from '../../components/SharePoster'
 import './index.scss'
 
 const CRUSH_MODES = [
@@ -165,15 +164,6 @@ export default function Crusher() {
             </View>
           </View>
         </View>
-
-        <SharePoster
-          canvasId='crusherShareCanvas'
-          toolName='情绪粉碎机'
-          accent={theme.accent}
-          hero={String(todayCount)}
-          heroUnit='次今日粉碎'
-          lines={[`累计粉碎 ${get<number>('crusher_total', 0)} 次`]}
-        />
       </View>
     </View>
   )

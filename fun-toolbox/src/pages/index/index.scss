@@ -158,6 +158,16 @@
   transition: opacity 0.28s ease;
 }
 
+/* 皮肤画布：铺满网格容器（与卡片槽位同坐标系），垫在卡片下 */
+.skin-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 /* 拖动提示气泡：悬浮在第一张卡片 ⠿ 上方 */
 .home-hint {
   position: absolute;

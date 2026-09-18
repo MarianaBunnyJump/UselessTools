@@ -37,8 +37,8 @@ export default function LifeShare() {
   /* 自选要分享的指标：顺序即主次 */
   const [selected, setSelected] = useState<string[]>(() => {
     const m = params.metric as string
-    if (m && ['days', 'fridays', 'birthdays', 'meals', 'holidays'].includes(m)) return [m]
-    return ['fridays']
+    if (m && ['days', 'sundays', 'birthdays', 'meals', 'holidays'].includes(m)) return [m]
+    return ['sundays']
   })
 
   const phrase = useMemo(() => {
