@@ -124,6 +124,12 @@
   border: 2px solid rgba(255, 255, 255, 0.65);
 }
 
+/* 挂树模式：卡片底板近不透明，像挂在树前的木质挂牌（避免与树冠透叠发糊） */
+.tool-card--hanging .gift-box {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
 /* 右上角长按热区（H5 用 touch-action 防滚动） */
 .tc-grab {
   position: absolute;

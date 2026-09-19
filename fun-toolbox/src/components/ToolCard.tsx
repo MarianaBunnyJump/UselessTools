@@ -60,7 +60,7 @@ function ToolCard(props: ToolCardProps) {
   return (
     <View
       id={`tc-${tool.id}`}
-      className={`tool-card ${state === 'dragging' ? 'tool-card--dragging' : ''} ${settling ? 'tool-card--settle' : ''}`}
+      className={`tool-card ${state === 'dragging' ? 'tool-card--dragging' : ''} ${settling ? 'tool-card--settle' : ''} ${hangingString ? 'tool-card--hanging' : ''}`}
       style={{
         transform: `translate3d(${translate.x}px, ${translate.y}px, 0) scale(${slotScale})`,
         zIndex: z,
