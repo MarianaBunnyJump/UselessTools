@@ -1,5 +1,7 @@
 /* ===================== 皮肤粒子（雪花 / 星闪） =====================
- * 与彩带同一套时基：dt 步进保证跨设备速度一致，H5 无节点 rAF 时退化为定时器。
+ * dt 步进保证跨设备速度一致。
+ * 调度用 setTimeout 限帧而不是 60fps rAF：雪花 30fps / 星闪 12fps 足够顺滑，
+ * 否则常驻循环会一直占着 JS 线程（曾把后台页面的设置页卡到动不了）。
  * 静态场景（树/月亮）随每帧重绘，避免被 clearRect 抹掉。
  */
 
@@ -24,6 +26,9 @@ interface Star {
   speed: number
 }
 
+/* 各类型的目标帧间隔 ms */
+const STEP_MS: Record<'snow' | 'twinkle', number> = { snow: 33, twinkle: 80 }
+
 export function startSkinFx(
   canvas: any,
   ctx: any,
@@ -33,14 +38,8 @@ export function startSkinFx(
   drawStatic?: () => void
 ): SkinFxHandle {
   let alive = true
-
-  const raf = (fn: () => void) => {
-    if (typeof canvas.requestAnimationFrame === 'function') {
-      canvas.requestAnimationFrame(fn)
-    } else {
-      setTimeout(fn, 16)
-    }
-  }
+  let timer: any = null
+  const stepMs = STEP_MS[type]
 
   const flakes: Flake[] = Array.from({ length: 16 }, () => ({
     x: Math.random() * w,
@@ -67,8 +66,9 @@ export function startSkinFx(
 
   const render = () => {
     if (!alive) return
-    const k = Math.min(50, Date.now() - last) / 16.67
-    last = Date.now()
+    const now = Date.now()
+    const k = Math.min(50, now - last) / 16.67
+    last = now
     ctx.clearRect(0, 0, w, h)
     if (drawStatic) drawStatic()
 
@@ -100,13 +100,16 @@ export function startSkinFx(
       })
     }
     ctx.globalAlpha = 1
-    raf(render)
+    if (alive) timer = setTimeout(render, stepMs)
   }
-  raf(render)
+
+  timer = setTimeout(render, stepMs)
 
   return {
     stop: () => {
       alive = false
+      if (timer) clearTimeout(timer)
     }
   }
 }
+

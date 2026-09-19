@@ -166,11 +166,37 @@
   line-height: 1.5;
 }
 
-.set-skin-action {
+.set-skin-action-row {
   margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.set-skin-action {
   font-size: 22px;
   font-weight: 700;
   color: #b8a99e;
+}
+
+/* 未解锁皮肤的预览入口 */
+.set-skin-preview {
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #8d7b70;
+  background: rgba(74, 59, 50, 0.08);
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+/* 预览中：虚线描边提示 */
+.set-skin-card--previewing {
+  border: 2px dashed #FF9A8B;
 }
 
 /* ---------- 收纳分区 ---------- */

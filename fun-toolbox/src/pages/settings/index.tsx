@@ -1,6 +1,6 @@
 import { View, Text, Slider, Canvas, Picker, Switch, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { BACKGROUNDS, getTheme, setTheme, type BackgroundPreset } from '../../utils/theme'
 import {
   PATTERNS,
@@ -14,6 +14,7 @@ import { track } from '../../utils/analytics'
 import {
   SKINS,
   SKIN_EVENT,
+  SKIN_PREVIEW_EVENT,
   getSkinById,
   getActiveSkinId,
   getOwnedSkins,
@@ -42,10 +43,16 @@ export default function Settings() {
   const [activeSkinId, setActiveSkinId] = useState(getActiveSkinId())
   const [ownedSkins, setOwnedSkins] = useState<string[]>(getOwnedSkins())
   const [points, setPoints] = useState(getWorkPoints())
+  /* 未解锁皮肤预览：临时渲染到首页，不写存储 */
+  const [previewingId, setPreviewingId] = useState('')
+  const previewingRef = useRef('')
 
   useEffect(() => {
     return () => {
-      /* 页面返回时主题已通过事件广播 */
+      /* 离开设置页时若还在预览，通知首页还原正式皮肤 */
+      if (previewingRef.current) {
+        Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, '')
+      }
     }
   }, [])
 
@@ -154,12 +161,32 @@ export default function Settings() {
   }
 
   /* ---------- 皮肤工坊 ---------- */
+  const clearPreview = () => {
+    previewingRef.current = ''
+    setPreviewingId('')
+  }
+
+  /* 未解锁皮肤预览：临时渲染到首页，不写存储；离开设置页自动还原 */
+  const togglePreview = (skin: SkinDefinition) => {
+    if (previewingRef.current === skin.id) {
+      clearPreview()
+      Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, '')
+      return
+    }
+    previewingRef.current = skin.id
+    setPreviewingId(skin.id)
+    Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, skin.id)
+    Taro.showToast({ title: '预览中：回首页看效果，回到这里可退出', icon: 'none', duration: 2200 })
+    track('skin_preview', { skin_id: skin.id })
+  }
+
   const handleSkinTap = (skin: SkinDefinition) => {
     if (ownsSkin(skin.id)) {
       if (skin.id === activeSkinId) return
       activateSkin(skin.id)
       Taro.eventCenter.trigger(SKIN_EVENT, skin.id)
       setActiveSkinId(skin.id)
+      clearPreview()
       Taro.showToast({ title: `已切换为${skin.name}`, icon: 'none', duration: 1200 })
       track('skin_change', { skin_id: skin.id })
       return
@@ -170,6 +197,7 @@ export default function Settings() {
       setActiveSkinId(skin.id)
       setOwnedSkins(getOwnedSkins())
       setPoints(getWorkPoints())
+      clearPreview()
       Taro.showToast({ title: `${skin.name} 已解锁`, icon: 'success' })
       track('skin_change', { skin_id: skin.id, claimed: true })
     } else {
@@ -278,22 +306,36 @@ export default function Settings() {
               {SKINS.map(s => {
                 const owned = ownedSkins.includes(s.id)
                 const isActive = s.id === activeSkinId
+                const previewing = s.id === previewingId
                 return (
                   <View
                     key={s.id}
-                    className={`set-skin-card ${isActive ? 'set-skin-card--active' : ''}`}
+                    className={`set-skin-card ${isActive ? 'set-skin-card--active' : ''} ${previewing ? 'set-skin-card--previewing' : ''}`}
                     style={isActive ? { borderColor: theme.accent } : undefined}
                     onClick={() => handleSkinTap(s)}
                   >
                     <View className='set-skin-swatch' style={{ background: s.preview }} />
                     <Text className='set-skin-name'>{s.name}</Text>
                     <Text className='set-skin-desc'>{s.desc}</Text>
-                    <Text
-                      className='set-skin-action'
-                      style={isActive ? { color: theme.accentDeep } : undefined}
-                    >
-                      {isActive ? '使用中' : owned ? '点击使用' : skinCost(s) === 0 ? '免费领取' : `${skinCost(s)} 工分`}
-                    </Text>
+                    <View className='set-skin-action-row'>
+                      <Text
+                        className='set-skin-action'
+                        style={isActive ? { color: theme.accentDeep } : undefined}
+                      >
+                        {isActive ? '使用中' : owned ? '点击使用' : skinCost(s) === 0 ? '免费领取' : `${skinCost(s)} 工分`}
+                      </Text>
+                      {!owned && !isActive && (
+                        <Text
+                          className='set-skin-preview'
+                          onClick={e => {
+                            e.stopPropagation()
+                            togglePreview(s)
+                          }}
+                        >
+                          {previewing ? '退出预览' : '👁 预览'}
+                        </Text>
+                      )}
+                    </View>
                   </View>
                 )
               })}

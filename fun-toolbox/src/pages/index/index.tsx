@@ -11,7 +11,7 @@ import { getTheme, type BackgroundPreset } from '../../utils/theme'
 import { get, set, addTotalCount } from '../../utils/storage'
 import { getHomeOrder, saveHomeOrder } from '../../utils/homeOrder'
 import { hitSlot, moveItem, VxTracker, tiltTowards } from '../../utils/dragSort'
-import { getSkinById, getActiveSkinId, SKIN_EVENT, type SkinDefinition, type SkinSlot } from '../../skins/registry'
+import { getSkinById, getActiveSkinId, SKIN_EVENT, SKIN_PREVIEW_EVENT, type SkinDefinition, type SkinSlot } from '../../skins/registry'
 import { startSkinFx, type SkinFxHandle } from '../../utils/skinFx'
 import { track } from '../../utils/analytics'
 import ToolCard, { type CardState } from '../../components/ToolCard'
@@ -91,6 +91,10 @@ export default function Index() {
   const [dropFeedback, setDropFeedback] = useState(() => get<boolean>('drop_feedback_enabled', true))
   /* 皮肤：设置页切换后通过 SKIN_EVENT 热更新，返回首页也会刷新 */
   const [skinId, setSkinId] = useState(getActiveSkinId())
+  /* 工坊「预览」：临时渲染未解锁皮肤，不写存储；skin-changed 或取消预览时还原 */
+  const [previewId, setPreviewId] = useState('')
+  /* 页面隐藏时置 false：停掉粒子/彩带循环，避免后台页占满 JS 线程把其它页面卡死 */
+  const [fxActive, setFxActive] = useState(true)
 
   const canvasRef = useRef<any>(null)
   const ctxRef = useRef<any>(null)
@@ -117,8 +121,10 @@ export default function Index() {
   const dropFeedbackRef = useRef(dropFeedback)
   const skinIdRef = useRef(skinId)
   const skinFxRef = useRef<SkinFxHandle | null>(null)
+  const skinCanvasRef = useRef<{ node: any; w: number; h: number } | null>(null)
 
-  const activeSkin: SkinDefinition = useMemo(() => getSkinById(skinId), [skinId])
+  /* 预览优先于正式皮肤（预览不落存储） */
+  const activeSkin: SkinDefinition = useMemo(() => getSkinById(previewId || skinId), [previewId, skinId])
 
   const setPhaseBoth = (p: DragPhase) => {
     phaseRef.current = p
@@ -167,15 +173,19 @@ export default function Index() {
     skinIdRef.current = skinId
   }, [skinId])
 
-  /* 皮肤切换事件：设置页触发，热更新槽位与背景 */
+  /* 皮肤切换事件：设置页触发，热更新槽位与背景（真实切换同时退出预览） */
   useEffect(() => {
     const listener = (id: string) => {
       skinIdRef.current = id
+      setPreviewId('')
       setSkinId(id)
     }
     Taro.eventCenter.on(SKIN_EVENT, listener)
+    const previewListener = (id: string) => setPreviewId(id || '')
+    Taro.eventCenter.on(SKIN_PREVIEW_EVENT, previewListener)
     return () => {
       Taro.eventCenter.off(SKIN_EVENT, listener)
+      Taro.eventCenter.off(SKIN_PREVIEW_EVENT, previewListener)
     }
   }, [])
 
@@ -301,10 +311,55 @@ export default function Index() {
     }
   }, [activeSkin, drawPattern])
 
-  /* 皮肤画布：静态场景（树/月亮）+ 粒子循环（雪花/星闪），坐标系与槽位一致 */
+  /* 皮肤画布：静态场景（树/月亮）+ 粒子循环（雪花/星闪），坐标系与槽位一致。
+   * fxActive=false（页面被设置页覆盖等）时只画一帧静态，循环停掉——
+   * 常驻 60fps 循环会在后台页继续跑，占满 JS 线程导致全局卡顿 */
   useEffect(() => {
-    if (!activeSkin.draw || !metrics || containerH <= 0) return
+    if (!activeSkin.draw || !metrics || containerH <= 0) {
+      skinCanvasRef.current = null
+      return
+    }
     let destroyed = false
+
+    const boot = (canvas: any, w: number, h: number) => {
+      if (destroyed) return
+      let dpr = 2
+      try {
+        dpr = Taro.getSystemInfoSync().pixelRatio || 2
+      } catch (e) {
+        /* 默认值兜底 */
+      }
+      canvas.width = w * dpr
+      canvas.height = h * dpr
+      const ctx = canvas.getContext('2d')
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      const drawFn = activeSkin.draw
+      const staticDraw = drawFn ? () => drawFn(ctx, w, h) : undefined
+      skinFxRef.current?.stop()
+      skinFxRef.current = null
+      if (fxActive) {
+        skinFxRef.current = startSkinFx(
+          canvas,
+          ctx,
+          w,
+          h,
+          activeSkin.particles === 'twinkle' ? 'twinkle' : 'snow',
+          staticDraw
+        )
+      } else if (staticDraw) {
+        staticDraw()
+      }
+    }
+
+    const cached = skinCanvasRef.current
+    if (cached) {
+      boot(cached.node, cached.w, cached.h)
+      return () => {
+        destroyed = true
+        skinFxRef.current?.stop()
+        skinFxRef.current = null
+      }
+    }
     const timer = setTimeout(() => {
       const query = Taro.createSelectorQuery()
       query
@@ -312,29 +367,9 @@ export default function Index() {
         .fields({ node: true, size: true })
         .exec(res => {
           if (destroyed || !res || !res[0] || !res[0].node) return
-          const canvas = res[0].node
-          let dpr = 2
-          try {
-            dpr = Taro.getSystemInfoSync().pixelRatio || 2
-          } catch (e) {
-            /* 默认值兜底 */
-          }
-          const w = res[0].width
-          const h = res[0].height
-          canvas.width = w * dpr
-          canvas.height = h * dpr
-          const ctx = canvas.getContext('2d')
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-          const drawFn = activeSkin.draw
-          skinFxRef.current?.stop()
-          skinFxRef.current = startSkinFx(
-            canvas,
-            ctx,
-            w,
-            h,
-            activeSkin.particles === 'twinkle' ? 'twinkle' : 'snow',
-            drawFn ? () => drawFn(ctx, w, h) : undefined
-          )
+          const entry = { node: res[0].node, w: res[0].width, h: res[0].height }
+          skinCanvasRef.current = entry
+          boot(entry.node, entry.w, entry.h)
         })
     }, 80)
     return () => {
@@ -343,7 +378,7 @@ export default function Index() {
       skinFxRef.current?.stop()
       skinFxRef.current = null
     }
-  }, [activeSkin, metrics, containerH])
+  }, [activeSkin, metrics, containerH, fxActive])
 
   useEffect(() => {
     const listener = (bg: BackgroundPreset) => {
@@ -716,9 +751,19 @@ export default function Index() {
     const df = get<boolean>('drop_feedback_enabled', true)
     dropFeedbackRef.current = df
     setDropFeedback(df)
+    /* 回到前台：恢复粒子循环，并清掉隐藏时冻住的彩带残影 */
+    setFxActive(true)
+    if (ctxRef.current) {
+      ctxRef.current.clearRect(0, 0, confettiSize.w, confettiSize.h)
+    }
+    piecesRef.current = []
   })
   useDidHide(() => {
     dismissHint('leave')
+    /* 页面被覆盖（如进设置页）时停掉所有常驻动画循环——
+       否则粒子循环在后台继续跑，占满 JS 线程导致设置页卡到动不了 */
+    setFxActive(false)
+    loopActiveRef.current = false
   })
 
   const handleSettings = () => {

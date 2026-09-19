@@ -41,6 +41,8 @@ export interface SkinDefinition {
 }
 
 export const SKIN_EVENT = 'skin-changed'
+/* 预览事件：payload 为皮肤 id，传空串取消预览；预览不写存储，离开设置页自动还原 */
+export const SKIN_PREVIEW_EVENT = 'skin-preview'
 
 export function getSkinById(id: string): SkinDefinition {
   return SKINS.find(s => s.id === id) || SKINS[0]
