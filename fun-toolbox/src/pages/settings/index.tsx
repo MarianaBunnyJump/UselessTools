@@ -24,7 +24,7 @@ import {
   skinCost,
   type SkinDefinition
 } from '../../skins/registry'
-import { getWorkPoints, getWorkLevel } from '../../skins/workPoints'
+import { getWorkPoints } from '../../skins/workPoints'
 import NavBar from '../../components/NavBar'
 import './index.scss'
 
@@ -166,31 +166,28 @@ export default function Settings() {
     setPreviewingId('')
   }
 
-  /* 未解锁皮肤预览：临时渲染到首页，不写存储；离开设置页自动还原 */
+  /* 未解锁皮肤预览：临时渲染到首页，不写存储；点击后直接返回首页看效果 */
+  const enterPreview = (skin: SkinDefinition) => {
+    if (previewingRef.current !== skin.id) {
+      previewingRef.current = skin.id
+      setPreviewingId(skin.id)
+      Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, skin.id)
+      track('skin_preview', { skin_id: skin.id })
+    }
+    Taro.navigateBack()
+  }
+
   const togglePreview = (skin: SkinDefinition) => {
     if (previewingRef.current === skin.id) {
       clearPreview()
       Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, '')
       return
     }
-    previewingRef.current = skin.id
-    setPreviewingId(skin.id)
-    Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, skin.id)
-    Taro.showToast({ title: '预览中：回首页看效果，回到这里可退出', icon: 'none', duration: 2200 })
-    track('skin_preview', { skin_id: skin.id })
+    enterPreview(skin)
   }
 
-  const handleSkinTap = (skin: SkinDefinition) => {
-    if (ownsSkin(skin.id)) {
-      if (skin.id === activeSkinId) return
-      activateSkin(skin.id)
-      Taro.eventCenter.trigger(SKIN_EVENT, skin.id)
-      setActiveSkinId(skin.id)
-      clearPreview()
-      Taro.showToast({ title: `已切换为${skin.name}`, icon: 'none', duration: 1200 })
-      track('skin_change', { skin_id: skin.id })
-      return
-    }
+  /* 领取/解锁：达标即永久拥有并立即启用 */
+  const handleClaim = (skin: SkinDefinition) => {
     if (claimSkin(skin.id)) {
       activateSkin(skin.id)
       Taro.eventCenter.trigger(SKIN_EVENT, skin.id)
@@ -210,10 +207,21 @@ export default function Settings() {
     }
   }
 
-  const level = getWorkLevel(points)
-  const levelPct = level.nextAt > level.curBase
-    ? Math.min(100, Math.round(((points - level.curBase) / (level.nextAt - level.curBase)) * 100))
-    : 100
+  const handleSkinTap = (skin: SkinDefinition) => {
+    if (ownsSkin(skin.id)) {
+      if (skin.id === activeSkinId) return
+      activateSkin(skin.id)
+      Taro.eventCenter.trigger(SKIN_EVENT, skin.id)
+      setActiveSkinId(skin.id)
+      clearPreview()
+      Taro.showToast({ title: `已切换为${skin.name}`, icon: 'none', duration: 1200 })
+      track('skin_change', { skin_id: skin.id })
+      return
+    }
+    /* 未解锁：点卡片即进入预览并回到首页看效果（解锁按钮在卡片右下角） */
+    enterPreview(skin)
+  }
+
   const activeSkin = getSkinById(activeSkinId)
 
   return (
@@ -287,21 +295,6 @@ export default function Settings() {
 
         {skinOpen && (
           <View className='set-skin-body'>
-            <View className='set-skin-level'>
-              <Text className='set-skin-level-name' style={{ color: theme.accentDeep }}>
-                工局 Lv.{level.level}
-              </Text>
-              <View className='set-skin-level-track' style={{ background: `${theme.accent}24` }}>
-                <View
-                  className='set-skin-level-fill'
-                  style={{ width: `${levelPct}%`, background: `linear-gradient(90deg, ${theme.accent}, ${theme.accentDeep})` }}
-                />
-              </View>
-              <Text className='set-skin-level-remain'>
-                {level.nextAt > level.curBase ? `还差 ${level.nextAt - points} 工分升级` : '已满级'}
-              </Text>
-            </View>
-
             <View className='set-skin-list'>
               {SKINS.map(s => {
                 const owned = ownedSkins.includes(s.id)
@@ -325,15 +318,27 @@ export default function Settings() {
                         {isActive ? '使用中' : owned ? '点击使用' : skinCost(s) === 0 ? '免费领取' : `${skinCost(s)} 工分`}
                       </Text>
                       {!owned && !isActive && (
-                        <Text
-                          className='set-skin-preview'
-                          onClick={e => {
-                            e.stopPropagation()
-                            togglePreview(s)
-                          }}
-                        >
-                          {previewing ? '退出预览' : '👁 预览'}
-                        </Text>
+                        <View className='set-skin-btns'>
+                          <Text
+                            className='set-skin-preview'
+                            onClick={e => {
+                              e.stopPropagation()
+                              togglePreview(s)
+                            }}
+                          >
+                            {previewing ? '退出预览' : '👁 预览'}
+                          </Text>
+                          <Text
+                            className='set-skin-claim'
+                            style={{ color: theme.accentDeep }}
+                            onClick={e => {
+                              e.stopPropagation()
+                              handleClaim(s)
+                            }}
+                          >
+                            {skinCost(s) === 0 ? '领取' : '解锁'}
+                          </Text>
+                        </View>
                       )}
                     </View>
                   </View>
@@ -341,7 +346,7 @@ export default function Settings() {
               })}
             </View>
             <View className='settings-tip'>
-              工分 = 打开工具次数 × 10 · 自带背景的皮肤下印花暂不生效
+              当前 {points} 工分（= 打开工具次数 × 10）· 自带背景的皮肤下印花暂不生效
             </View>
           </View>
         )}

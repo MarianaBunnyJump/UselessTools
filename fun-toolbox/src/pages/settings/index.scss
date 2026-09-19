@@ -82,38 +82,6 @@
   padding: 6px 24px 22px;
 }
 
-.set-skin-level {
-  display: flex;
-  align-items: center;
-  padding: 8px 0 16px;
-}
-
-.set-skin-level-name {
-  font-size: 26px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.set-skin-level-track {
-  flex: 1;
-  height: 14px;
-  margin: 0 16px;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.set-skin-level-fill {
-  height: 100%;
-  border-radius: 8px;
-  transition: width 0.4s ease;
-}
-
-.set-skin-level-remain {
-  font-size: 20px;
-  color: #b8a99e;
-  white-space: nowrap;
-}
-
 .set-skin-list {
   display: flex;
   flex-wrap: wrap;
@@ -181,6 +149,11 @@
 }
 
 /* 未解锁皮肤的预览入口 */
+.set-skin-btns {
+  display: flex;
+  align-items: center;
+}
+
 .set-skin-preview {
   padding: 6px 18px;
   border-radius: 20px;
@@ -188,6 +161,21 @@
   font-weight: 600;
   color: #8d7b70;
   background: rgba(74, 59, 50, 0.08);
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+/* 领取/解锁按钮 */
+.set-skin-claim {
+  margin-left: 12px;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px -6px rgba(74, 59, 50, 0.25);
 
   &:active {
     transform: scale(0.94);

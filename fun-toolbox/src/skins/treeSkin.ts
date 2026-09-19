@@ -93,7 +93,8 @@ export const treeSkin: SkinDefinition = {
   accent: '#A5D6A7',
   preview: 'linear-gradient(160deg, #14272E 0%, #1F4A3C 55%, #2F6B52 100%)',
   unlock: { type: 'season', from: '12-01', to: '01-06', offSeasonCost: 300 },
-  backgroundCss: 'linear-gradient(180deg, #14272E 0%, #1D3A33 55%, #16302A 100%)',
+  /* 森林绿夜幕：与星夜工局的藏蓝明显区分 */
+  backgroundCss: 'linear-gradient(180deg, #123024 0%, #1E4A38 55%, #173B2C 100%)',
   draw: drawTree,
   particles: 'snow',
   slots: (count, containerW, cardW, cardH, rowGap) => {

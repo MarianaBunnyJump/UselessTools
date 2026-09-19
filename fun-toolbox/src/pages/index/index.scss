@@ -113,41 +113,78 @@
   }
 }
 
-/* 最近使用：一行直达小胶囊（用过工具后才出现） */
-.home-recent {
+/* 工局等级条（可收起成小徽章） */
+.home-level {
+  display: flex;
+  padding: 0 24px 18px;
+}
+
+.home-level-bar {
+  flex: 1;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  padding: 0 16px;
-  margin-bottom: 20px;
-}
-
-.home-recent-tag {
-  font-size: 24px;
-  margin-right: 10px;
-  opacity: 0.75;
-}
-
-.home-recent-pill {
-  display: inline-flex;
-  align-items: center;
-  margin: 0 10px 10px 0;
-  padding: 8px 22px;
-  font-size: 24px;
-  color: #8d7b70;
+  padding: 10px 20px;
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 26px;
+  border-radius: 24px;
   box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.18);
-
-  &:active {
-    transform: scale(0.94);
-  }
 }
 
-.home-recent-pill-icon {
-  font-size: 26px;
-  margin-right: 8px;
+.home-level-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #8d7b70;
+  white-space: nowrap;
+}
+
+.home-level-track {
+  flex: 1;
+  height: 12px;
+  margin: 0 14px;
+  border-radius: 6px;
+  background: rgba(74, 59, 50, 0.12);
+  overflow: hidden;
+}
+
+.home-level-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+.home-level-remain {
+  font-size: 20px;
+  color: #8d7b70;
+  white-space: nowrap;
+}
+
+.home-level-fold {
+  margin-left: 14px;
+  font-size: 22px;
+  color: #c9bdb4;
+  padding: 0 6px;
+}
+
+.home-level-mini {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 22px;
+  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.18);
+}
+
+.home-level-mini-text {
+  font-size: 22px;
+  font-weight: 800;
+  color: #8d7b70;
+}
+
+.home-level-mini-arrow {
+  margin-left: 8px;
+  font-size: 20px;
+  color: #c9bdb4;
 }
 
 /* 卡片区：绝对定位容器（卡片坐标由 JS 按槽位写入 transform）

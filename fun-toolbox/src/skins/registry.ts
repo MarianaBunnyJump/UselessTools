@@ -32,7 +32,7 @@ export interface SkinDefinition {
   backgroundCss?: string
   /* 网格容器内画布的静态绘制（夜树/月亮等，坐标与槽位同系） */
   draw?: (ctx: any, w: number, h: number) => void
-  particles?: 'none' | 'snow' | 'twinkle'
+  particles?: 'none' | 'snow' | 'twinkle' | 'confetti'
   slots: (count: number, containerW: number, cardW: number, cardH: number, rowGap: number) => SkinSlot[]
   hangingString: boolean   /* 卡片顶部挂绳 */
   settleMs: number         /* 松手回位（惯性回转）时长 */
@@ -98,5 +98,6 @@ export function activateSkin(id: string): boolean {
 import { gridSkin } from './gridSkin'
 import { treeSkin } from './treeSkin'
 import { starrySkin } from './starrySkin'
+import { toySkin } from './toySkin'
 
-export const SKINS: SkinDefinition[] = [gridSkin, treeSkin, starrySkin]
+export const SKINS: SkinDefinition[] = [gridSkin, treeSkin, starrySkin, toySkin]
