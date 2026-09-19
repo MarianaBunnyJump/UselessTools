@@ -41,8 +41,21 @@ export interface SkinDefinition {
 }
 
 export const SKIN_EVENT = 'skin-changed'
-/* 预览事件：payload 为皮肤 id，传空串取消预览；预览不写存储，离开设置页自动还原 */
+/* 预览事件：payload 为皮肤 id，传空串取消预览 */
 export const SKIN_PREVIEW_EVENT = 'skin-preview'
+
+/* ---- 预览态（模块级共享，首页与设置页读写同一份；不落存储） ----
+ * 预览由首页的「正在预览」提示条退出，或被真实切换覆盖；
+ * 设置页卸载不取消预览（否则「预览→返回首页」会立刻自我取消） */
+let previewSkinId = ''
+
+export function getPreviewSkinId(): string {
+  return previewSkinId
+}
+
+export function setPreviewSkinId(id: string) {
+  previewSkinId = id || ''
+}
 
 export function getSkinById(id: string): SkinDefinition {
   return SKINS.find(s => s.id === id) || SKINS[0]

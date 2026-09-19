@@ -11,7 +11,7 @@ import { getTheme, type BackgroundPreset } from '../../utils/theme'
 import { get, set, addTotalCount } from '../../utils/storage'
 import { getHomeOrder, saveHomeOrder } from '../../utils/homeOrder'
 import { hitSlot, moveItem, VxTracker, tiltTowards } from '../../utils/dragSort'
-import { getSkinById, getActiveSkinId, SKIN_EVENT, SKIN_PREVIEW_EVENT, type SkinDefinition, type SkinSlot } from '../../skins/registry'
+import { getSkinById, getActiveSkinId, getPreviewSkinId, setPreviewSkinId, SKIN_EVENT, SKIN_PREVIEW_EVENT, type SkinDefinition, type SkinSlot } from '../../skins/registry'
 import { getWorkPoints, getWorkLevel } from '../../skins/workPoints'
 import { startSkinFx, type SkinFxHandle } from '../../utils/skinFx'
 import { track } from '../../utils/analytics'
@@ -93,8 +93,8 @@ export default function Index() {
   const [dropFeedback, setDropFeedback] = useState(() => get<boolean>('drop_feedback_enabled', true))
   /* 皮肤：设置页切换后通过 SKIN_EVENT 热更新，返回首页也会刷新 */
   const [skinId, setSkinId] = useState(getActiveSkinId())
-  /* 工坊「预览」：临时渲染未解锁皮肤，不写存储；skin-changed 或取消预览时还原 */
-  const [previewId, setPreviewId] = useState('')
+  /* 工坊「预览」：临时渲染未解锁皮肤，不写存储；由首页提示条退出或真实切换覆盖 */
+  const [previewId, setPreviewId] = useState(getPreviewSkinId())
   /* 页面隐藏时置 false：停掉粒子/彩带循环，避免后台页占满 JS 线程把其它页面卡死 */
   const [fxActive, setFxActive] = useState(true)
 
@@ -124,6 +124,8 @@ export default function Index() {
   const skinIdRef = useRef(skinId)
   const skinFxRef = useRef<SkinFxHandle | null>(null)
   const skinCanvasRef = useRef<{ node: any; w: number; h: number } | null>(null)
+  /* 当前生效皮肤（含预览）：供事件回调读取最新值 */
+  const activeSkinRef = useRef<SkinDefinition | null>(null)
 
   /* 预览优先于正式皮肤（预览不落存储） */
   const activeSkin: SkinDefinition = useMemo(() => getSkinById(previewId || skinId), [previewId, skinId])
@@ -174,11 +176,15 @@ export default function Index() {
   useEffect(() => {
     skinIdRef.current = skinId
   }, [skinId])
+  useEffect(() => {
+    activeSkinRef.current = activeSkin
+  }, [activeSkin])
 
-  /* 皮肤切换事件：设置页触发，热更新槽位与背景（真实切换同时退出预览） */
+  /* 皮肤切换事件：设置页触发，热更新槽位与背景（真实切换同时清除预览） */
   useEffect(() => {
     const listener = (id: string) => {
       skinIdRef.current = id
+      setPreviewSkinId('')
       setPreviewId('')
       setSkinId(id)
     }
@@ -276,8 +282,8 @@ export default function Index() {
   }
 
   const drawPattern = useCallback(() => {
-    /* 皮肤自带背景时不画印花，保持画布透明（由皮肤画布接管） */
-    if (getSkinById(skinIdRef.current).hidePattern) return
+    /* 皮肤自带背景时不画印花，保持画布透明（由皮肤画布接管）；预览态同样生效 */
+    if (activeSkinRef.current?.hidePattern) return
     const cached = patternCanvasRef.current
     if (cached) {
       renderToPatternCanvas(cached.node, cached.w, cached.h)
@@ -530,6 +536,13 @@ export default function Index() {
     })
   }
 
+  /* 退出皮肤预览：还原正式皮肤（预览态不落存储） */
+  const exitPreview = () => {
+    setPreviewSkinId('')
+    setPreviewId('')
+    track('skin_preview', { exit: true })
+  }
+
   const handleOpen = useCallback((tool: ToolMeta) => {
     /* 拖动中（多指场景）忽略卡片点击 */
     if (phaseRef.current !== 'idle' || openingRef.current) return
@@ -696,7 +709,7 @@ export default function Index() {
     settleTimer.current = setTimeout(() => {
       setPhaseBoth('idle')
       setOrigin(null)
-    }, getSkinById(skinIdRef.current).settleMs + 80)
+    }, (activeSkinRef.current?.settleMs ?? DRAG_CONFIG.settleRotateMs) + 80)
   }, [dismissHint])
 
   const handleGrabEnd = useCallback((_e: any) => {
@@ -819,6 +832,16 @@ export default function Index() {
           {slogan}
         </View>
       </View>
+
+      {/* 皮肤预览提示条 */}
+      {previewId && (
+        <View className='home-preview-bar'>
+          <Text className='home-preview-text'>👀 正在预览：{activeSkin.name}</Text>
+          <Text className='home-preview-exit' onClick={exitPreview}>
+            退出预览
+          </Text>
+        </View>
+      )}
 
       {/* 工局等级条（可收起） */}
       <View className='home-level'>

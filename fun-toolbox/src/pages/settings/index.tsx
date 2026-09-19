@@ -18,6 +18,8 @@ import {
   getSkinById,
   getActiveSkinId,
   getOwnedSkins,
+  getPreviewSkinId,
+  setPreviewSkinId,
   ownsSkin,
   claimSkin,
   activateSkin,
@@ -43,18 +45,11 @@ export default function Settings() {
   const [activeSkinId, setActiveSkinId] = useState(getActiveSkinId())
   const [ownedSkins, setOwnedSkins] = useState<string[]>(getOwnedSkins())
   const [points, setPoints] = useState(getWorkPoints())
-  /* 未解锁皮肤预览：临时渲染到首页，不写存储 */
-  const [previewingId, setPreviewingId] = useState('')
-  const previewingRef = useRef('')
-
-  useEffect(() => {
-    return () => {
-      /* 离开设置页时若还在预览，通知首页还原正式皮肤 */
-      if (previewingRef.current) {
-        Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, '')
-      }
-    }
-  }, [])
+  /* 未解锁皮肤预览：临时渲染到首页，不写存储；预览态存于 registry 模块，
+   * 设置页卸载不取消（否则「预览→返回首页」的导航会立刻自我取消），
+   * 由首页的「正在预览」提示条或再次进入本页的「退出预览」来还原 */
+  const [previewingId, setPreviewingId] = useState(getPreviewSkinId())
+  const previewingRef = useRef(getPreviewSkinId())
 
   const handlePick = (id: string) => {
     const next = setTheme(id)
@@ -164,6 +159,8 @@ export default function Settings() {
   const clearPreview = () => {
     previewingRef.current = ''
     setPreviewingId('')
+    setPreviewSkinId('')
+    Taro.eventCenter.trigger(SKIN_PREVIEW_EVENT, '')
   }
 
   /* 未解锁皮肤预览：临时渲染到首页，不写存储；点击后直接返回首页看效果 */

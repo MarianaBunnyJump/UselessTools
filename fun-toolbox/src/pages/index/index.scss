@@ -113,6 +113,37 @@
   }
 }
 
+/* 皮肤预览提示条 */
+.home-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 24px 14px;
+  padding: 12px 22px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px dashed rgba(74, 59, 50, 0.25);
+  border-radius: 22px;
+}
+
+.home-preview-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: #6b5a4f;
+}
+
+.home-preview-exit {
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #FF9A8B, #FF6A88);
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
 /* 工局等级条（可收起成小徽章） */
 .home-level {
   display: flex;
