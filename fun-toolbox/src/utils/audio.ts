@@ -621,3 +621,26 @@ export function playCrushSound(mode: string) {
       break
   }
 }
+
+
+/* ===================== 无限气泡纸音效 ===================== */
+
+/* 捏爆气泡：短促的「啪」——正弦从高频速降，随机音高避免单调 */
+export function playPopSound() {
+  const c = ensureCtx()
+  if (!c) return
+  if (!tapSoundOn()) return
+  const t = c.currentTime
+  const osc = c.createOscillator()
+  const gain = c.createGain()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(520 + Math.random() * 180, t)
+  osc.frequency.exponentialRampToValueAtTime(90, t + 0.09)
+  gain.gain.setValueAtTime(0.0001, t)
+  gain.gain.linearRampToValueAtTime(0.3, t + 0.008)
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.1)
+  osc.connect(gain)
+  gain.connect(masterGain)
+  osc.start(t)
+  osc.stop(t + 0.12)
+}

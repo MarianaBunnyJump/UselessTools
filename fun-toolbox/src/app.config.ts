@@ -14,6 +14,7 @@ export default defineAppConfig({
     'pages/wheel/index',
     'pages/wheel/history',
     'pages/mixer/index',
+    'pages/bubble/index',
     'pages/about/index'
   ],
   window: {

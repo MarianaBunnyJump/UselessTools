@@ -1,31 +1,25 @@
 /* ===================== 圣诞树皮肤：礼物盒挂上圣诞树 =====================
- * 夜幕背景由 backgroundCss 提供；本画布画完整树景（与槽位同坐标系）：
- * 蓬松四层树冠 + 积雪边缘 + 彩灯带 + 彩球 + 树顶五角星 + 树干礼物堆 + 枝干挂台。
- * 锚点/结构均为 750 设计 px，运行时按容器宽换算；调布局只改 ANCHORS / 树参数。
+ * 夜幕背景由 backgroundCss 提供；画布画完整树景（与槽位同坐标系）：
+ * 星顶 + 蓬松多层树冠（层数随容器高自适应）+ 积雪边缘 + 彩灯带 + 彩球
+ * + 树干礼物堆 + 积雪短枝挂台。卡片全部沿树中线纵向悬挂，页面随内容滚动。
+ * 常量均为 750 设计 px，运行时按容器宽换算。
  */
 
 import type { SkinDefinition } from './registry'
 
-/* 卡片缩为一半，像小挂牌一样挂枝 */
+/* 卡片缩为一半，像小挂牌一样沿树中线挂 */
 const CARD_SCALE = 0.5
 
-/* 挂点（设计 px，卡片 translate 左上角）：三排两列 */
-const ANCHORS = [
-  { x: 160, y: 190, rotate: -5 },
-  { x: 415, y: 190, rotate: 4 },
-  { x: 105, y: 400, rotate: 6 },
-  { x: 455, y: 400, rotate: -5 },
-  { x: 145, y: 610, rotate: -4 },
-  { x: 420, y: 610, rotate: 5 }
-]
+/* 中线左右交错偏移（设计 px），循环取用 */
+const ROW_OFFSETS = [-70, 70, -45, 52, -60, 62, -30, 42, -58]
+/* 各排静置倾角 */
+const ROW_TILTS = [-4, 4, -6, 5, -3, 6, -5, 3, -4]
 
-/* 虚拟画布高（设计 px）：树景按此布局 */
-const TREE_H = 780
+/* 行布局（设计 px） */
+const ROW_TOP = 240
+const ROW_PITCH = 172
 
-/* 卡片视觉中心相对 translate 的偏移 = 卡宽 × 缩放（中心原点缩放）= 363 × 0.5 */
-const CARD_VISUAL_OFFSET = 363 * CARD_SCALE
-
-const TIER_GREENS = ['#2F7D58', '#296F4E', '#256045', '#205238']
+const TIER_GREENS = ['#2F7D58', '#296F4E', '#256045', '#205238', '#1D4A34']
 const BAUBLE_COLORS = ['#EF5350', '#FFD54F', '#42A5F5', '#F48FB1', '#AB47BC']
 
 function starPath(ctx: any, cx: number, cy: number, outer: number, inner: number) {
@@ -47,10 +41,9 @@ function giftBox(ctx: any, x: number, y: number, w: number, h: number, body: str
   ctx.fillStyle = ribbon
   ctx.fillRect(x + w / 2 - w * 0.07, y, w * 0.14, h)
   ctx.fillRect(x, y + h * 0.36, w, h * 0.12)
-  /* 蝴蝶结 */
   ctx.beginPath()
-  ctx.arc(x + w / 2 - w * 0.1, y - h * 0.04, w * 0.09, 0, Math.PI * 2)
-  ctx.arc(x + w / 2 + w * 0.1, y - h * 0.04, w * 0.09, 0, Math.PI * 2)
+  ctx.arc(x + w / 2 - w * 0.1, y - h * 0.06, w * 0.09, 0, Math.PI * 2)
+  ctx.arc(x + w / 2 + w * 0.1, y - h * 0.06, w * 0.09, 0, Math.PI * 2)
   ctx.fill()
 }
 
@@ -59,11 +52,11 @@ function drawTree(ctx: any, w: number, h: number) {
   const cx = w / 2
   const d = (v: number) => v * k
 
-  /* ---- 夜空小星（静态，两侧留白处） ---- */
+  /* ---- 夜空小星（静态） ---- */
   const SKY: [number, number, number][] = [
-    [0.07, 0.07, 2], [0.14, 0.16, 1.4], [0.24, 0.05, 1.8], [0.32, 0.14, 1.3],
-    [0.68, 0.06, 1.7], [0.78, 0.12, 1.3], [0.88, 0.05, 2], [0.95, 0.13, 1.4],
-    [0.04, 0.3, 1.5], [0.96, 0.28, 1.6]
+    [0.07, 0.05, 2], [0.15, 0.11, 1.4], [0.25, 0.04, 1.8], [0.33, 0.1, 1.3],
+    [0.67, 0.05, 1.7], [0.77, 0.1, 1.3], [0.88, 0.04, 2], [0.95, 0.1, 1.4],
+    [0.05, 0.22, 1.5], [0.95, 0.2, 1.6], [0.1, 0.4, 1.3], [0.9, 0.42, 1.3]
   ]
   SKY.forEach(([fx, fy, r]) => {
     ctx.globalAlpha = 0.65
@@ -74,132 +67,112 @@ function drawTree(ctx: any, w: number, h: number) {
   })
   ctx.globalAlpha = 1
 
-  /* ---- 四层蓬松树冠：每层 3 个交叠三角；自下而上绘制 ---- */
-  const tiers = [
-    { base: 130, halfW: 0.24, color: TIER_GREENS[0] },
-    { base: 310, halfW: 0.33, color: TIER_GREENS[1] },
-    { base: 490, halfW: 0.42, color: TIER_GREENS[2] },
-    { base: 660, halfW: 0.5, color: TIER_GREENS[3] }
-  ]
-  for (let i = tiers.length - 1; i >= 0; i--) {
-    const t = tiers[i]
-    const apexY = i === 0 ? 10 : tiers[i - 1].base
-    const hw = t.halfW * w
-    const bh = (t.base - apexY) * k
+  /* ---- 树冠：层数随容器高自适应，自下而上绘制 ---- */
+  const trunkTop = h - d(200)
+  const tierPitch = d(240)
+  const tierCount = Math.max(3, Math.min(9, Math.round((h - d(340)) / tierPitch)))
+  for (let j = 0; j < tierCount; j++) {
+    /* j=0 最底层（最宽），越往上越窄 */
+    const baseY = trunkTop - j * tierPitch
+    const halfW = w * (0.46 - (0.26 * j) / Math.max(1, tierCount - 1))
+    const apexY = baseY - tierPitch * 0.98
+    const color = TIER_GREENS[j % TIER_GREENS.length]
     /* 主三角 + 两侧矮三角（蓬松轮廓） */
     ;[
-      { ax: cx, ay: d(apexY), hw, bh },
-      { ax: cx - hw * 0.52, ay: d(apexY) + bh * 0.18, hw: hw * 0.72, bh: bh * 0.94 },
-      { ax: cx + hw * 0.52, ay: d(apexY) + bh * 0.18, hw: hw * 0.72, bh: bh * 0.94 }
+      { ax: cx, ay: apexY, hw: halfW, bh: baseY - apexY },
+      { ax: cx - halfW * 0.52, ay: apexY + (baseY - apexY) * 0.18, hw: halfW * 0.72, bh: (baseY - apexY) * 0.9 },
+      { ax: cx + halfW * 0.52, ay: apexY + (baseY - apexY) * 0.18, hw: halfW * 0.72, bh: (baseY - apexY) * 0.9 }
     ].forEach(tri => {
       ctx.beginPath()
       ctx.moveTo(tri.ax, tri.ay)
       ctx.lineTo(tri.ax + tri.hw, tri.ay + tri.bh)
       ctx.lineTo(tri.ax - tri.hw, tri.ay + tri.bh)
       ctx.closePath()
-      ctx.fillStyle = t.color
+      ctx.fillStyle = color
       ctx.fill()
     })
-    /* 层底积雪：一排半圆鼓包 */
-    const snowY = d(t.base)
+    /* 层底积雪鼓包 */
     ctx.fillStyle = 'rgba(255,255,255,0.85)'
-    for (let sx = cx - hw * 0.92; sx <= cx + hw * 0.92; sx += d(34)) {
+    for (let sx = cx - halfW * 0.9; sx <= cx + halfW * 0.9; sx += d(36)) {
       ctx.beginPath()
-      ctx.arc(sx, snowY, d(13), Math.PI, 0)
+      ctx.arc(sx, baseY, d(13), Math.PI, 0)
       ctx.fill()
     }
-  }
-
-  /* ---- 彩灯带：两条金色弧线 + 串灯小点 ---- */
-  ctx.strokeStyle = '#FFD54F'
-  ctx.globalAlpha = 0.9
-  ctx.lineWidth = d(4)
-  const garlands = [
-    { x1: cx - 0.26 * w, y1: d(210), cx2: cx, cy2: d(282), x2: cx + 0.26 * w, y2: d(200) },
-    { x1: cx - 0.37 * w, y1: d(420), cx2: cx, cy2: d(500), x2: cx + 0.37 * w, y2: d(410) }
-  ]
-  garlands.forEach(g => {
-    ctx.beginPath()
-    ctx.moveTo(g.x1, g.y1)
-    ctx.quadraticCurveTo(g.cx2, g.cy2, g.x2, g.y2)
-    ctx.stroke()
-    /* 灯泡点 */
-    for (const t of [0.2, 0.4, 0.6, 0.8]) {
-      const mt = 1 - t
-      const bx = mt * mt * g.x1 + 2 * mt * t * g.cx2 + t * t * g.x2
-      const by = mt * mt * g.y1 + 2 * mt * t * g.cy2 + t * t * g.y2
-      ctx.fillStyle = '#FFF59D'
+    /* 彩球 */
+    ;[-0.6, -0.28, 0.32, 0.64].forEach((fx, bi) => {
+      ctx.fillStyle = BAUBLE_COLORS[(j + bi) % BAUBLE_COLORS.length]
       ctx.beginPath()
-      ctx.arc(bx, by + d(8), d(5), 0, Math.PI * 2)
-      ctx.fill()
-    }
-  })
-  ctx.globalAlpha = 1
-
-  /* ---- 彩球：沿各层底缘散布 ---- */
-  tiers.forEach((t, ti) => {
-    const hw = t.halfW * w
-    ;[-0.62, -0.3, 0.34, 0.66].forEach((fx, bi) => {
-      const bx = cx + fx * hw
-      const by = d(t.base) - d(16)
-      ctx.fillStyle = BAUBLE_COLORS[(ti + bi) % BAUBLE_COLORS.length]
-      ctx.beginPath()
-      ctx.arc(bx, by, d(8), 0, Math.PI * 2)
+      ctx.arc(cx + fx * halfW, baseY - d(16), d(8), 0, Math.PI * 2)
       ctx.fill()
       ctx.fillStyle = 'rgba(255,255,255,0.55)'
       ctx.beginPath()
-      ctx.arc(bx - d(2.5), by - d(2.5), d(2.4), 0, Math.PI * 2)
+      ctx.arc(cx + fx * halfW - d(2.5), baseY - d(18.5), d(2.4), 0, Math.PI * 2)
       ctx.fill()
     })
-  })
+    /* 隔层一条彩灯带 */
+    if (j % 2 === 0 && j > 0) {
+      ctx.strokeStyle = '#FFD54F'
+      ctx.globalAlpha = 0.9
+      ctx.lineWidth = d(4)
+      const gTop = baseY - tierPitch * 0.72
+      const gHalf = halfW * 0.8
+      ctx.beginPath()
+      ctx.moveTo(cx - gHalf, gTop)
+      ctx.quadraticCurveTo(cx, gTop + tierPitch * 0.5, cx + gHalf, gTop - d(8))
+      ctx.stroke()
+      for (const t of [0.25, 0.5, 0.75]) {
+        const mt = 1 - t
+        const bx = mt * mt * (cx - gHalf) + 2 * mt * t * cx + t * t * (cx + gHalf)
+        const by = mt * mt * gTop + 2 * mt * t * (gTop + tierPitch * 0.5) + t * t * (gTop - d(8))
+        ctx.fillStyle = '#FFF59D'
+        ctx.beginPath()
+        ctx.arc(bx, by + d(8), d(5), 0, Math.PI * 2)
+        ctx.fill()
+      }
+      ctx.globalAlpha = 1
+    }
+  }
 
   /* ---- 树干 + 树下礼物 + 雪地 ---- */
   ctx.fillStyle = '#7A5230'
-  ctx.fillRect(cx - d(18), d(655), d(36), d(66))
+  ctx.fillRect(cx - d(19), trunkTop - d(6), d(38), d(96))
   ctx.fillStyle = 'rgba(0,0,0,0.18)'
-  ctx.fillRect(cx + d(8), d(655), d(10), d(66))
-  giftBox(ctx, cx - d(150), d(688), d(92), d(66), '#EF5350', '#FFD54F')
-  giftBox(ctx, cx - d(24), d(704), d(64), d(50), '#FFCA28', '#EF5350')
-  giftBox(ctx, cx + d(62), d(694), d(100), d(60), '#42A5F5', '#FFF176')
-
+  ctx.fillRect(cx + d(9), trunkTop - d(6), d(10), d(96))
+  giftBox(ctx, cx - d(150), h - d(108), d(92), d(66), '#EF5350', '#FFD54F')
+  giftBox(ctx, cx - d(26), h - d(92), d(64), d(50), '#FFCA28', '#EF5350')
+  giftBox(ctx, cx + d(60), h - d(102), d(100), d(60), '#42A5F5', '#FFF176')
   ctx.fillStyle = 'rgba(255,255,255,0.88)'
   ctx.beginPath()
-  ctx.ellipse(cx, d(752), w * 0.55, d(24), 0, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.beginPath()
-  ctx.ellipse(cx - w * 0.36, d(738), w * 0.16, d(14), 0, 0, Math.PI * 2)
-  ctx.fill()
-  ctx.beginPath()
-  ctx.ellipse(cx + w * 0.38, d(742), w * 0.14, d(12), 0, 0, Math.PI * 2)
+  ctx.ellipse(cx, h - d(42), w * 0.55, d(24), 0, 0, Math.PI * 2)
   ctx.fill()
 
   /* ---- 树顶五角星 + 光晕 ---- */
-  const glow = ctx.createRadialGradient(cx, d(16), d(4), cx, d(16), d(70))
+  const glow = ctx.createRadialGradient(cx, d(46), d(4), cx, d(46), d(72))
   glow.addColorStop(0, 'rgba(255,213,79,0.9)')
   glow.addColorStop(1, 'rgba(255,213,79,0)')
   ctx.fillStyle = glow
-  ctx.fillRect(cx - d(70), -d(54), d(140), d(140))
+  ctx.fillRect(cx - d(72), -d(26), d(144), d(144))
   ctx.fillStyle = '#FFD54F'
-  starPath(ctx, cx, d(16), d(30), d(12))
+  starPath(ctx, cx, d(46), d(30), d(12))
   ctx.fill()
   ctx.strokeStyle = 'rgba(255,255,255,0.8)'
   ctx.lineWidth = d(1.6)
   ctx.stroke()
 
-  /* ---- 枝干挂台：每个锚点一条积雪短枝，卡片从这里垂下 ---- */
-  ANCHORS.forEach(a => {
-    const center = a.x + CARD_VISUAL_OFFSET
-    const ly = a.y - d(24)
+  /* ---- 枝干挂台：沿中线每排一条积雪短枝，卡片从这里垂下 ---- */
+  const visibleRows = Math.min(9, Math.max(0, Math.floor((h - d(ROW_TOP)) / d(ROW_PITCH)) + 1))
+  for (let i = 0; i < visibleRows; i++) {
+    const center = cx + ROW_OFFSETS[i % ROW_OFFSETS.length] * k
+    const ly = d(ROW_TOP + i * ROW_PITCH) - d(24)
     ctx.fillStyle = '#256045'
-    ctx.fillRect(d(center - 125), ly - d(11), d(250), d(22))
-    /* 枝上积雪鼓包 */
+    ctx.fillRect(center - d(125), ly - d(11), d(250), d(22))
     ctx.fillStyle = 'rgba(255,255,255,0.9)'
-    for (let sx = d(center - 100); sx <= d(center + 100); sx += d(34)) {
+    for (let sx = center - d(100); sx <= center + d(100); sx += d(34)) {
       ctx.beginPath()
       ctx.arc(sx, ly - d(10), d(10), Math.PI, 0)
       ctx.fill()
     }
-  })
+  }
 }
 
 export const treeSkin: SkinDefinition = {
@@ -215,18 +188,14 @@ export const treeSkin: SkinDefinition = {
   particles: 'snow',
   slots: (count, containerW, cardW, cardH, rowGap) => {
     const k = containerW / 750
-    return Array.from({ length: count }, (_, i) => {
-      const a = ANCHORS[i % ANCHORS.length]
-      /* 工具超过锚点数时往下顺延一排 */
-      const ring = Math.floor(i / ANCHORS.length)
-      return {
-        x: a.x * k,
-        y: a.y * k + ring * (cardH * CARD_SCALE + 20 * k),
-        scale: CARD_SCALE,
-        rotate: a.rotate,
-        z: i
-      }
-    })
+    return Array.from({ length: count }, (_, i) => ({
+      /* 卡片中心贴树中线，左右小偏移交错 */
+      x: containerW / 2 - (cardW * CARD_SCALE) / 2 + ROW_OFFSETS[i % ROW_OFFSETS.length] * k,
+      y: (ROW_TOP + i * ROW_PITCH) * k,
+      scale: CARD_SCALE,
+      rotate: ROW_TILTS[i % ROW_TILTS.length],
+      z: i
+    }))
   },
   hangingString: true,
   settleMs: 650,

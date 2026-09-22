@@ -76,5 +76,15 @@ export const TOOLS: ToolMeta[] = [
     boxColor: '#FFE0CB',
     boxColorDeep: '#FFCFAF',
     ribbonColor: '#FF8A65'
+  },
+  {
+    id: 'bubble',
+    name: '无限气泡纸',
+    icon: '🫧',
+    desc: '把一整张捏个遍',
+    path: '/pages/bubble/index',
+    boxColor: '#C9EEFC',
+    boxColorDeep: '#A5DEFA',
+    ribbonColor: '#29B6F6'
   }
 ]
