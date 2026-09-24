@@ -20,22 +20,33 @@
   padding-bottom: 30px;
 }
 
-.home-gear {
-  position: absolute;
-  left: 8px;
-  width: 72px;
-  height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.2);
-  transition: transform 0.3s ease;
 
-  &.active {
-    transform: rotate(60deg);
+
+/* 左上角水平排列按钮组 */
+.home-header {
+  .home-gear,
+  .home-user,
+  .home-share-btn {
+    position: absolute;
+    top: 40px;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.2);
+    transition: transform 0.3s ease;
+  }
+
+  .home-user {
+    left: 88px;
+  }
+
+  .home-share-btn {
+    left: 168px;
   }
 }
 
@@ -44,33 +55,9 @@
   line-height: 1;
 }
 
-/* 设置右边的分享按钮：沿用齿轮圆形样式，重置 Button 默认外观 */
-.home-share-btn {
-  left: auto;
-  right: 8px;
-  padding: 0;
-  margin: 0;
-  line-height: normal;
-  font-weight: normal;
 
-  &::after {
-    border: none;
-  }
-}
 
-.home-user {
-  position: absolute;
-  right: 96px;
-  width: 72px;
-  height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.2);
-}
+
 
 .home-user-icon { font-size: 34px; color: #ff7043; font-weight: 800; }
 

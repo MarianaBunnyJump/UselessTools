@@ -870,6 +870,9 @@ export default function Index() {
         <View className='home-gear' style={{ top: `${layout.gearTop}px` }} onClick={handleSettings}>
           <Text className='home-gear-icon'>⚙️</Text>
         </View>
+        <View className='home-user' style={{ top: `${layout.gearTop}px` }} onClick={() => Taro.navigateTo({ url: '/pages/user/index' })}>
+          <Text className='home-user-icon'>{guestNickname ? guestNickname.slice(0, 1) : '👤'}</Text>
+        </View>
         <Button
           className='home-gear home-share-btn'
           style={{ top: `${layout.gearTop}px` }}
@@ -877,9 +880,6 @@ export default function Index() {
         >
           <Text className='home-gear-icon'>💌</Text>
         </Button>
-        <View className='home-user' style={{ top: `${layout.gearTop}px` }} onClick={() => Taro.navigateTo({ url: '/pages/user/index' })}>
-          <Text className='home-user-icon'>{guestNickname ? guestNickname.slice(0, 1) : '👤'}</Text>
-        </View>
         <View className='home-title' onClick={handleTitleTap}>
           <Text className='home-title-prefix'>{titlePrefix}</Text>
           <Text className='home-title-char'>趣</Text>
