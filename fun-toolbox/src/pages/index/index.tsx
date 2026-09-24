@@ -927,6 +927,15 @@ export default function Index() {
         )}
       </View>
 
+      {/* 登记系统入口 */}
+      <View className='home-registration-entry'>
+        <View className='home-registration-card' onClick={() => Taro.navigateTo({ url: '/pages/registration/index' })}>
+          <Text className='home-registration-icon'>📝</Text>
+          <Text className='home-registration-text'>登记系统</Text>
+          <Text className='home-registration-arrow'>▸</Text>
+        </View>
+      </View>
+
       <View
         className='home-grid'
         style={{

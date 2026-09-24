@@ -1,0 +1,261 @@
+.registration-page { padding-bottom: 80px; }
+
+.registration-success {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  padding: 16px 24px;
+  text-align: center;
+  animation: slideDown 0.3s ease-out;
+}
+
+.registration-success-icon {
+  font-size: 24px;
+  margin-right: 8px;
+}
+
+.registration-success-text {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.registration-container {
+  padding: 24px;
+}
+
+.registration-card {
+  margin: 0 16px 24px;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 30px -18px rgba(74, 59, 50, 0.25);
+}
+
+.registration-title {
+  display: block;
+  font-size: 28px;
+  font-weight: 700;
+  color: #4a3b32;
+  margin-bottom: 8px;
+}
+
+.registration-subtitle {
+  display: block;
+  font-size: 18px;
+  color: #9b8b82;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.nickname-input-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.nickname-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid rgba(141, 123, 112, 0.18);
+  border-radius: 16px;
+  font-size: 16px;
+  background: #fffaf5;
+}
+
+.nickname-input:focus {
+  border-color: #ff8a80;
+}
+
+.nickname-save-btn {
+  padding: 0 24px;
+  height: 48px;
+  background: linear-gradient(135deg, #ff8a80, #ff7043);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nickname-save-btn:active {
+  transform: scale(0.96);
+}
+
+.nickname-current {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f0f8ff;
+  border-radius: 12px;
+  border: 1px solid rgba(135, 206, 235, 0.3);
+}
+
+.nickname-current-label {
+  font-size: 14px;
+  color: #666;
+  margin-right: 8px;
+}
+
+.nickname-current-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a3b32;
+}
+
+.registration-code-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.registration-code-input {
+  padding: 16px;
+  border: 2px solid rgba(141, 123, 112, 0.18);
+  border-radius: 16px;
+  font-size: 16px;
+  background: #fffaf5;
+}
+
+.registration-code-input:focus {
+  border-color: #ff8a80;
+}
+
+.registration-submit-btn {
+  padding: 0 32px;
+  height: 56px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.registration-submit-btn:active {
+  transform: scale(0.96);
+}
+
+.registration-tips {
+  margin-top: 20px;
+  padding: 16px;
+  background: #fff3e0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.registration-tips-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e65100;
+  margin-bottom: 8px;
+}
+
+.registration-tips-text {
+  display: block;
+  font-size: 14px;
+  color: #bf360c;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.registration-info {
+  margin: 20px 0;
+}
+
+.registration-info-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(141, 123, 112, 0.1);
+}
+
+.registration-info-item:last-child {
+  border-bottom: none;
+}
+
+.registration-info-label {
+  font-size: 16px;
+  color: #666;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.registration-info-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a3b32;
+  flex: 1;
+}
+
+.registration-reset-btn {
+  width: 100%;
+  padding: 0 24px;
+  height: 48px;
+  background: linear-gradient(135deg, #ff7043, #f4511e);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+.registration-reset-btn:active {
+  transform: scale(0.96);
+}
+
+.registration-guide {
+  margin: 0 16px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px dashed rgba(141, 123, 112, 0.3);
+}
+
+.registration-guide-title {
+  display: block;
+  font-size: 20px;
+  font-weight: 600;
+  color: #4a3b32;
+  margin-bottom: 12px;
+}
+
+.registration-guide-content {
+  line-height: 1.6;
+}
+
+.registration-guide-item {
+  display: block;
+  font-size: 14px;
+  color: #8d7b70;
+  margin-bottom: 6px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.registration-guide-item:before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #ff8a80;
+  font-weight: bold;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
