@@ -13,6 +13,8 @@
   left: 0;
   top: 0;
   width: calc(50% - 12px);
+  /* 卡片始终位于皮肤树景之上；z-index 仍由槽位/拖动状态动态控制 */
+  z-index: 1;
   /* 让位动画：非拖动卡片滑向新槽位 */
   transition: transform 240ms cubic-bezier(0.25, 0.8, 0.35, 1);
 }

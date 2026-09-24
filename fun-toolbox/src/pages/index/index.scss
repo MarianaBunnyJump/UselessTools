@@ -46,7 +46,8 @@
 
 /* 设置右边的分享按钮：沿用齿轮圆形样式，重置 Button 默认外观 */
 .home-share-btn {
-  left: 96px;
+  left: auto;
+  right: 8px;
   padding: 0;
   margin: 0;
   line-height: normal;
@@ -57,7 +58,31 @@
   }
 }
 
+.home-user {
+  position: absolute;
+  right: 96px;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.2);
+}
+
+.home-user-icon { font-size: 34px; color: #ff7043; font-weight: 800; }
+
 /* 标题：彩色贴纸字（白描边 + 微投影，可爱放松） */
+.home-title-prefix {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 24px;
+  line-height: 1.3;
+  color: #8d7b70;
+  letter-spacing: 3px;
+}
 .home-title {
   font-family: $font-hand;
   font-size: 60px;
@@ -223,7 +248,31 @@
 .home-grid {
   position: relative;
   margin-top: 10px;
+  /* 建立独立层叠上下文，避免微信 2D Canvas 原生层盖过同级卡片 */
+  z-index: 1;
+  isolation: isolate;
   transition: opacity 0.28s ease;
+}
+
+/* 圣诞树导出的普通图片与卡片处在同一渲染层，不依赖原生 Canvas 的 z-index。 */
+.skin-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tree-image-fallback {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 22px;
+  color: #e5f1e8;
+  pointer-events: none;
 }
 
 /* 皮肤画布：铺满网格容器（与卡片槽位同坐标系），垫在卡片下 */
@@ -233,6 +282,16 @@
   top: 0;
   width: 100%;
   height: 100%;
+  /* 树景是背景层，必须压在工具卡片下面；微信 Canvas 原生层也需要明确层级 */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 原生画布移出可视区域再导出，不能与网格内卡片共享覆盖区域。 */
+.tree-export-canvas {
+  position: fixed;
+  left: -10000px;
+  top: 0;
   pointer-events: none;
 }
 

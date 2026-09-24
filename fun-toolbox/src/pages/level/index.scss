@@ -1,0 +1,39 @@
+.level-page { padding-bottom: 80px; }
+.level-hero { display:flex; flex-direction:column; align-items:center; padding:28px 0 34px; }
+.level-medal { font-size:72px; line-height:1; filter:drop-shadow(0 8px 12px rgba(74,59,50,.18)); }
+.level-number { margin-top:8px; font-size:52px; font-weight:800; color:#4a3b32; }
+.level-title { margin-top:2px; font-size:30px; color:#ff7043; font-weight:700; }
+.level-points { margin-top:8px; font-size:23px; color:#9b8b82; }
+.level-card { margin:0 24px 24px; padding:26px 24px; border-radius:28px; background:rgba(255,255,255,.74); border:1px solid rgba(255,255,255,.9); box-shadow:0 12px 30px -18px rgba(74,59,50,.25); }
+.level-card-head { display:flex; justify-content:space-between; align-items:center; font-size:28px; font-weight:700; color:#4a3b32; }
+.level-next { font-size:20px; color:#a08f85; font-weight:400; }
+.level-chart-note { display:block; margin-top:14px; font-size:20px; color:#9b8b82; }
+.level-bars { height:300px; display:flex; align-items:flex-end; justify-content:space-around; gap:6px; padding:24px 0 12px; }
+.level-bar-item { height:100%; min-width:0; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
+.level-bar-value { margin-bottom:5px; font-size:17px; color:#9b8b82; }
+.level-bar-value--current { color:#e7633c; font-weight:800; }
+.level-bar-column { height:210px; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
+.level-bar { width:80%; max-width:38px; min-height:8px; border-radius:10px 10px 4px 4px; background:rgba(141,123,112,.18); }
+.level-bar--active { background:linear-gradient(180deg,#ffd166,#ff8a80); }
+.level-bar--current { box-shadow:0 0 0 3px rgba(255,112,67,.3); }
+.level-bar-label { margin-top:8px; font-size:17px; color:#9b8b82; white-space:nowrap; }
+.level-bar-label--current { color:#e7633c; font-weight:800; }
+.level-progress-track { height:14px; border-radius:8px; background:rgba(74,59,50,.1); overflow:hidden; }
+.level-progress-fill { height:100%; border-radius:inherit; }
+.level-progress-copy { display:block; text-align:center; margin-top:12px; font-size:21px; color:#9b8b82; }
+.level-section-title { display:block; margin-bottom:12px; font-size:28px; font-weight:700; color:#4a3b32; }
+.level-prefix-hint { display:block; font-size:21px; line-height:1.5; color:#9b8b82; }
+.level-prefix-options { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+.level-prefix-option { display:flex; align-items:center; gap:8px; padding:12px 18px; border:2px solid rgba(141,123,112,.18); border-radius:18px; font-size:21px; color:#8d7b70; background:#fffaf5; }
+.level-prefix-option--selected { border-color:#ff8a80; background:#fff0e8; color:#c64d31; font-weight:700; }
+.level-prefix-check { font-size:18px; }
+.level-ribbon-card { border-color:#ffd166; background:#fff5dd; }
+.level-ribbon-copy { font-size:22px; line-height:1.5; color:#8d6540; }
+.level-benefit-row { display:flex; align-items:center; gap:12px; min-height:68px; border-bottom:1px dashed rgba(184,169,158,.28); color:#9b8b82; }
+.level-benefit-row:last-child { border-bottom:0; }
+.level-benefit-row--current { color:#e7633c; }
+.level-benefit-level { width:66px; flex-shrink:0; font-weight:700; }
+.level-benefit-copy { flex:1; font-size:21px; line-height:1.4; }
+.level-benefit-status { flex-shrink:0; font-size:18px; color:#a08f85; }
+.level-benefit-status--ready { color:#e7633c; font-weight:700; }
+.level-tip { margin:4px 34px; text-align:center; color:#b8a99e; font-size:21px; line-height:1.7; }

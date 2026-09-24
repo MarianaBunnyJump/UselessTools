@@ -4,7 +4,7 @@
   "description": "有点意思工具盒",
   "appid": "wx37121209361e58d8",
   "compileType": "miniprogram",
-  "libVersion": "3.4.10",
+  "libVersion": "3.17.2",
   "setting": {
     "es6": false,
     "enhance": false,

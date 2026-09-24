@@ -3,6 +3,7 @@ import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useState } from 'react'
 import { TOOLS } from '../../data/tools'
 import { getTheme } from '../../utils/theme'
+import { set } from '../../utils/storage'
 import NavBar from '../../components/NavBar'
 import './index.scss'
 
@@ -25,6 +26,18 @@ export default function About() {
         })
       }
     })
+  }
+
+  /* 回首页重放开场导引：写一次性旗标，首页 useDidShow 消费（不写完成标记） */
+  const handleReplayOnboarding = () => {
+    set('onboarding_replay', true)
+    const pages = Taro.getCurrentPages()
+    const prev = pages.length > 1 ? pages[pages.length - 2] : null
+    if (prev && prev.route === 'pages/index/index') {
+      Taro.navigateBack()
+    } else {
+      Taro.reLaunch({ url: '/pages/index/index' })
+    }
   }
 
   return (
@@ -57,6 +70,9 @@ export default function About() {
         )}
         <View className='btn-primary about-btn' onClick={handleFeedback}>
           意见反馈
+        </View>
+        <View className='btn-primary about-btn about-replay-btn' onClick={handleReplayOnboarding}>
+          再看一遍开场导引
         </View>
         <View className='about-tip'>
           所有数据仅保存在你的手机本地，无账号、无联网、无广告

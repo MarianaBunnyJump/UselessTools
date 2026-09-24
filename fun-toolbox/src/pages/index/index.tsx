@@ -1,4 +1,4 @@
-import { View, Text, Canvas, Button } from '@tarojs/components'
+import { View, Text, Canvas, Button, Image } from '@tarojs/components'
 import Taro, { useShareAppMessage, useDidShow, useDidHide } from '@tarojs/taro'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { TOOLS, type ToolMeta } from '../../data/tools'
@@ -12,10 +12,11 @@ import { get, set, addTotalCount } from '../../utils/storage'
 import { getHomeOrder, saveHomeOrder } from '../../utils/homeOrder'
 import { hitSlot, moveItem, VxTracker, tiltTowards } from '../../utils/dragSort'
 import { getSkinById, getActiveSkinId, getPreviewSkinId, setPreviewSkinId, SKIN_EVENT, SKIN_PREVIEW_EVENT, type SkinDefinition, type SkinSlot } from '../../skins/registry'
-import { getWorkPoints, getWorkLevel } from '../../skins/workPoints'
+import { getWorkPoints, getWorkLevel, getLevelTitle, getSelectedTitlePrefix, TITLE_PREFIX_EVENT } from '../../skins/workPoints'
 import { startSkinFx, type SkinFxHandle } from '../../utils/skinFx'
 import { track } from '../../utils/analytics'
 import ToolCard, { type CardState } from '../../components/ToolCard'
+import Onboarding from './onboarding'
 import './index.scss'
 
 interface ConfettiPiece {
@@ -48,8 +49,6 @@ type DragPhase = 'idle' | 'pressing' | 'grabbed' | 'dragging' | 'settling'
 interface DragGeom {
   gridX: number      /* 容器 viewport 系偏移（抓起时查询） */
   gridY: number
-  grabDCX: number    /* 手指相对卡片中心的偏移（缩放无关，树挂卡片也跟手） */
-  grabDCY: number
 }
 
 interface GridMetrics {
@@ -62,6 +61,7 @@ interface GridMetrics {
 
 export default function Index() {
   const [theme, setTh] = useState<BackgroundPreset>(getTheme())
+  const [guestNickname, setGuestNickname] = useState(() => get<string>('user_nickname', ''))
   const [slogan, setSlogan] = useState(SLOGANS[dayOfYear() % SLOGANS.length])
 
   /* 分享按钮：每次随机一句俏皮话推荐 */
@@ -73,6 +73,7 @@ export default function Index() {
   const [openingId, setOpeningId] = useState('')
   /* 工局等级条（原在设置页，移到首页；可收起，状态落存储） */
   const [points, setPoints] = useState(getWorkPoints())
+  const [titlePrefix, setTitlePrefix] = useState(() => getSelectedTitlePrefix(getWorkLevel(getWorkPoints()).level))
   const [levelFolded, setLevelFolded] = useState(() => get<boolean>('home_level_folded', false))
   /* 设置按钮固定在左上角（避开微信胶囊区域）；H5 用固定值兜底 */
   const [layout, setLayout] = useState({ gearTop: 40, headerPad: 60 })
@@ -88,6 +89,9 @@ export default function Index() {
   const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null)
   const [pinPulseId, setPinPulseId] = useState('')
   const [hintVisible, setHintVisible] = useState(() => !get<boolean>('drag_hint_done', false))
+  /* 首次导引：未看过显示；about 页「再看一遍」通过 onboarding_replay 一次性旗标重放（重放不写完成标记） */
+  const [showOnboarding, setShowOnboarding] = useState(() => !get<boolean>('onboarding_done', false))
+  const onboardingReplayRef = useRef(false)
   const [metrics, setMetrics] = useState<GridMetrics | null>(null)
   /* 落地反馈（弹跳+震动），设置可关；返回首页时从存储刷新 */
   const [dropFeedback, setDropFeedback] = useState(() => get<boolean>('drop_feedback_enabled', true))
@@ -97,6 +101,9 @@ export default function Index() {
   const [previewId, setPreviewId] = useState(getPreviewSkinId())
   /* 页面隐藏时置 false：停掉粒子/彩带循环，避免后台页占满 JS 线程把其它页面卡死 */
   const [fxActive, setFxActive] = useState(true)
+  /* 树景在网格外的离屏 Canvas 绘制并导出图片；网格内始终只有普通 Image 与卡片 */
+  const [treeImage, setTreeImage] = useState<{ key: string; src: string } | null>(null)
+  const [treeImageFailedKey, setTreeImageFailedKey] = useState('')
 
   const canvasRef = useRef<any>(null)
   const ctxRef = useRef<any>(null)
@@ -111,6 +118,7 @@ export default function Index() {
   const touchIdRef = useRef<number>(-1)
   const startRef = useRef({ x: 0, y: 0 })
   const geomRef = useRef<DragGeom | null>(null)
+  const dragStartSlotRef = useRef<{ x: number; y: number; scale: number } | null>(null)
   const vxRef = useRef(new VxTracker(DRAG_CONFIG.speedSamples))
   const orderChangedRef = useRef(false)
   const hintRef = useRef(!get<boolean>('drag_hint_done', false))
@@ -319,11 +327,16 @@ export default function Index() {
     }
   }, [activeSkin, drawPattern])
 
-  /* 皮肤画布：静态场景（树/月亮）+ 粒子循环（雪花/星闪），坐标系与槽位一致。
+  const treeImageKey = activeSkin.id === 'tree' && metrics && containerH
+    ? `${metrics.gridW}:${containerH}` : ''
+  const treeImageReady = Boolean(treeImageKey && treeImage?.key === treeImageKey)
+  const treeImageFailed = Boolean(treeImageKey && treeImageFailedKey === treeImageKey)
+
+  /* 树景用网格外的独立画布烘焙成图片；其他皮肤继续在网格内播放粒子。
    * fxActive=false（页面被设置页覆盖等）时只画一帧静态，循环停掉——
    * 常驻 60fps 循环会在后台页继续跑，占满 JS 线程导致全局卡顿 */
   useEffect(() => {
-    if (!activeSkin.draw || !metrics || containerH <= 0) {
+    if (!activeSkin.draw || !metrics || containerH <= 0 || treeImageReady || treeImageFailed) {
       skinCanvasRef.current = null
       return
     }
@@ -345,7 +358,17 @@ export default function Index() {
       const staticDraw = drawFn ? () => drawFn(ctx, w, h) : undefined
       skinFxRef.current?.stop()
       skinFxRef.current = null
-      if (fxActive) {
+      if (activeSkin.id === 'tree' && staticDraw) {
+        /* 树景只绘制一次并导出：不把原生 Canvas 留在卡片上方。 */
+        staticDraw()
+        Taro.canvasToTempFilePath({ canvas, success: res => {
+          if (destroyed) return
+          if (res.tempFilePath) setTreeImage({ key: treeImageKey, src: res.tempFilePath })
+          else setTreeImageFailedKey(treeImageKey)
+        }, fail: () => {
+          if (!destroyed) setTreeImageFailedKey(treeImageKey)
+        } })
+      } else if (fxActive) {
         const fxType = activeSkin.particles === 'twinkle' ? 'twinkle' : activeSkin.particles === 'confetti' ? 'confetti' : 'snow'
         skinFxRef.current = startSkinFx(canvas, ctx, w, h, fxType, staticDraw)
       } else if (staticDraw) {
@@ -353,22 +376,19 @@ export default function Index() {
       }
     }
 
-    const cached = skinCanvasRef.current
-    if (cached) {
-      boot(cached.node, cached.w, cached.h)
-      return () => {
-        destroyed = true
-        skinFxRef.current?.stop()
-        skinFxRef.current = null
-      }
-    }
+    /* 树景画布与其他皮肤画布按皮肤切换挂载，不能复用已脱离页面的节点。 */
+    skinCanvasRef.current = null
     const timer = setTimeout(() => {
       const query = Taro.createSelectorQuery()
       query
         .select('#skinCanvas')
         .fields({ node: true, size: true })
         .exec(res => {
-          if (destroyed || !res || !res[0] || !res[0].node) return
+          if (destroyed) return
+          if (!res?.[0]?.node) {
+            if (activeSkin.id === 'tree') setTreeImageFailedKey(treeImageKey)
+            return
+          }
           const entry = { node: res[0].node, w: res[0].width, h: res[0].height }
           skinCanvasRef.current = entry
           boot(entry.node, entry.w, entry.h)
@@ -380,7 +400,7 @@ export default function Index() {
       skinFxRef.current?.stop()
       skinFxRef.current = null
     }
-  }, [activeSkin, metrics, containerH, fxActive])
+  }, [activeSkin, metrics, containerH, fxActive, treeImageKey, treeImageReady, treeImageFailed])
 
   useEffect(() => {
     const listener = (bg: BackgroundPreset) => {
@@ -397,6 +417,13 @@ export default function Index() {
       loopActiveRef.current = false
     }
   }, [drawPattern])
+
+  /* 等级页选择后即刻同步标题；返回页面时仍从本机存储校准。 */
+  useEffect(() => {
+    const listener = (prefix: string) => setTitlePrefix(prefix)
+    Taro.eventCenter.on(TITLE_PREFIX_EVENT, listener)
+    return () => { Taro.eventCenter.off(TITLE_PREFIX_EVENT, listener) }
+  }, [])
 
   /* ---------- 彩带：数量收敛、慢速飘落、半屏渐隐 ---------- */
   const makePieces = (w: number, h: number): ConfettiPiece[] => {
@@ -447,6 +474,7 @@ export default function Index() {
   }, [confettiSize])
 
   const handleTitleTap = () => {
+    if (getWorkLevel(getWorkPoints()).level < 5) return
     const canvas = canvasRef.current
     const ctx = ctxRef.current
     if (!canvas || !ctx) return
@@ -529,11 +557,16 @@ export default function Index() {
     ? Math.min(100, Math.round(((points - level.curBase) / (level.nextAt - level.curBase)) * 100))
     : 100
 
-  const toggleLevelFold = () => {
+  const toggleLevelFold = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation()
     setLevelFolded(v => {
       set('home_level_folded', !v)
       return !v
     })
+  }
+
+  const openLevelPage = () => {
+    Taro.navigateTo({ url: '/pages/level/index' })
   }
 
   /* 退出皮肤预览：还原正式皮肤（预览态不落存储） */
@@ -572,6 +605,16 @@ export default function Index() {
     track('hint_dismiss', { by })
   }, [])
 
+  /* ---------- 首次导引 ---------- */
+  const handleOnboardingFinish = useCallback((by: 'finish' | 'skip') => {
+    setShowOnboarding(false)
+    if (!onboardingReplayRef.current) {
+      set('onboarding_done', true)
+    }
+    onboardingReplayRef.current = false
+    track(by === 'finish' ? 'onboarding_finish' : 'onboarding_skip')
+  }, [])
+
   /* ---------- 长按拖动状态机 ---------- */
   const handleGrabStart = useCallback((tool: ToolMeta, e: any) => {
     if (phaseRef.current !== 'idle' || openingRef.current || !metricsRef.current) return
@@ -587,6 +630,8 @@ export default function Index() {
     setPhaseBoth('pressing')
 
     /* 立即查询卡片与容器的实时位置（viewport 系），350ms 计时结束前就绪 */
+    geomRef.current = null
+    dragStartSlotRef.current = null
     const query = Taro.createSelectorQuery()
     query.select('.home-grid').boundingClientRect()
     query.select(`#tc-${tool.id}`).boundingClientRect()
@@ -597,25 +642,21 @@ export default function Index() {
         geomRef.current = null
         return
       }
-      geomRef.current = {
-        gridX: grid.left,
-        gridY: grid.top,
-        grabDCX: startRef.current.x - (card.left + card.width / 2),
-        grabDCY: startRef.current.y - (card.top + card.height / 2)
-      }
+      geomRef.current = { gridX: grid.left, gridY: grid.top }
     })
 
     pressTimer.current = setTimeout(() => {
       if (phaseRef.current !== 'pressing' || !geomRef.current) return
       const idx = orderRef.current.indexOf(dragIdRef.current)
       const slot = slotsRef.current[idx]
-      if (slot) setDragPos({ x: slot.x, y: slot.y })
-      /* 旋转中心 = 手指触点相对卡片的本地坐标（树挂缩放时补偿外扩量） */
-      const m0 = metricsRef.current!
-      const shrink = 1 - (slot ? slot.scale || 1 : 1)
+      if (!slot) return
+      dragStartSlotRef.current = { x: slot.x, y: slot.y, scale: slot.scale || 1 }
+      setDragPos({ x: slot.x, y: slot.y })
+      /* 外层以左上角缩放；旋转中心需将屏幕触点换回卡片本地坐标。 */
+      const scale = slot.scale || 1
       setOrigin({
-        x: startRef.current.x - geomRef.current.gridX - (slot ? slot.x : 0) - (m0.cardW * shrink) / 2,
-        y: startRef.current.y - geomRef.current.gridY - (slot ? slot.y : 0) - (m0.cardH * shrink) / 2
+        x: (startRef.current.x - geomRef.current.gridX - slot.x) / scale,
+        y: (startRef.current.y - geomRef.current.gridY - slot.y) / scale
       })
       setTiltDeg(0)
       vxRef.current.reset()
@@ -645,18 +686,21 @@ export default function Index() {
       return
     }
 
-    const g = geomRef.current
-    if (!g) return
+    const initialSlot = dragStartSlotRef.current
+    if (!initialSlot) return
     if (typeof e.preventDefault === 'function') {
       try { e.preventDefault() } catch (err) { /* 忽略 */ }
     }
     if (p === 'grabbed') setPhaseBoth('dragging')
 
-    /* 容器系坐标（中心偏移法，缩放无关）+ 边界 clamp（允许小越界，松手弹回） */
-    let x = t.clientX - g.gridX - m.cardW / 2 - g.grabDCX
-    let y = t.clientY - g.gridY - m.cardH / 2 - g.grabDCY
-    const maxX = m.gridW - m.cardW + DRAG_CONFIG.clampOvershootPx
-    const maxY = containerHRef.current - m.cardH + DRAG_CONFIG.clampOvershootPx
+    /* 直接以抓取时槽位为锚点累加手指位移，避免旋转后 boundingRect 变宽导致跳位。 */
+    const idx = orderRef.current.indexOf(dragIdRef.current)
+    const cardW = m.cardW * initialSlot.scale
+    const cardH = m.cardH * initialSlot.scale
+    let x = initialSlot.x + dx
+    let y = initialSlot.y + dy
+    const maxX = m.gridW - cardW + DRAG_CONFIG.clampOvershootPx
+    const maxY = containerHRef.current - cardH + DRAG_CONFIG.clampOvershootPx
     x = Math.max(-DRAG_CONFIG.clampOvershootPx, Math.min(maxX, x))
     y = Math.max(-DRAG_CONFIG.clampOvershootPx, Math.min(maxY, y))
     setDragPos({ x, y })
@@ -669,9 +713,8 @@ export default function Index() {
     })
 
     /* 让位判定：拖动卡中心进入某槽位矩形 → 实时重排 */
-    const idx = orderRef.current.indexOf(dragIdRef.current)
     if (idx < 0) return
-    const center = { x: x + m.cardW / 2, y: y + m.cardH / 2 }
+    const center = { x: x + cardW / 2, y: y + cardH / 2 }
     const target = hitSlot(center, slotsRef.current, m.cardW, m.cardH, idx, DRAG_CONFIG.slotInsetPx)
     if (target >= 0) {
       const next = moveItem(orderRef.current, idx, target)
@@ -700,6 +743,7 @@ export default function Index() {
         /* 低版本基础库无 type 参数，忽略 */
       }
     }
+    dragStartSlotRef.current = null
     if (orderChangedRef.current) {
       saveHomeOrder(orderRef.current)
       track('drag_reorder', { tool_id: dragIdRef.current })
@@ -736,9 +780,18 @@ export default function Index() {
 
   /* ---------- 埋点与生命周期 ---------- */
   useDidShow(() => {
+    setGuestNickname(get<string>('user_nickname', ''))
     track('home_show')
+    /* about 页「再看一遍导引」：消费一次性旗标，进入重放 */
+    if (get<boolean>('onboarding_replay', false)) {
+      set('onboarding_replay', false)
+      onboardingReplayRef.current = true
+      setShowOnboarding(true)
+    }
     /* 从工具/设置页返回时刷新工分（等级条）与拖放反馈开关 */
-    setPoints(getWorkPoints())
+    const latestPoints = getWorkPoints()
+    setPoints(latestPoints)
+    setTitlePrefix(getSelectedTitlePrefix(getWorkLevel(latestPoints).level))
     const df = get<boolean>('drop_feedback_enabled', true)
     dropFeedbackRef.current = df
     setDropFeedback(df)
@@ -782,10 +835,11 @@ export default function Index() {
         state={state}
         pressing={phase === 'pressing' && tool.id === dragId}
         translate={translate}
-        z={active ? 900 : idle.z}
+        /* 皮肤画布在独立层叠上下文内，卡片只需保持同一上下文的前景层 */
+        z={active ? 900 : 100 + idle.z}
         tiltDeg={active ? tiltDeg : idle.rotate}
-        /* 抓起/拖动时提到全尺寸，松手落回槽位缩放（树挂 0.7） */
-        slotScale={active && state !== 'settling' ? 1 : idle.scale}
+        /* 卡片始终保持树挂尺寸；拖动只抬高层级和跟手，不再突然放大 */
+        slotScale={idle.scale}
         origin={active ? origin : null}
         landEffect={dropFeedback}
         settleMs={activeSkin.settleMs}
@@ -823,7 +877,11 @@ export default function Index() {
         >
           <Text className='home-gear-icon'>💌</Text>
         </Button>
+        <View className='home-user' style={{ top: `${layout.gearTop}px` }} onClick={() => Taro.navigateTo({ url: '/pages/user/index' })}>
+          <Text className='home-user-icon'>{guestNickname ? guestNickname.slice(0, 1) : '👤'}</Text>
+        </View>
         <View className='home-title' onClick={handleTitleTap}>
+          <Text className='home-title-prefix'>{titlePrefix}</Text>
           <Text className='home-title-char'>趣</Text>
           <Text className='home-title-char home-title-char--2'>工</Text>
           <Text className='home-title-char home-title-char--3'>局</Text>
@@ -846,13 +904,13 @@ export default function Index() {
       {/* 工局等级条（可收起） */}
       <View className='home-level'>
         {levelFolded ? (
-          <View className='home-level-mini' onClick={toggleLevelFold}>
+          <View className='home-level-mini' onClick={openLevelPage}>
             <Text className='home-level-mini-text'>🏅 Lv.{level.level}</Text>
             <Text className='home-level-mini-arrow'>▸</Text>
           </View>
         ) : (
-          <View className='home-level-bar'>
-            <Text className='home-level-name'>工局 Lv.{level.level}</Text>
+          <View className='home-level-bar' onClick={openLevelPage}>
+            <Text className='home-level-name'>工局 Lv.{level.level} · {getLevelTitle(level.level)}</Text>
             <View className='home-level-track'>
               <View
                 className='home-level-fill'
@@ -873,13 +931,19 @@ export default function Index() {
         className='home-grid'
         style={{
           height: containerH ? `${containerH}px` : undefined,
-          opacity: metrics ? 1 : 0
+          opacity: metrics && (activeSkin.id !== 'tree' || treeImageReady || treeImageFailed) ? 1 : 0
         }}
       >
-        {activeSkin.draw && <Canvas type='2d' id='skinCanvas' className='skin-canvas' />}
+        {treeImageReady && (
+          <Image className='skin-image' src={treeImage.src} mode='scaleToFill' />
+        )}
+        {treeImageFailed && <Text className='tree-image-fallback'>树景暂不可用，工具仍可使用</Text>}
+        {activeSkin.draw && activeSkin.id !== 'tree' && (
+          <Canvas type='2d' id='skinCanvas' className='skin-canvas' />
+        )}
         {toolsOrdered.map(renderCard)}
 
-        {hintVisible && metrics && slots.length > 0 && (
+        {hintVisible && !showOnboarding && metrics && slots.length > 0 && (
           <View
             className='home-hint'
             style={{
@@ -894,6 +958,11 @@ export default function Index() {
         )}
       </View>
 
+      {/* 树景专用画布不属于卡片网格，导出后卸载；原生层绝不与卡片叠放。 */}
+      {treeImageKey && !treeImageReady && !treeImageFailed && (
+        <Canvas type='2d' id='skinCanvas' className='tree-export-canvas' style={{ width: `${metrics!.gridW}px`, height: `${containerH}px` }} />
+      )}
+
       <View className='home-footer-wrap'>
         <View className='home-footer' onClick={goAbout}>
           关于
@@ -907,6 +976,8 @@ export default function Index() {
         className='confetti-canvas'
         style={{ width: `${confettiSize.w}px`, height: `${confettiSize.h}px` }}
       />
+
+      {showOnboarding && <Onboarding theme={theme} onFinish={handleOnboardingFinish} />}
     </View>
   )
 }

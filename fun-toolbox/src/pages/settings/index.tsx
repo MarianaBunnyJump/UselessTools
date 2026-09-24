@@ -24,6 +24,7 @@ import {
   claimSkin,
   activateSkin,
   skinCost,
+  isPreviewOnly,
   type SkinDefinition
 } from '../../skins/registry'
 import { getWorkPoints } from '../../skins/workPoints'
@@ -195,6 +196,10 @@ export default function Settings() {
       Taro.showToast({ title: `${skin.name} 已解锁`, icon: 'success' })
       track('skin_change', { skin_id: skin.id, claimed: true })
     } else {
+      if (isPreviewOnly(skin)) {
+        Taro.showToast({ title: '12月1日至31日可免费领取，当前仅可预览', icon: 'none', duration: 2200 })
+        return
+      }
       const cost = skinCost(skin)
       Taro.showToast({
         title: `还差 ${Math.max(0, cost - points)} 工分（多打开工具就能攒）`,
@@ -297,6 +302,7 @@ export default function Settings() {
                 const owned = ownedSkins.includes(s.id)
                 const isActive = s.id === activeSkinId
                 const previewing = s.id === previewingId
+                const previewOnly = !owned && isPreviewOnly(s)
                 return (
                   <View
                     key={s.id}
@@ -312,7 +318,7 @@ export default function Settings() {
                         className='set-skin-action'
                         style={isActive ? { color: theme.accentDeep } : undefined}
                       >
-                        {isActive ? '使用中' : owned ? '点击使用' : skinCost(s) === 0 ? '免费领取' : `${skinCost(s)} 工分`}
+                        {isActive ? '使用中' : owned ? '点击使用' : previewOnly ? '非12月仅可预览 · 12月1日至31日免费领取' : skinCost(s) === 0 ? '免费领取' : `${skinCost(s)} 工分`}
                       </Text>
                       {!owned && !isActive && (
                         <View className='set-skin-btns'>
@@ -325,16 +331,18 @@ export default function Settings() {
                           >
                             {previewing ? '退出预览' : '👁 预览'}
                           </Text>
-                          <Text
-                            className='set-skin-claim'
-                            style={{ color: theme.accentDeep }}
-                            onClick={e => {
-                              e.stopPropagation()
-                              handleClaim(s)
-                            }}
-                          >
-                            {skinCost(s) === 0 ? '领取' : '解锁'}
-                          </Text>
+                          {!previewOnly && (
+                            <Text
+                              className='set-skin-claim'
+                              style={{ color: theme.accentDeep }}
+                              onClick={e => {
+                                e.stopPropagation()
+                                handleClaim(s)
+                              }}
+                            >
+                              {skinCost(s) === 0 ? '领取' : '解锁'}
+                            </Text>
+                          )}
                         </View>
                       )}
                     </View>

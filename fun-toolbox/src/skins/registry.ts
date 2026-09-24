@@ -16,8 +16,8 @@ export interface SkinSlot {
 
 export type SkinUnlock =
   | { type: 'free' }
-  /* 季节限定：季中免费领取永久保留，非季中用工分解锁 */
-  | { type: 'season'; from: string; to: string; offSeasonCost: number }
+  /* 季节限定：季中免费领取永久保留；指定仅预览时非季中不可领取 */
+  | { type: 'season'; from: string; to: string; offSeasonCost: number; previewOnlyOutsideSeason?: boolean }
   | { type: 'points'; cost: number }
 
 export interface SkinDefinition {
@@ -82,6 +82,12 @@ export function inSeason(from: string, to: string): boolean {
   return from <= to ? md >= from && md <= to : md >= from || md <= to
 }
 
+/* 未拥有的季节皮肤在季外仅能预览，已拥有者不受限制。 */
+export function isPreviewOnly(skin: SkinDefinition): boolean {
+  const unlock = skin.unlock
+  return unlock.type === 'season' && Boolean(unlock.previewOnlyOutsideSeason) && !inSeason(unlock.from, unlock.to)
+}
+
 /* 解锁所需工分（free 恒 0） */
 export function skinCost(skin: SkinDefinition): number {
   if (skin.unlock.type === 'free') return 0
@@ -91,8 +97,10 @@ export function skinCost(skin: SkinDefinition): number {
 
 /* 尝试领取/解锁：成功则写入 skins_owned（不扣工分，达标即可，解锁即永久） */
 export function claimSkin(id: string): boolean {
-  const skin = getSkinById(id)
-  if (!skin || ownsSkin(id)) return ownsSkin(id)
+  const skin = SKINS.find(s => s.id === id)
+  if (!skin) return false
+  if (ownsSkin(id)) return true
+  if (isPreviewOnly(skin)) return false
   if (getWorkPoints() < skinCost(skin)) return false
   const owned = getOwnedSkins()
   owned.push(id)

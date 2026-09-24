@@ -16,7 +16,7 @@ interface ToolCardProps {
   translate: { x: number; y: number }   /* 容器系左上角（真实 px） */
   z: number
   tiltDeg: number
-  slotScale: number          /* 槽位缩放（树挂 0.7）；抓起时由父级传 1 提到全尺寸 */
+  slotScale: number          /* 槽位缩放；拖动时保持相同尺寸 */
   origin: { x: number; y: number } | null   /* 旋转中心：手指触点相对卡片 */
   landEffect: boolean        /* 落地压扁回弹（设置「拖放反馈」） */
   settleMs: number           /* 松手回位时长（随皮肤变化，树挂摆回更慢） */
@@ -63,6 +63,7 @@ function ToolCard(props: ToolCardProps) {
       className={`tool-card ${state === 'dragging' ? 'tool-card--dragging' : ''} ${settling ? 'tool-card--settle' : ''} ${hangingString ? 'tool-card--hanging' : ''}`}
       style={{
         transform: `translate3d(${translate.x}px, ${translate.y}px, 0) scale(${slotScale})`,
+        transformOrigin: 'top left',
         zIndex: z,
         /* 松手回位时长随皮肤变化（树挂摆回更慢） */
         transitionDuration: settling ? `${settleMs}ms` : undefined

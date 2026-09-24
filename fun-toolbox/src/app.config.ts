@@ -15,7 +15,9 @@ export default defineAppConfig({
     'pages/wheel/history',
     'pages/mixer/index',
     'pages/bubble/index',
-    'pages/about/index'
+    'pages/about/index',
+    'pages/level/index',
+    'pages/user/index'
   ],
   window: {
     navigationStyle: 'custom',
