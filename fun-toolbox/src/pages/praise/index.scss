@@ -1,0 +1,224 @@
+@import '../../styles/theme.scss';
+
+/* ---------- 页面骨架：聊天布局（占满一屏） ---------- */
+.praise-root {
+  height: 100vh;
+  min-height: 100vh;
+  padding-bottom: 0;
+}
+
+.praise-fav-btn {
+  font-size: 36px;
+}
+
+/* ---------- 聊天区 ---------- */
+.praise-chat {
+  flex: 1;
+  height: 0;
+  box-sizing: border-box;
+  padding: 24px 4px 20px;
+}
+
+.praise-msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 26px;
+  animation: fade-up 0.35s ease-out;
+}
+
+.praise-msg-row--user {
+  justify-content: flex-end;
+}
+
+.praise-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 14px -8px rgba(74, 59, 50, 0.25);
+  @include flex-center;
+  font-size: 38px;
+  line-height: 1;
+  flex-shrink: 0;
+  animation: float-bob 3.6s ease-in-out infinite;
+}
+
+.praise-bubble {
+  max-width: 74%;
+  padding: 22px 30px;
+  border-radius: 32px;
+  font-size: 28px;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.praise-bubble--bot {
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-bottom-left-radius: 10px;
+  box-shadow: 0 8px 20px -12px rgba(244, 143, 177, 0.35);
+  color: $color-text-main;
+}
+
+.praise-bubble--user {
+  background: linear-gradient(135deg, #f8a5c2, #ec6f9c);
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 10px 22px -10px rgba(236, 111, 156, 0.55);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ---------- 大师正在输入 ---------- */
+.praise-typing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 30px;
+}
+
+.praise-typing-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f0a5c0;
+  animation: typing-bounce 1s ease-in-out infinite;
+
+  &--2 {
+    animation-delay: 0.15s;
+  }
+
+  &--3 {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+/* ---------- 底部选项坞 ---------- */
+.praise-dock {
+  padding: 20px 4px 24px;
+}
+
+.praise-dock-panel {
+  padding: 26px 26px 24px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14px 34px -14px rgba(244, 143, 177, 0.4);
+  animation: dock-rise 0.4s ease-out;
+}
+
+.praise-dock-label {
+  margin-bottom: 18px;
+  font-size: 24px;
+  font-weight: 700;
+  color: $color-text-sub;
+  letter-spacing: 1px;
+}
+
+/* 场景：两列网格 */
+.praise-option-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.praise-option {
+  width: calc((100% - 16px) / 2);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 92px;
+  border-radius: 26px;
+  background: rgba(248, 165, 194, 0.14);
+  border: 2px solid rgba(244, 143, 177, 0.3);
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+    background: rgba(244, 143, 177, 0.28);
+    border-color: rgba(244, 143, 177, 0.6);
+  }
+}
+
+/* 语气：三列 */
+.praise-option-row {
+  display: flex;
+  gap: 16px;
+}
+
+.praise-option--tone {
+  flex: 1;
+  width: auto;
+  height: 88px;
+}
+
+.praise-option-icon {
+  font-size: 36px;
+  line-height: 1.2;
+}
+
+.praise-option-name {
+  font-size: 27px;
+  font-weight: 700;
+  color: $color-text-main;
+}
+
+/* ---------- 就绪态操作 ---------- */
+.praise-dock-ready {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: dock-rise 0.4s ease-out;
+}
+
+.praise-generate {
+  width: 100%;
+  background: linear-gradient(135deg, #f8a5c2, #ec6f9c);
+  box-shadow: 0 10px 24px -10px rgba(236, 111, 156, 0.65);
+  animation: ready-pulse 2.4s ease-in-out infinite;
+}
+
+.praise-restart {
+  margin-top: 22px;
+  padding: 8px 32px;
+  font-size: 25px;
+  color: $color-text-light;
+  text-decoration: underline;
+}
+
+@keyframes dock-rise {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ready-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}

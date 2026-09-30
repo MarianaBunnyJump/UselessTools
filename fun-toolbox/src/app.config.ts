@@ -11,12 +11,16 @@ export default defineAppConfig({
     'pages/excuse/index',
     'pages/excuse/result',
     'pages/excuse/favorites',
+    'pages/praise/index',
+    'pages/praise/result',
+    'pages/praise/favorites',
     'pages/wheel/index',
     'pages/wheel/history',
     'pages/mixer/index',
     'pages/bubble/index',
     'pages/about/index',
     'pages/level/index',
+    'pages/level/simple-level',
     'pages/user/index'
   ],
   window: {

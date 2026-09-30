@@ -1,0 +1,161 @@
+@import '../../styles/theme.scss';
+
+.praise-result-root {
+  min-height: 100vh;
+}
+
+/* ---------- 卡片舞台：画面中心 ---------- */
+.praise-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+/* ---------- 分享卡片（标签纸） ---------- */
+.praise-share-card {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 48px 44px 40px;
+  border-radius: 40px;
+  background: #fffdfa;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 30px 60px -24px rgba(236, 111, 156, 0.45),
+    0 4px 14px -6px rgba(74, 59, 50, 0.12);
+  overflow: hidden;
+  animation: card-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 顶部渐变饰条 */
+.praise-card-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(90deg, #f8a5c2, #ec6f9c, #ffb74d, #f8a5c2);
+}
+
+/* ---------- 卡片头部：左标签 + 右上角操作小图标 ---------- */
+.praise-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.praise-card-tag {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 10px 26px;
+  border-radius: 28px;
+  background: rgba(244, 143, 177, 0.12);
+  border: 1px solid rgba(244, 143, 177, 0.35);
+  font-size: 24px;
+  font-weight: 700;
+  color: #d6587f;
+}
+
+.praise-card-tools {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.praise-tool {
+  @include flex-center;
+  width: 64px;
+  height: 64px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: rgba(244, 143, 177, 0.1);
+  border: 1px solid rgba(244, 143, 177, 0.28);
+  transition: transform 0.15s ease, background 0.2s ease;
+
+  &:active {
+    transform: scale(0.88);
+    background: rgba(244, 143, 177, 0.22);
+  }
+}
+
+.praise-tool--on {
+  background: rgba(255, 138, 128, 0.14);
+  border-color: rgba(255, 138, 128, 0.4);
+}
+
+.praise-tool-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+
+/* 分享 Button 重置成小圆钮 */
+.praise-tool--btn {
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+  font-weight: 400;
+
+  &::after {
+    border: none;
+  }
+}
+
+.praise-card-quote {
+  display: block;
+  margin: 26px 0 -18px;
+  font-family: Georgia, serif;
+  font-size: 110px;
+  line-height: 1;
+  color: rgba(244, 143, 177, 0.3);
+}
+
+.praise-card-text {
+  position: relative;
+  z-index: 1;
+  font-family: $font-hand;
+  font-size: 42px;
+  line-height: 1.75;
+  color: #4a3b32;
+  text-align: center;
+  word-break: break-all;
+}
+
+.praise-card-foot {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.praise-card-brand {
+  font-size: 23px;
+  color: #c9a8b6;
+  letter-spacing: 1px;
+}
+
+.praise-stage-hint {
+  margin-top: 34px;
+  font-size: 23px;
+  color: #c9bdb4;
+  animation: fade-up 0.5s ease-out 0.25s both;
+}
+
+@keyframes card-pop {
+  0% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

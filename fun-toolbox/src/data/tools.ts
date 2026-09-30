@@ -86,5 +86,15 @@ export const TOOLS: ToolMeta[] = [
     boxColor: '#C9EEFC',
     boxColorDeep: '#A5DEFA',
     ribbonColor: '#29B6F6'
+  },
+  {
+    id: 'praise',
+    name: '彩虹屁夸夸机',
+    icon: '🌈',
+    desc: '把人夸得明明白白',
+    path: '/pages/praise/index',
+    boxColor: '#FFF3C4',
+    boxColorDeep: '#FFE58A',
+    ribbonColor: '#FFA000'
   }
 ]
