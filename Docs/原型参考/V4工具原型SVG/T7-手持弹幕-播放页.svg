@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#101418"/>
+  <!-- main scrolling text -->
+  <text x="60" y="240" font-size="110" font-weight="bold" fill="#39FF88">接　机</text>
+  <!-- mirrored (应援镜像) -->
+  <text x="60" y="560" font-size="110" font-weight="bold" fill="#39FF88" transform="rotate(180 187 520)">接　机</text>
+  <!-- direction hint -->
+  <text x="150" y="640" font-size="14" fill="#6B7680">← 向左滚动 · 点按暂停 →</text>
+  <!-- shake hint -->
+  <rect x="98" y="90" width="180" height="36" rx="18" fill="#FFFFFF" opacity="0.12"/>
+  <text x="122" y="114" font-size="14" fill="#FFFFFF">摇一摇换配色 📳</text>
+  <!-- control bar -->
+  <rect x="16" y="680" width="343" height="112" rx="24" fill="#1C2228"/>
+  <text x="36" y="712" font-size="13" fill="#9AA6B0">速度</text>
+  <rect x="84" y="702" width="180" height="10" rx="5" fill="#39FF88" opacity="0.3"/>
+  <rect x="84" y="702" width="110" height="10" rx="5" fill="#39FF88"/>
+  <circle cx="194" cy="707" r="9" fill="#FFFFFF"/>
+  <text x="288" y="713" font-size="13" fill="#9AA6B0">字号 A±</text>
+  <text x="36" y="748" font-size="13" fill="#9AA6B0">配色</text>
+  <circle cx="92" cy="744" r="10" fill="#0B1B17" stroke="#39FF88"/>
+  <circle cx="120" cy="744" r="10" fill="#FFFFFF" stroke="#E91E63"/>
+  <circle cx="148" cy="744" r="10" fill="#0D2547" stroke="#FFD54F"/>
+  <text x="196" y="749" font-size="13" fill="#39FF88">镜像 开</text>
+  <text x="288" y="749" font-size="13" fill="#9AA6B0">退出 ✕</text>
+</svg>

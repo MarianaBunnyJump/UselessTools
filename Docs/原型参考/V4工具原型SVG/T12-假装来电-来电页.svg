@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <defs>
+    <linearGradient id="callbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1E2A32"/>
+      <stop offset="1" stop-color="#0C1216"/>
+    </linearGradient>
+  </defs>
+  <rect width="375" height="812" fill="url(#callbg)"/>
+  <!-- drill badge -->
+  <rect x="118" y="60" width="140" height="28" rx="14" fill="#FFFFFF" opacity="0.14"/>
+  <text x="140" y="79" font-size="13" fill="#FFFFFF">模拟来电演练</text>
+  <!-- caller -->
+  <circle cx="187" cy="230" r="64" fill="#2E3E48"/>
+  <text x="163" y="246" font-size="52">🌙</text>
+  <text x="187" y="336" font-size="28" fill="#FFFFFF" text-anchor="middle">妈妈</text>
+  <text x="187" y="364" font-size="15" fill="#9AA6B0" text-anchor="middle">微信电话 · 模拟</text>
+  <!-- countdown ring hint -->
+  <circle cx="187" cy="230" r="74" fill="none" stroke="#E07856" stroke-width="2" stroke-dasharray="6 6"/>
+  <!-- line preview -->
+  <rect x="48" y="410" width="280" height="44" rx="22" fill="#FFFFFF" opacity="0.1"/>
+  <text x="70" y="438" font-size="14" fill="#FFFFFF">「十点前必须到家，听到没呀」</text>
+  <!-- sliders -->
+  <rect x="36" y="640" width="303" height="72" rx="36" fill="#FFFFFF" opacity="0.12"/>
+  <circle cx="72" cy="676" r="30" fill="#EF5350"/>
+  <text x="60" y="684" font-size="15" fill="#FFFFFF">✕</text>
+  <circle cx="303" cy="676" r="30" fill="#4CAF50"/>
+  <text x="289" y="684" font-size="15" fill="#FFFFFF">📞</text>
+  <text x="90" y="682" font-size="15" fill="#FFFFFF">滑动挂断</text>
+  <text x="228" y="682" font-size="15" fill="#FFFFFF">滑动接听</text>
+  <!-- config hint -->
+  <text x="60" y="760" font-size="13" fill="#6B7680">铃声渐强 · 震动节奏 · 接通后自动朗读台词</text>
+</svg>

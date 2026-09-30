@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <!-- header -->
+  <text x="24" y="86" font-size="30" font-weight="bold" fill="#4A3B32">趣工局</text>
+  <text x="230" y="82" font-size="13" fill="#8D7B70">🎨 礼盒 / ☰ 列表</text>
+  <rect x="316" y="62" width="40" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="324" y="81" font-size="13" fill="#4A3B32">整理</text>
+  <!-- section 1: 学习·校园 (nordic decor strip behind) -->
+  <g opacity="0.1">
+    <path d="M 60 150 L 90 96 L 120 150 Z" fill="#2F7D58"/>
+    <path d="M 100 162 L 126 118 L 152 162 Z" fill="#2F7D58"/>
+    <circle cx="90" cy="88" r="4" fill="#C9A063"/>
+    <circle cx="300" cy="140" r="3" fill="#5B7A9D"/>
+    <circle cx="330" cy="120" r="2.5" fill="#5B7A9D"/>
+  </g>
+  <text x="24" y="140" font-size="19" font-weight="bold" fill="#4A3B32">📖 学习 · 校园</text>
+  <rect x="150" y="124" width="28" height="20" rx="10" fill="#4A3B32" opacity="0.08"/>
+  <text x="158" y="139" font-size="12" fill="#8D7B70">5</text>
+  <!-- cards row 1 -->
+  <g>
+    <rect x="20" y="158" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="52" cy="192" r="20" fill="#FFF3C4"/>
+    <text x="43" y="199" font-size="17">📖</text>
+    <text x="82" y="190" font-size="15" font-weight="bold" fill="#4A3B32">文言文陪读</text>
+    <text x="82" y="212" font-size="11" fill="#8D7B70">课文拼音 逐句朗读</text>
+    <text x="82" y="232" font-size="11" fill="#C9A063">背诵挖空 ★</text>
+  </g>
+  <g>
+    <rect x="193" y="158" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="225" cy="192" r="20" fill="#FFE8D6"/>
+    <text x="216" y="199" font-size="17">✍️</text>
+    <text x="255" y="190" font-size="15" font-weight="bold" fill="#4A3B32">汉字笔顺</text>
+    <text x="255" y="212" font-size="11" fill="#8D7B70">演示动画 跟写打分</text>
+  </g>
+  <!-- cards row 2 -->
+  <g>
+    <rect x="20" y="262" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="52" cy="296" r="20" fill="#DCCEF0"/>
+    <text x="43" y="303" font-size="17">✒️</text>
+    <text x="82" y="294" font-size="15" font-weight="bold" fill="#4A3B32">字帖生成器</text>
+    <text x="82" y="316" font-size="11" fill="#8D7B70">田字格描红 可打印</text>
+  </g>
+  <g>
+    <rect x="193" y="262" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="225" cy="296" r="20" fill="#C9EEFC"/>
+    <text x="216" y="303" font-size="17">🔤</text>
+    <text x="255" y="294" font-size="15" font-weight="bold" fill="#4A3B32">拼音注音</text>
+    <text x="255" y="316" font-size="11" fill="#8D7B70">任意文本 标注拼音</text>
+  </g>
+  <!-- section 2: 创作与图片 -->
+  <text x="24" y="404" font-size="19" font-weight="bold" fill="#4A3B32">🎨 创作与图片</text>
+  <rect x="163" y="388" width="28" height="20" rx="10" fill="#4A3B32" opacity="0.08"/>
+  <text x="171" y="403" font-size="12" fill="#8D7B70">4</text>
+  <g>
+    <rect x="20" y="422" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="52" cy="456" r="20" fill="#FFE0CB"/>
+    <text x="43" y="463" font-size="17">🧩</text>
+    <text x="82" y="454" font-size="15" font-weight="bold" fill="#4A3B32">拼豆图纸</text>
+    <text x="82" y="476" font-size="11" fill="#8D7B70">图片转图纸 带清单</text>
+    <text x="82" y="496" font-size="11" fill="#C9A063">颗粒购物单 ★</text>
+  </g>
+  <g>
+    <rect x="193" y="422" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="225" cy="456" r="20" fill="#101418"/>
+    <text x="215" y="463" font-size="17">📱</text>
+    <text x="255" y="454" font-size="15" font-weight="bold" fill="#4A3B32">手持弹幕</text>
+    <text x="255" y="476" font-size="11" fill="#8D7B70">全屏滚动 应援镜像</text>
+  </g>
+  <g>
+    <rect x="20" y="526" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="52" cy="560" r="20" fill="#FFD6E0"/>
+    <text x="43" y="567" font-size="17">🖼️</text>
+    <text x="82" y="558" font-size="15" font-weight="bold" fill="#4A3B32">文字转图片</text>
+    <text x="82" y="580" font-size="11" fill="#8D7B70">便签长图九宫格</text>
+  </g>
+  <g>
+    <rect x="193" y="526" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="225" cy="560" r="20" fill="#D7E8D4"/>
+    <text x="216" y="567" font-size="17">📷</text>
+    <text x="255" y="558" font-size="15" font-weight="bold" fill="#4A3B32">图片小工具箱</text>
+    <text x="255" y="580" font-size="11" fill="#8D7B70">裁剪调色 EXIF 清理</text>
+  </g>
+  <!-- section 3: 生活计算 -->
+  <text x="24" y="668" font-size="19" font-weight="bold" fill="#4A3B32">🧮 生活计算</text>
+  <rect x="145" y="652" width="28" height="20" rx="10" fill="#4A3B32" opacity="0.08"/>
+  <text x="153" y="667" font-size="12" fill="#8D7B70">8</text>
+  <g>
+    <rect x="20" y="686" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="52" cy="720" r="20" fill="#FFF3C4"/>
+    <text x="43" y="727" font-size="17">🧮</text>
+    <text x="82" y="718" font-size="15" font-weight="bold" fill="#4A3B32">生活计算器</text>
+    <text x="82" y="740" font-size="11" fill="#8D7B70">房贷个税BMI 单位</text>
+  </g>
+  <g>
+    <rect x="193" y="686" width="162" height="92" rx="20" fill="#FFFFFF"/>
+    <circle cx="225" cy="720" r="20" fill="#FFD6E0"/>
+    <text x="216" y="727" font-size="17">🌈</text>
+    <text x="255" y="718" font-size="15" font-weight="bold" fill="#4A3B32">彩虹屁夸夸机</text>
+    <text x="255" y="740" font-size="11" fill="#8D7B70">把人夸得明明白白</text>
+  </g>
+  <!-- floating index -->
+  <g>
+    <rect x="344" y="300" width="24" height="180" rx="12" fill="#FFFFFF"/>
+    <text x="352" y="326" font-size="12" fill="#C9A063">学</text>
+    <text x="352" y="356" font-size="12" fill="#8D7B70">创</text>
+    <text x="352" y="386" font-size="12" fill="#8D7B70">计</text>
+    <text x="352" y="416" font-size="12" fill="#8D7B70">趣</text>
+  </g>
+</svg>

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="150" y="76" font-size="18" font-weight="bold" fill="#4A3B32">拼豆图纸生成器</text>
+  <!-- preview grid: 12x9 heart pattern -->
+  <g transform="translate(24,100)">
+    <rect width="327" height="245" rx="16" fill="#FFFFFF"/>
+    <g transform="translate(13,10)">
+      <!-- grid cells 30px -->
+      <g>
+        <rect x="0" y="60" width="30" height="30" fill="#EF5350"/><rect x="30" y="30" width="30" height="30" fill="#EF5350"/><rect x="60" y="30" width="30" height="30" fill="#EF5350"/><rect x="90" y="60" width="30" height="30" fill="#EF5350"/><rect x="150" y="60" width="30" height="30" fill="#EF5350"/><rect x="180" y="30" width="30" height="30" fill="#EF5350"/><rect x="210" y="30" width="30" height="30" fill="#EF5350"/><rect x="240" y="60" width="30" height="30" fill="#EF5350"/>
+        <rect x="15" y="45" width="240" height="30" fill="none"/>
+        <rect x="15" y="15" width="30" height="30" fill="#F48FB1"/><rect x="90" y="15" width="30" height="30" fill="#F48FB1"/><rect x="165" y="15" width="30" height="30" fill="#F48FB1"/><rect x="240" y="15" width="30" height="30" fill="#F48FB1"/>
+        <rect x="30" y="60" width="180" height="30" fill="#F48FB1" opacity="0.75"/>
+        <rect x="60" y="90" width="150" height="30" fill="#EF5350"/>
+        <rect x="90" y="120" width="90" height="30" fill="#F48FB1"/>
+        <rect x="120" y="150" width="30" height="30" fill="#EF5350"/>
+      </g>
+      <!-- grid lines -->
+      <g stroke="#4A3B32" stroke-opacity="0.12">
+        <line x1="0" y1="0" x2="0" y2="210"/><line x1="30" y1="0" x2="30" y2="210"/><line x1="60" y1="0" x2="60" y2="210"/><line x1="90" y1="0" x2="90" y2="210"/><line x1="120" y1="0" x2="120" y2="210"/><line x1="150" y1="0" x2="150" y2="210"/><line x1="180" y1="0" x2="180" y2="210"/><line x1="210" y1="0" x2="210" y2="210"/><line x1="240" y1="0" x2="240" y2="210"/><line x1="270" y1="0" x2="270" y2="210"/>
+        <line x1="0" y1="0" x2="270" y2="0"/><line x1="0" y1="30" x2="270" y2="30"/><line x1="0" y1="60" x2="270" y2="60"/><line x1="0" y1="90" x2="270" y2="90"/><line x1="0" y1="120" x2="270" y2="120"/><line x1="0" y1="150" x2="270" y2="150"/><line x1="0" y1="180" x2="270" y2="180"/><line x1="0" y1="210" x2="270" y2="210"/>
+      </g>
+    </g>
+    <text x="240" y="232" font-size="12" fill="#8D7B70">可捏合缩放</text>
+  </g>
+  <!-- param chips -->
+  <rect x="24" y="362" width="120" height="32" rx="16" fill="#FFFFFF"/>
+  <text x="40" y="383" font-size="13" fill="#4A3B32">15cm · 29×29</text>
+  <rect x="152" y="362" width="96" height="32" rx="16" fill="#FFFFFF"/>
+  <text x="168" y="383" font-size="13" fill="#4A3B32">色数 12/48</text>
+  <rect x="256" y="362" width="92" height="32" rx="16" fill="#FFFFFF"/>
+  <text x="276" y="383" font-size="13" fill="#4A3B32">描边 开</text>
+  <!-- bead list -->
+  <text x="24" y="428" font-size="16" font-weight="bold" fill="#4A3B32">颗粒清单</text>
+  <text x="330" y="428" font-size="13" fill="#8D7B70">共 130 颗</text>
+  <g>
+    <rect x="24" y="444" width="327" height="52" rx="14" fill="#FFFFFF"/>
+    <rect x="40" y="458" width="24" height="24" rx="6" fill="#EF5350"/>
+    <text x="78" y="476" font-size="14" fill="#4A3B32">R-12 朱红</text>
+    <text x="290" y="476" font-size="14" font-weight="bold" fill="#4A3B32">×36</text>
+  </g>
+  <g>
+    <rect x="24" y="504" width="327" height="52" rx="14" fill="#FFFFFF"/>
+    <rect x="40" y="518" width="24" height="24" rx="6" fill="#F48FB1"/>
+    <text x="78" y="536" font-size="14" fill="#4A3B32">P-05 樱粉</text>
+    <text x="290" y="536" font-size="14" font-weight="bold" fill="#4A3B32">×22</text>
+  </g>
+  <g>
+    <rect x="24" y="564" width="327" height="52" rx="14" fill="#FFFFFF"/>
+    <rect x="40" y="578" width="24" height="24" rx="6" fill="#FFFFFF" stroke="#B8A99E"/>
+    <text x="78" y="596" font-size="14" fill="#4A3B32">W-01 纯白</text>
+    <text x="290" y="596" font-size="14" font-weight="bold" fill="#4A3B32">×58</text>
+  </g>
+  <g>
+    <rect x="24" y="624" width="327" height="52" rx="14" fill="#FFFFFF"/>
+    <rect x="40" y="638" width="24" height="24" rx="6" fill="#37474F"/>
+    <text x="78" y="656" font-size="14" fill="#4A3B32">K-01 炭黑</text>
+    <text x="290" y="656" font-size="14" font-weight="bold" fill="#4A3B32">×14</text>
+  </g>
+  <!-- export -->
+  <rect x="24" y="700" width="327" height="56" rx="28" fill="#FF8A80"/>
+  <text x="122" y="734" font-size="18" font-weight="bold" fill="#FFFFFF">导出图纸大图</text>
+</svg>
