@@ -71,6 +71,9 @@ export default function About() {
         <View className='btn-primary about-btn' onClick={handleFeedback}>
           意见反馈
         </View>
+        <View className='about-device' onClick={() => Taro.navigateTo({ url: '/pages/fun/device/index' })}>
+          设备信息（排查问题用） ›
+        </View>
         <View className='btn-primary about-btn about-replay-btn' onClick={handleReplayOnboarding}>
           再看一遍开场导引
         </View>

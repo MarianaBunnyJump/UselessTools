@@ -1,1 +1,158 @@
 @import '../../../styles/theme.scss';
+
+/* ---------- 播放页（全屏） ---------- */
+.mq-play {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.mq-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.mq-text {
+  white-space: nowrap;
+  font-weight: 800;
+  animation: mq-scroll linear infinite;
+}
+
+/* 从右滚到左 */
+@keyframes mq-scroll {
+  from {
+    transform: translateX(100vw);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.mq-text--mirror {
+  transform: scaleY(-1);
+  animation: none;
+  margin-top: 30rpx;
+  opacity: 0.92;
+}
+
+.mq-ctrl {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: 90rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.mq-ctrl-btn {
+  padding: 16rpx 34rpx;
+  margin: 0 12rpx;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.14);
+
+  &.mq-ctrl-btn--exit {
+    background: rgba(255, 64, 129, 0.85);
+  }
+}
+
+.mq-hint {
+  position: fixed;
+  bottom: 30rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---------- 编辑页 ---------- */
+.mq-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.mq-scroll {
+  flex: 1;
+  height: calc(100vh - 110px);
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.mq-input-card {
+  margin-top: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.mq-input {
+  height: 92px;
+  padding: 0 26px;
+  border-radius: 18px;
+  background: #fff9f2;
+  font-size: 30px;
+  color: #4a3b32;
+}
+
+.mq-placeholder {
+  color: #c9bdb4;
+}
+
+.mq-go {
+  height: 92px;
+  margin-top: 20px;
+  border-radius: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff9a8b, #ff6a88);
+}
+
+.mq-presets {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+.mq-preset {
+  padding: 14px 30px;
+  margin: 0 14px 14px 0;
+  border-radius: 26px;
+  font-size: 26px;
+  color: #6b5a4f;
+  background: rgba(255, 255, 255, 0.75);
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.mq-history {
+  margin-top: 20px;
+}
+
+.mq-history-label {
+  font-size: 24px;
+  color: #8d7b70;
+  margin-bottom: 14px;
+}
+
+.mq-tip {
+  padding: 24px 10px 60px;
+  font-size: 20px;
+  color: #b8a99e;
+  line-height: 1.7;
+  text-align: center;
+}

@@ -6,6 +6,7 @@ import { getTheme, type BackgroundPreset } from '../../utils/theme'
 import { get, set } from '../../utils/storage'
 import { randomOf } from '../../utils/format'
 import NavBar from '../../components/NavBar'
+import { WHEEL_SCENES } from '../../data/wheelScenes'
 import './index.scss'
 
 interface WheelItem {
@@ -572,6 +573,20 @@ export default function Wheel() {
     }
   }
 
+  /* ---------- 场景包：一键装入预设选项 ---------- */
+  const applyScene = (sceneId: string) => {
+    const scene = WHEEL_SCENES.find(x => x.id === sceneId)
+    if (!scene) return
+    const next = configs.map((c, i) =>
+      i === activeIndex
+        ? { ...c, name: scene.name, items: scene.options.map(t => ({ text: t, weight: WEIGHT_DEFAULT })) }
+        : c
+    )
+    setConfigs(next)
+    set(CONFIGS_KEY, next)
+    Taro.showToast({ title: `已装上「${scene.name}」`, icon: 'none', duration: 1400 })
+  }
+
   /* ---------- 方案管理 ---------- */
   const switchConfig = (index: number) => {
     if (spinningRef.current) return
@@ -849,6 +864,16 @@ export default function Wheel() {
           </Text>
         }
       />
+
+      {/* ---------- 场景包 ---------- */}
+      <ScrollView className='wheel-scenes' scrollX enhanced showScrollbar={false}>
+        {WHEEL_SCENES.map(sc => (
+          <View key={sc.id} className='wheel-scene' onClick={() => applyScene(sc.id)}>
+            <Text className='wheel-scene-icon'>{sc.icon}</Text>
+            <Text className='wheel-scene-name'>{sc.name}</Text>
+          </View>
+        ))}
+      </ScrollView>
 
       {/* ---------- 方案 Tab ---------- */}
       <ScrollView className='wheel-tabs' scrollX enhanced showScrollbar={false}>

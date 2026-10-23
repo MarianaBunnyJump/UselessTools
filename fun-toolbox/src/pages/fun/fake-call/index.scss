@@ -1,1 +1,335 @@
 @import '../../../styles/theme.scss';
+
+/* ---------- 配置页 ---------- */
+.fc-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.fc-scroll {
+  flex: 1;
+  height: calc(100vh - 110px);
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.fc-label {
+  margin: 24px 0 14px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.fc-scripts {
+  display: flex;
+}
+
+.fc-script {
+  flex: 1;
+  margin-right: 16px;
+  padding: 18px 0;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.78);
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &.fc-script--on {
+    color: #fff;
+  }
+}
+
+.fc-script-icon {
+  font-size: 40px;
+}
+
+.fc-script-name {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.fc-script--on .fc-script-name {
+  color: #fff;
+}
+
+.fc-card {
+  margin-top: 24px;
+  padding: 26px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.fc-field-label {
+  font-size: 23px;
+  color: #8d7b70;
+  margin: 18px 0 12px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.fc-person-row {
+  display: flex;
+  align-items: center;
+}
+
+.fc-person-emoji {
+  font-size: 44px;
+  margin-right: 18px;
+}
+
+.fc-person-input-wrap {
+  flex: 1;
+}
+
+.fc-person-input {
+  min-height: 72px;
+  padding: 14px 22px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #fff9f2;
+  font-size: 28px;
+  color: #4a3b32;
+}
+
+.fc-seg {
+  display: flex;
+}
+
+.fc-seg-item {
+  flex: 1;
+  height: 72px;
+  margin-right: 12px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  color: #6b5a4f;
+  background: rgba(74, 59, 50, 0.06);
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &.fc-seg-item--on {
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.fc-lines-input {
+  width: 100%;
+  min-height: 140px;
+  padding: 18px 22px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #fff9f2;
+  font-size: 26px;
+  color: #4a3b32;
+  line-height: 1.6;
+}
+
+.fc-placeholder {
+  color: #c9bdb4;
+}
+
+.fc-start {
+  height: 96px;
+  margin-top: 30px;
+  border-radius: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff9a8b, #ff6a88);
+}
+
+.fc-disclaimer {
+  margin-top: 22px;
+  padding: 18px 24px;
+  border-radius: 18px;
+  font-size: 20px;
+  color: #8d7b70;
+  text-align: center;
+  line-height: 1.6;
+  background: rgba(74, 59, 50, 0.05);
+  margin-bottom: 60px;
+}
+
+/* ---------- 全屏状态页（来电/等待/通话/完成） ---------- */
+.fc-call {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #1e2a32, #0c1216);
+  z-index: 1000;
+  padding: 60rpx;
+  box-sizing: border-box;
+}
+
+.fc-drill-badge {
+  position: absolute;
+  top: 90rpx;
+  padding: 10rpx 30rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.fc-avatar {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 100rpx;
+  background: #2e3e48;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.fc-avatar--sm {
+    width: 140rpx;
+    height: 140rpx;
+  }
+}
+
+.fc-avatar-icon {
+  font-size: 100rpx;
+}
+
+.fc-person {
+  margin-top: 40rpx;
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fc-sub {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #9aa6b0;
+}
+
+.fc-actions {
+  display: flex;
+  margin-top: 140rpx;
+}
+
+.fc-btn {
+  width: 170rpx;
+  height: 170rpx;
+  border-radius: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &.fc-btn--decline {
+    background: #ef5350;
+    margin-right: 140rpx;
+  }
+
+  &.fc-btn--answer {
+    background: #4caf50;
+  }
+}
+
+.fc-btn-icon {
+  font-size: 46rpx;
+  color: #fff;
+}
+
+.fc-btn-label {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #fff;
+}
+
+.fc-hint {
+  position: absolute;
+  bottom: 60rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.fc-countdown {
+  font-size: 160rpx;
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-cancel {
+  margin-top: 80rpx;
+  padding: 20rpx 60rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.fc-lines {
+  margin-top: 50rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fc-line {
+  margin: 14rpx 0;
+  font-size: 30rpx;
+  color: #5c6a74;
+
+  &.fc-line--past {
+    color: #8d9aa4;
+  }
+
+  &.fc-line--now {
+    color: #fff;
+    font-weight: 700;
+    font-size: 36rpx;
+  }
+}
+
+.fc-endcall {
+  margin-top: 90rpx;
+  padding: 26rpx 90rpx;
+  border-radius: 60rpx;
+  background: #ef5350;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.fc-done-icon {
+  font-size: 130rpx;
+}
+
+.fc-done-text {
+  margin-top: 30rpx;
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #fff;
+}
+
+.fc-again {
+  margin-top: 80rpx;
+  padding: 22rpx 70rpx;
+  border-radius: 44rpx;
+  font-size: 28rpx;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}

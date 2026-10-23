@@ -1,1 +1,147 @@
 @import '../../../styles/theme.scss';
+
+.trp-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.trp-scroll {
+  flex: 1;
+  height: calc(100vh - 110px);
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.trp-card {
+  margin-top: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.trp-card--out {
+  border: 2px solid rgba(201, 160, 99, 0.4);
+}
+
+.trp-label {
+  font-size: 24px;
+  color: #8d7b70;
+  margin: 24px 0 14px;
+
+  &.trp-label--row {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.trp-add {
+  margin-left: auto;
+  color: #c9a063;
+  font-weight: 700;
+}
+
+.trp-input {
+  width: 100%;
+  min-height: 140px;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #fff9f2;
+  font-size: 26px;
+  color: #4a3b32;
+  line-height: 1.6;
+}
+
+.trp-placeholder {
+  color: #c9bdb4;
+}
+
+.trp-count {
+  text-align: right;
+  margin-top: 8px;
+  font-size: 20px;
+  color: #b8a99e;
+}
+
+.trp-rule {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.trp-rule-input {
+  flex: 1;
+  min-height: 72px;
+  padding: 14px 18px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 24px;
+  color: #4a3b32;
+}
+
+.trp-arrow {
+  margin: 0 12px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.trp-del {
+  margin-left: 14px;
+  font-size: 26px;
+  color: #e07856;
+}
+
+.trp-recipe {
+  margin-top: 24px;
+  padding: 20px 26px;
+  border-radius: 20px;
+  font-size: 25px;
+  font-weight: 700;
+  color: #8d7b70;
+  text-align: center;
+}
+
+.trp-recipe-item {
+  display: inline-block;
+  padding: 10px 24px;
+  margin: 0 12px 12px 0;
+  border-radius: 20px;
+  font-size: 22px;
+  color: #6b5a4f;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.trp-output {
+  min-height: 120px;
+  max-height: 500px;
+  overflow: hidden;
+  padding: 20px;
+  border-radius: 16px;
+  background: #fff9f2;
+  font-size: 26px;
+  color: #4a3b32;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.trp-copy {
+  height: 84px;
+  margin-top: 18px;
+  border-radius: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.trp-tip {
+  padding: 20px 10px 60px;
+  text-align: center;
+  font-size: 20px;
+  color: #b8a99e;
+  line-height: 1.6;
+}

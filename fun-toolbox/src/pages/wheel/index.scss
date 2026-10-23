@@ -423,3 +423,33 @@
   font-size: 22px;
   color: #c9bdb4;
 }
+
+/* ---------- 场景包 chips ---------- */
+.wheel-scenes {
+  white-space: nowrap;
+  margin-top: 14px;
+}
+
+.wheel-scene {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 24px;
+  margin-right: 12px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px dashed rgba(141, 123, 112, 0.35);
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.wheel-scene-icon {
+  font-size: 24px;
+  margin-right: 8px;
+}
+
+.wheel-scene-name {
+  font-size: 22px;
+  color: #6b5a4f;
+}
