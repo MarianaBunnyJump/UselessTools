@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="152" y="76" font-size="18" font-weight="bold" fill="#4A3B32">字帖生成器</text>
+  <!-- input -->
+  <rect x="24" y="98" width="327" height="64" rx="16" fill="#FFFFFF"/>
+  <text x="44" y="136" font-size="16" fill="#4A3B32">王小明</text>
+  <text x="150" y="136" font-size="13" fill="#B8A99E">← 点改名字（姓名帖）</text>
+  <!-- grid style chips -->
+  <text x="24" y="190" font-size="14" fill="#8D7B70">格子</text>
+  <rect x="72" y="170" width="80" height="34" rx="17" fill="#C9A063"/><text x="86" y="193" font-size="13" fill="#FFFFFF">田字格</text>
+  <rect x="160" y="170" width="80" height="34" rx="17" fill="#FFFFFF"/><text x="176" y="193" font-size="13" fill="#8D7B70">米字格</text>
+  <rect x="248" y="170" width="100" height="34" rx="17" fill="#FFFFFF"/><text x="258" y="193" font-size="13" fill="#8D7B70">四线三格</text>
+  <!-- copybook preview: name sheet -->
+  <rect x="24" y="222" width="327" height="380" rx="20" fill="#FFFFFF"/>
+  <text x="44" y="252" font-size="13" fill="#C9A063">王小明 · 姓名帖 · 第 1 页</text>
+  <g>
+    <!-- row of tian cells with light chars, then empty cells -->
+    <g stroke="#C9A063" stroke-opacity="0.55">
+      <rect x="44" y="270" width="64" height="64" fill="none"/><rect x="112" y="270" width="64" height="64" fill="none"/><rect x="180" y="270" width="64" height="64" fill="none"/><rect x="248" y="270" width="64" height="64" fill="none"/>
+      <line x1="76" y1="270" x2="76" y2="334" stroke-dasharray="5 4"/><line x1="44" y1="302" x2="108" y2="302" stroke-dasharray="5 4"/>
+      <line x1="144" y1="270" x2="144" y2="334" stroke-dasharray="5 4"/><line x1="112" y1="302" x2="176" y2="302" stroke-dasharray="5 4"/>
+      <line x1="212" y1="270" x2="212" y2="334" stroke-dasharray="5 4"/><line x1="180" y1="302" x2="244" y2="302" stroke-dasharray="5 4"/>
+      <line x1="280" y1="270" x2="280" y2="334" stroke-dasharray="5 4"/><line x1="248" y1="302" x2="312" y2="302" stroke-dasharray="5 4"/>
+    </g>
+    <g font-size="44" fill="#4A3B32" fill-opacity="0.2" text-anchor="middle">
+      <text x="76" y="322">王</text><text x="144" y="322">小</text><text x="212" y="322">明</text>
+    </g>
+    <!-- empty row -->
+    <g stroke="#C9A063" stroke-opacity="0.35">
+      <rect x="44" y="346" width="64" height="64" fill="none"/><rect x="112" y="346" width="64" height="64" fill="none"/><rect x="180" y="346" width="64" height="64" fill="none"/><rect x="248" y="346" width="64" height="64" fill="none"/>
+      <rect x="44" y="422" width="64" height="64" fill="none"/><rect x="112" y="422" width="64" height="64" fill="none"/><rect x="180" y="422" width="64" height="64" fill="none"/><rect x="248" y="422" width="64" height="64" fill="none"/>
+    </g>
+    <!-- 拼音行 -->
+    <g font-size="13" fill="#8D7B70" text-anchor="middle">
+      <text x="76" y="508">wáng</text><text x="144" y="508">xiǎo</text><text x="212" y="508">míng</text>
+    </g>
+    <text x="44" y="540" font-size="12" fill="#B8A99E">第一行描红 · 第二行临写 · 底部带拼音</text>
+  </g>
+  <!-- actions -->
+  <rect x="24" y="622" width="155" height="52" rx="26" fill="#FF8A80"/>
+  <text x="44" y="654" font-size="16" font-weight="bold" fill="#FFFFFF">保存图片</text>
+  <rect x="196" y="622" width="155" height="52" rx="26" fill="#FFFFFF"/>
+  <text x="212" y="654" font-size="16" fill="#4A3B32">换一批内容</text>
+  <text x="52" y="712" font-size="13" fill="#B8A99E">支持：姓名帖 / 课文节选 / 古诗 · 每页自动排 12 格</text>
+</svg>

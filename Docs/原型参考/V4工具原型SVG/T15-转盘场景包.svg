@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="152" y="76" font-size="18" font-weight="bold" fill="#4A3B32">转盘 · 场景包</text>
+  <!-- scene chips -->
+  <text x="24" y="114" font-size="15" font-weight="bold" fill="#4A3B32">一键换场景</text>
+  <rect x="24" y="130" width="150" height="56" rx="18" fill="#FF8A80" opacity="0.15"/>
+  <text x="42" y="164" font-size="14" fill="#E07856">🍜 今天吃什么</text>
+  <rect x="184" y="130" width="76" height="56" rx="18" fill="#C9A063" opacity="0.14"/>
+  <text x="200" y="164" font-size="14" fill="#C9A063">🎲 骰子</text>
+  <rect x="270" y="130" width="80" height="56" rx="18" fill="#5B7A9D" opacity="0.12"/>
+  <text x="282" y="164" font-size="14" fill="#5B7A9D">🍺 行酒令</text>
+  <rect x="24" y="196" width="150" height="56" rx="18" fill="#81D4FA" opacity="0.18"/>
+  <text x="48" y="230" font-size="14" fill="#4A90C2">🎯 抽签点名</text>
+  <rect x="184" y="196" width="166" height="56" rx="18" fill="#DCCEF0" opacity="0.35"/>
+  <text x="204" y="230" font-size="14" fill="#7E57C2">🔢 随机数字</text>
+  <!-- applied scene preview -->
+  <text x="24" y="296" font-size="14" fill="#8D7B70">已装上「今天吃什么」：24 个选项 + 专属结果文案</text>
+  <!-- mini wheel -->
+  <circle cx="187" cy="470" r="130" fill="#FFFFFF"/>
+  <path d="M 187 340 A 130 130 0 0 1 317 470 L 187 470 Z" fill="#FF8A80"/>
+  <path d="M 317 470 A 130 130 0 0 1 187 600 L 187 470 Z" fill="#FFD54F"/>
+  <path d="M 187 600 A 130 130 0 0 1 57 470 L 187 470 Z" fill="#A5D6A7"/>
+  <path d="M 57 470 A 130 130 0 0 1 187 340 L 187 470 Z" fill="#81D4FA"/>
+  <circle cx="187" cy="470" r="34" fill="#4A3B32"/>
+  <text x="176" y="478" font-size="15" fill="#FFFFFF">GO</text>
+  <g font-size="12" fill="#FFFFFF">
+    <text x="216" y="392">火锅</text><text x="244" y="480">烧烤</text><text x="120" y="500">面馆</text><text x="100" y="410">饺子</text>
+  </g>
+  <!-- scene result line -->
+  <rect x="24" y="630" width="327" height="56" rx="18" fill="#FFFFFF"/>
+  <text x="44" y="664" font-size="14" fill="#4A3B32">🎡 转到「火锅」→「就它了，锅底我点鸳鸯」</text>
+  <text x="62" y="722" font-size="13" fill="#B8A99E">场景包自带选项与结果彩蛋 · 你的自定义方案不受影响</text>
+</svg>

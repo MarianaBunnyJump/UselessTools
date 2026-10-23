@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="152" y="76" font-size="18" font-weight="bold" fill="#4A3B32">假装来电 · 配置</text>
+  <!-- script presets -->
+  <text x="24" y="116" font-size="15" font-weight="bold" fill="#4A3B32">选个剧本</text>
+  <rect x="24" y="132" width="98" height="72" rx="16" fill="#C9A063"/>
+  <text x="50" y="160" font-size="18">🌙</text><text x="42" y="188" font-size="13" fill="#FFFFFF">妈妈喊回家</text>
+  <rect x="132" y="132" width="98" height="72" rx="16" fill="#FFFFFF"/>
+  <text x="158" y="160" font-size="18">👔</text><text x="152" y="188" font-size="13" fill="#8D7B70">老板召唤</text>
+  <rect x="240" y="132" width="98" height="72" rx="16" fill="#FFFFFF"/>
+  <text x="266" y="160" font-size="18">📦</text><text x="254" y="188" font-size="13" fill="#8D7B70">快递到了</text>
+  <!-- caller -->
+  <rect x="24" y="224" width="327" height="120" rx="18" fill="#FFFFFF"/>
+  <text x="44" y="254" font-size="14" fill="#8D7B70">来电显示</text>
+  <rect x="44" y="268" width="230" height="48" rx="14" fill="#FFF9F2"/>
+  <text x="62" y="299" font-size="17" fill="#4A3B32">妈妈</text>
+  <circle cx="312" cy="292" r="24" fill="#C9A063" opacity="0.2"/>
+  <text x="302" y="300" font-size="20">🌙</text>
+  <!-- delay -->
+  <rect x="24" y="360" width="327" height="92" rx="18" fill="#FFFFFF"/>
+  <text x="44" y="390" font-size="14" fill="#8D7B70">多久后来电</text>
+  <rect x="44" y="404" width="60" height="32" rx="16" fill="#FFF9F2"/><text x="60" y="426" font-size="13" fill="#8D7B70">10秒</text>
+  <rect x="112" y="404" width="60" height="32" rx="16" fill="#C9A063"/><text x="124" y="426" font-size="13" fill="#FFFFFF">30秒</text>
+  <rect x="180" y="404" width="60" height="32" rx="16" fill="#FFF9F2"/><text x="192" y="426" font-size="13" fill="#8D7B70">1分钟</text>
+  <rect x="248" y="404" width="60" height="32" rx="16" fill="#FFF9F2"/><text x="254" y="426" font-size="13" fill="#8D7B70">3分钟</text>
+  <!-- lines editor -->
+  <rect x="24" y="468" width="327" height="150" rx="18" fill="#FFFFFF"/>
+  <text x="44" y="498" font-size="14" fill="#8D7B70">接通后台词（一句一行，自动朗读）</text>
+  <rect x="44" y="512" width="287" height="40" rx="10" fill="#FFF9F2"/>
+  <text x="58" y="538" font-size="14" fill="#4A3B32">十点前必须到家，听到没呀</text>
+  <rect x="44" y="558" width="287" height="40" rx="10" fill="#FFF9F2"/>
+  <text x="58" y="584" font-size="14" fill="#4A3B32">汤都给你留好了</text>
+  <!-- start -->
+  <rect x="24" y="648" width="327" height="60" rx="30" fill="#FF8A80"/>
+  <text x="120" y="684" font-size="18" font-weight="bold" fill="#FFFFFF">启动演练 · 30 秒后来电</text>
+  <rect x="24" y="724" width="327" height="48" rx="24" fill="#4A3B32" opacity="0.06"/>
+  <text x="70" y="754" font-size="13" fill="#8D7B70">仅本机模拟演练 · 不接入真实通话 · 本周撤退 2 次</text>
+</svg>

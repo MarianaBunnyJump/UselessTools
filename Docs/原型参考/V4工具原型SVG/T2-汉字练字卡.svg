@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="152" y="76" font-size="18" font-weight="bold" fill="#4A3B32">汉字练字卡</text>
+  <!-- search -->
+  <rect x="24" y="96" width="327" height="46" rx="23" fill="#FFFFFF"/>
+  <text x="44" y="125" font-size="15" fill="#B8A99E">输入或粘贴一个字，如「永」</text>
+  <!-- big tian grid card: 田字格 -->
+  <rect x="60" y="170" width="255" height="255" rx="20" fill="#FFFFFF"/>
+  <line x1="187" y1="182" x2="187" y2="413" stroke="#C9A063" stroke-opacity="0.5" stroke-dasharray="8 6"/>
+  <line x1="71" y1="297" x2="304" y2="297" stroke="#C9A063" stroke-opacity="0.5" stroke-dasharray="8 6"/>
+  <rect x="72" y="182" width="231" height="231" fill="none" stroke="#C9A063" stroke-opacity="0.6" stroke-width="2"/>
+  <text x="117" y="310" font-size="130" fill="#4A3B32" fill-opacity="0.9">永</text>
+  <!-- stroke info line -->
+  <text x="60" y="456" font-size="14" fill="#8D7B70">yǒng · 5 画 · 水部 · 独体字</text>
+  <text x="252" y="456" font-size="14" fill="#C9A063">描红 · 临写</text>
+  <!-- 笔画小卡（笔顺分段演示占位）-->
+  <g>
+    <rect x="24" y="480" width="327" height="96" rx="16" fill="#FFFFFF"/>
+    <text x="44" y="512" font-size="14" font-weight="bold" fill="#4A3B32">笔画分解</text>
+    <g font-size="26" fill="#4A3B32">
+      <text x="44" y="552">丶</text><text x="86" y="552" fill="#C9A063">乛</text><text x="128" y="552">一</text><text x="170" y="552" fill="#C9A063">亅</text><text x="212" y="552">㇏</text>
+    </g>
+    <text x="256" y="548" font-size="13" fill="#8D7B70">第2笔</text>
+  </g>
+  <!-- 练字行 -->
+  <rect x="24" y="592" width="327" height="120" rx="16" fill="#FFFFFF"/>
+  <g stroke="#C9A063" stroke-opacity="0.4" stroke-dasharray="6 5">
+    <line x1="40" y1="640" x2="335" y2="640"/><line x1="40" y1="688" x2="335" y2="688"/>
+  </g>
+  <g font-size="40" fill="#4A3B32" fill-opacity="0.18">
+    <text x="46" y="660">永</text><text x="102" y="660">永</text><text x="158" y="660">永</text><text x="214" y="660">永</text><text x="270" y="660">永</text>
+  </g>
+  <text x="46" y="620" font-size="13" fill="#C9A063">描红行：照着浅色底写</text>
+  <!-- streak reward -->
+  <rect x="24" y="730" width="327" height="50" rx="25" fill="#C9A063" opacity="0.14"/>
+  <text x="52" y="761" font-size="14" fill="#C9A063">今日已练 6 字 · 连对 10 字解锁「笔顺之神」🏅</text>
+</svg>

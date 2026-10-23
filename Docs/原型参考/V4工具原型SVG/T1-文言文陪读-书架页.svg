@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="140" y="76" font-size="18" font-weight="bold" fill="#4A3B32">文言文书架</text>
+  <!-- progress strip: 作业本横线 -->
+  <rect x="24" y="96" width="327" height="52" rx="14" fill="#FFFFFF"/>
+  <line x1="40" y1="134" x2="335" y2="134" stroke="#C9A063" stroke-opacity="0.35" stroke-dasharray="4 5"/>
+  <text x="40" y="120" font-size="14" fill="#4A3B32">已读 6 篇 · 背熟 2 篇</text>
+  <text x="258" y="120" font-size="13" fill="#C9A063">⭐⭐ 2</text>
+  <!-- stage tabs -->
+  <rect x="24" y="164" width="96" height="40" rx="20" fill="#C9A063"/>
+  <text x="44" y="190" font-size="15" fill="#FFFFFF">小学</text>
+  <rect x="128" y="164" width="96" height="40" rx="20" fill="#FFFFFF"/>
+  <text x="148" y="190" font-size="15" fill="#8D7B70">初中</text>
+  <rect x="232" y="164" width="96" height="40" rx="20" fill="#FFFFFF"/>
+  <text x="252" y="190" font-size="15" fill="#8D7B70">高中</text>
+  <!-- 册 chips -->
+  <text x="24" y="238" font-size="14" fill="#8D7B70">一年级上</text>
+  <text x="110" y="238" font-size="14" fill="#8D7B70">二年级上</text>
+  <text x="196" y="238" font-size="14" fill="#C9A063" font-weight="bold">三年级上 ●</text>
+  <text x="282" y="238" font-size="14" fill="#8D7B70">四年级上</text>
+  <!-- article rows -->
+  <g>
+    <rect x="24" y="258" width="327" height="66" rx="16" fill="#FFFFFF"/>
+    <rect x="40" y="274" width="6" height="34" rx="3" fill="#C9A063"/>
+    <text x="62" y="288" font-size="16" font-weight="bold" fill="#4A3B32">司马光</text>
+    <text x="62" y="310" font-size="12" fill="#8D7B70">宋 · 司马光 · 1 句</text>
+    <text x="316" y="298" font-size="15" fill="#C9A063">✦已读</text>
+  </g>
+  <g>
+    <rect x="24" y="334" width="327" height="66" rx="16" fill="#FFFFFF"/>
+    <rect x="40" y="350" width="6" height="34" rx="3" fill="#C9A063"/>
+    <text x="62" y="364" font-size="16" font-weight="bold" fill="#4A3B32">守株待兔</text>
+    <text x="62" y="386" font-size="12" fill="#8D7B70">先秦 · 韩非子 · 5 句</text>
+    <text x="308" y="374" font-size="15" fill="#E07856">⭐⭐⭐</text>
+  </g>
+  <g>
+    <rect x="24" y="410" width="327" height="66" rx="16" fill="#FFFFFF"/>
+    <rect x="40" y="426" width="6" height="34" rx="3" fill="#C9A063"/>
+    <text x="62" y="440" font-size="16" font-weight="bold" fill="#4A3B32">古诗二首（登鹳雀楼）</text>
+    <text x="62" y="462" font-size="12" fill="#8D7B70">唐 · 王之涣 · 4 句</text>
+  </g>
+  <g>
+    <rect x="24" y="486" width="327" height="66" rx="16" fill="#FFFFFF"/>
+    <rect x="40" y="502" width="6" height="34" rx="3" fill="#C9A063"/>
+    <text x="62" y="516" font-size="16" font-weight="bold" fill="#4A3B32">燕子（节选）</text>
+    <text x="62" y="538" font-size="12" fill="#8D7B70">现代对照 · 3 句</text>
+  </g>
+  <!-- 底部提示 -->
+  <text x="66" y="600" font-size="13" fill="#B8A99E">点篇名进入陪读：逐句拼音 · 点击朗读 · 背诵挖空</text>
+  <!-- tabbar of article count -->
+  <rect x="24" y="640" width="327" height="52" rx="26" fill="#4A3B32" opacity="0.85"/>
+  <text x="60" y="672" font-size="15" fill="#FFFFFF">本册 24 篇 · 已解锁陪读 18 篇</text>
+</svg>

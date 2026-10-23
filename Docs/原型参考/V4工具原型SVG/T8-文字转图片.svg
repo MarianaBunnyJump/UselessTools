@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="158" y="76" font-size="18" font-weight="bold" fill="#4A3B32">文字转图片</text>
+  <!-- text input -->
+  <rect x="24" y="98" width="327" height="88" rx="16" fill="#FFFFFF"/>
+  <text x="44" y="132" font-size="16" fill="#4A3B32">今天也要好好吃饭，好好睡觉。</text>
+  <text x="44" y="160" font-size="13" fill="#B8A99E">35 字 · 适合便签版式</text>
+  <!-- template tabs -->
+  <rect x="24" y="202" width="90" height="38" rx="19" fill="#C9A063"/><text x="40" y="227" font-size="14" fill="#FFFFFF">便签</text>
+  <rect x="122" y="202" width="90" height="38" rx="19" fill="#FFFFFF"/><text x="140" y="227" font-size="14" fill="#8D7B70">长图</text>
+  <rect x="220" y="202" width="90" height="38" rx="19" fill="#FFFFFF"/><text x="238" y="227" font-size="14" fill="#8D7B70">九宫格</text>
+  <!-- sticky note preview -->
+  <g transform="rotate(-2 187 380)">
+    <rect x="52" y="276" width="270" height="230" rx="6" fill="#FFF3C4"/>
+    <path d="M 52 276 L 322 276 L 322 292 L 52 292 Z" fill="#FFCA28" opacity="0.4"/>
+    <text x="76" y="336" font-size="19" fill="#4A3B32">今天也要</text>
+    <text x="76" y="368" font-size="19" fill="#4A3B32">好好吃饭，</text>
+    <text x="76" y="400" font-size="19" fill="#4A3B32">好好睡觉。</text>
+    <text x="76" y="466" font-size="12" fill="#B8A99E">— 趣工局 便签 —</text>
+  </g>
+  <!-- palette row -->
+  <g>
+    <rect x="24" y="540" width="327" height="64" rx="16" fill="#FFFFFF"/>
+    <circle cx="64" cy="572" r="14" fill="#FFF3C4" stroke="#C9A063"/><circle cx="104" cy="572" r="14" fill="#C9EEFC"/><circle cx="144" cy="572" r="14" fill="#FFD6E0"/><circle cx="184" cy="572" r="14" fill="#DCCEF0"/><circle cx="224" cy="572" r="14" fill="#D7E8D4"/>
+    <text x="262" y="578" font-size="13" fill="#8D7B70">纸色 · 字色</text>
+  </g>
+  <!-- actions -->
+  <rect x="24" y="628" width="327" height="56" rx="28" fill="#FF8A80"/>
+  <text x="132" y="662" font-size="17" font-weight="bold" fill="#FFFFFF">保存 / 发给朋友</text>
+  <text x="66" y="716" font-size="13" fill="#B8A99E">长图适合朋友圈文案 · 九宫格直接切好发图</text>
+</svg>

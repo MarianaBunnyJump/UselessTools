@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="812" viewBox="0 0 375 812" font-family="sans-serif">
+  <rect width="375" height="812" fill="#FFF9F2"/>
+  <text x="24" y="30" font-size="14" fill="#4A3B32">9:41</text>
+  <text x="20" y="76" font-size="22" fill="#4A3B32">‹</text>
+  <text x="148" y="76" font-size="18" font-weight="bold" fill="#4A3B32">生活计算器</text>
+  <!-- quick grid -->
+  <g>
+    <rect x="24" y="98" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="52" y="140" font-size="22">📏</text><text x="40" y="168" font-size="13" fill="#4A3B32">单位换算</text>
+    <rect x="137" y="98" width="100" height="88" rx="18" fill="#C9A063" opacity="0.16"/><text x="165" y="140" font-size="22">🏠</text><text x="153" y="168" font-size="13" fill="#4A3B32">房贷</text>
+    <rect x="250" y="98" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="278" y="140" font-size="22">💸</text><text x="266" y="168" font-size="13" fill="#4A3B32">个税</text>
+    <rect x="24" y="198" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="52" y="240" font-size="22">❤️</text><text x="40" y="268" font-size="13" fill="#4A3B32">健康三合一</text>
+    <rect x="137" y="198" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="165" y="240" font-size="22">📅</text><text x="153" y="268" font-size="13" fill="#4A3B32">日期间隔</text>
+    <rect x="250" y="198" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="278" y="240" font-size="22">🧾</text><text x="266" y="268" font-size="13" fill="#4A3B32">金额大写</text>
+    <rect x="24" y="298" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="52" y="340" font-size="22">📈</text><text x="40" y="368" font-size="13" fill="#4A3B32">复利养老</text>
+    <rect x="137" y="298" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="165" y="340" font-size="22">⛽</text><text x="153" y="368" font-size="13" fill="#4A3B32">油耗出行</text>
+    <rect x="250" y="298" width="100" height="88" rx="18" fill="#FFFFFF"/><text x="278" y="340" font-size="22">✈️</text><text x="266" y="368" font-size="13" fill="#4A3B32">旅行AA</text>
+  </g>
+  <!-- recent -->
+  <text x="24" y="424" font-size="15" font-weight="bold" fill="#4A3B32">最近用过</text>
+  <rect x="24" y="440" width="150" height="40" rx="20" fill="#FFFFFF"/>
+  <text x="44" y="466" font-size="13" fill="#4A3B32">🏠 房贷 · 昨天</text>
+  <!-- mortgage calc preview -->
+  <rect x="24" y="504" width="327" height="230" rx="20" fill="#FFFFFF"/>
+  <text x="44" y="536" font-size="16" font-weight="bold" fill="#4A3B32">🏠 房贷计算</text>
+  <text x="44" y="568" font-size="13" fill="#8D7B70">贷款 100 万 · 30 年 · 4.0%</text>
+  <rect x="44" y="586" width="287" height="10" rx="5" fill="#4A3B32" opacity="0.08"/>
+  <rect x="44" y="586" width="196" height="10" rx="5" fill="#C9A063"/>
+  <text x="44" y="628" font-size="34" font-weight="bold" fill="#4A3B32">4,774</text>
+  <text x="150" y="626" font-size="13" fill="#8D7B70">元 / 月（等额本息）</text>
+  <rect x="44" y="650" width="287" height="56" rx="14" fill="#C9A063" opacity="0.12"/>
+  <text x="60" y="674" font-size="13" font-weight="bold" fill="#C9A063">📌 局长碎碎念</text>
+  <text x="60" y="696" font-size="13" fill="#8D7B70">每月少喝 32 杯奶茶 = 这套房的利息，值得吗？</text>
+</svg>
