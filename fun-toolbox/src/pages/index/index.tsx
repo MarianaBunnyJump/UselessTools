@@ -16,6 +16,8 @@ import { getWorkPoints, getWorkLevel, getLevelTitle, getSelectedTitlePrefix, TIT
 import { startSkinFx, type SkinFxHandle } from '../../utils/skinFx'
 import { track } from '../../utils/analytics'
 import ToolCard, { type CardState } from '../../components/ToolCard'
+import SimpleHome from '../../components/SimpleHome'
+import { getLayoutMode, setLayoutMode } from '../../data/categories'
 import Onboarding from './onboarding'
 import './index.scss'
 
@@ -97,6 +99,8 @@ export default function Index() {
   const [dropFeedback, setDropFeedback] = useState(() => get<boolean>('drop_feedback_enabled', true))
   /* 皮肤：设置页切换后通过 SKIN_EVENT 热更新，返回首页也会刷新 */
   const [skinId, setSkinId] = useState(getActiveSkinId())
+  /* 首页布局模式：礼盒（现有）/ 简洁（分类列表） */
+  const [layoutMode, setLayoutModeState] = useState(getLayoutMode())
   /* 工坊「预览」：临时渲染未解锁皮肤，不写存储；由首页提示条退出或真实切换覆盖 */
   const [previewId, setPreviewId] = useState(getPreviewSkinId())
   /* 页面隐藏时置 false：停掉粒子/彩带循环，避免后台页占满 JS 线程把其它页面卡死 */
@@ -810,6 +814,26 @@ export default function Index() {
     loopActiveRef.current = false
   })
 
+  /* ---------- 双模式切换 + 简洁模式排序回传 ---------- */
+  useEffect(() => {
+    const modeListener = (mode: 'gift' | 'simple') => {
+      setLayoutMode(mode)
+      setLayoutModeState(mode)
+      track('home_mode_change', { mode })
+    }
+    const orderListener = (next: string[]) => {
+      orderRef.current = next
+      setOrder(next)
+      saveHomeOrder(next)
+    }
+    Taro.eventCenter.on('home-layout-mode', modeListener)
+    Taro.eventCenter.on('home-order-change', orderListener)
+    return () => {
+      Taro.eventCenter.off('home-layout-mode', modeListener)
+      Taro.eventCenter.off('home-order-change', orderListener)
+    }
+  }, [])
+
   const handleSettings = () => {
     Taro.navigateTo({ url: '/pages/settings/index' })
   }
@@ -860,6 +884,22 @@ export default function Index() {
     )
   }
 
+  /* ---------- 简洁模式：独立渲染（所有 hooks 已执行完毕） ---------- */
+  if (layoutMode === 'simple') {
+    return (
+      <View className='page-root home-root' style={{ background: theme.bg }}>
+        {showOnboarding && <Onboarding theme={theme} onFinish={handleOnboardingFinish} />}
+        <SimpleHome
+          tools={TOOLS}
+          order={order}
+          onOpen={handleOpen}
+          accent={theme.accent}
+          accentDeep={theme.accentDeep}
+        />
+      </View>
+    )
+  }
+
   return (
     <View
       className='page-root home-root'
@@ -872,6 +912,18 @@ export default function Index() {
         </View>
         <View className='home-user' style={{ top: `${layout.gearTop}px` }} onClick={() => Taro.navigateTo({ url: '/pages/user/index' })}>
           <Text className='home-user-icon'>{guestNickname ? guestNickname.slice(0, 1) : '👤'}</Text>
+        </View>
+        {/* 切到简洁模式（分类列表） */}
+        <View
+          className='home-gear home-mode-toggle'
+          style={{ top: `${layout.gearTop}px` }}
+          onClick={() => {
+            setLayoutMode('simple')
+            setLayoutModeState('simple')
+            track('home_mode_change', { mode: 'simple' })
+          }}
+        >
+          <Text className='home-gear-icon'>☰</Text>
         </View>
         <Button
           className='home-gear home-share-btn'
@@ -933,6 +985,15 @@ export default function Index() {
           <Text className='home-registration-icon'>📝</Text>
           <Text className='home-registration-text'>登记系统</Text>
           <Text className='home-registration-arrow'>▸</Text>
+        </View>
+      </View>
+
+      {/* 临时简单版等级入口 */}
+      <View className='home-simple-level-entry'>
+        <View className='home-simple-level-card' onClick={() => Taro.navigateTo({ url: '/pages/level/simple-level' })}>
+          <Text className='home-simple-level-icon'>📱</Text>
+          <Text className='home-simple-level-text'>简单版等级</Text>
+          <Text className='home-simple-level-arrow'>▸</Text>
         </View>
       </View>
 

@@ -48,6 +48,10 @@
   .home-share-btn {
     left: 168px;
   }
+
+  .home-mode-toggle {
+    left: 248px;
+  }
 }
 
 .home-gear-icon {
@@ -406,4 +410,43 @@
   z-index: 999;
   /* 常驻画布只负责显示彩带，不挡住下层标题/标语的点击 */
   pointer-events: none;
+}
+
+/* 临时简单版等级入口 */
+.home-simple-level-entry {
+  padding: 0 20px 16px;
+}
+
+.home-simple-level-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.18);
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(255, 112, 67, 0.2), rgba(255, 112, 67, 0.1));
+}
+
+.home-simple-level-card:active {
+  background: linear-gradient(135deg, rgba(255, 112, 67, 0.4), rgba(255, 112, 67, 0.2));
+  transform: scale(0.98);
+}
+
+.home-simple-level-icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.home-simple-level-text {
+  font-size: 22px;
+  color: #333;
+  font-weight: 500;
+}
+
+.home-simple-level-arrow {
+  font-size: 20px;
+  color: #ff7043;
 }

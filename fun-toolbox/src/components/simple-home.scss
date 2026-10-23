@@ -1,0 +1,405 @@
+@import '../styles/theme.scss';
+
+/* ===================== 简洁模式首页 =====================
+ * 纯背景 + 分类分组列表；北欧几何装饰带垫在每组头部。
+ */
+
+.simple-home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* 顶栏 */
+.sh-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px 8px;
+}
+
+.sh-level-mini {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.sh-level-txt {
+  font-size: 22px;
+  font-weight: 800;
+  color: #8d7b70;
+  white-space: nowrap;
+}
+
+.sh-level-track {
+  flex: 1;
+  height: 10px;
+  margin-left: 12px;
+  border-radius: 5px;
+  background: rgba(74, 59, 50, 0.1);
+  overflow: hidden;
+}
+
+.sh-level-fill {
+  height: 100%;
+  border-radius: 5px;
+}
+
+.sh-topbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.sh-mode-btn {
+  padding: 8px 20px;
+  margin-left: 10px;
+  border-radius: 20px;
+  font-size: 22px;
+  color: #6b5a4f;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &.sh-mode-btn--on {
+    color: #fff;
+    background: linear-gradient(135deg, #ff9a8b, #ff6a88);
+    border-color: transparent;
+  }
+}
+
+.sh-edit-tip {
+  margin: 0 24px 10px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 20px;
+  color: #8d7b70;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.sh-scroll {
+  flex: 1;
+  height: calc(100vh - 100px);
+}
+
+/* ---------- 分组 ---------- */
+.sh-group {
+  position: relative;
+  margin: 0 24px 26px;
+}
+
+/* 北欧装饰带：浅色渐变 + 几何形状（纯 CSS，零渲染负担） */
+.sh-deco {
+  position: absolute;
+  top: -6px;
+  left: -12px;
+  right: -12px;
+  height: 120px;
+  border-radius: 28px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sh-deco-tri {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 46px 80px 46px;
+  border-color: transparent;
+
+  &.sh-deco-tri--1 {
+    right: 56px;
+    bottom: 0;
+  }
+
+  &.sh-deco-tri--2 {
+    right: 150px;
+    bottom: 0;
+    transform: scale(0.6);
+    transform-origin: bottom center;
+  }
+}
+
+.sh-deco-dot {
+  position: absolute;
+  border-radius: 50%;
+
+  &.sh-deco-dot--1 {
+    width: 14px;
+    height: 14px;
+    left: 30px;
+    top: 30px;
+  }
+
+  &.sh-deco-dot--2 {
+    width: 9px;
+    height: 9px;
+    left: 58px;
+    top: 56px;
+  }
+}
+
+.sh-group-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 14px 4px 14px;
+}
+
+.sh-group-icon {
+  font-size: 30px;
+  margin-right: 12px;
+}
+
+.sh-group-name {
+  font-size: 30px;
+  font-weight: 800;
+  color: #4a3b32;
+  letter-spacing: 1px;
+}
+
+.sh-group-count {
+  margin-left: 12px;
+  padding: 2px 14px;
+  border-radius: 14px;
+  font-size: 20px;
+  color: #8d7b70;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.sh-group-del {
+  margin-left: auto;
+  font-size: 22px;
+  color: #e07856;
+  padding: 4px 12px;
+}
+
+/* ---------- 卡片 ---------- */
+.sh-cards {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.sh-card {
+  width: calc(50% - 9px);
+  margin-bottom: 18px;
+  padding: 20px 18px;
+  box-sizing: border-box;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 22px -14px rgba(74, 59, 50, 0.2);
+  display: flex;
+  flex-direction: column;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &.sh-card--edit {
+    background: rgba(255, 255, 255, 0.97);
+    border: 2px dashed rgba(201, 160, 99, 0.6);
+  }
+
+  &.sh-card--hidden {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 12px;
+    opacity: 0.75;
+  }
+}
+
+.sh-card-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  background: rgba(255, 249, 242, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.sh-card--hidden .sh-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  margin-bottom: 0;
+  margin-right: 14px;
+}
+
+.sh-icon-emoji {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.sh-icon-emoji--lg {
+  font-size: 40px;
+}
+
+.sh-icon-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+}
+
+.sh-icon-img--lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+}
+
+.sh-card-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.sh-card-name {
+  font-size: 27px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.sh-card-desc {
+  margin-top: 6px;
+  font-size: 21px;
+  color: #8d7b70;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.sh-card-go {
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  font-size: 30px;
+  color: #d8cec7;
+}
+
+/* 编辑操作列 */
+.sh-card-ops {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(74, 59, 50, 0.06);
+}
+
+.sh-op {
+  font-size: 24px;
+  color: #8d7b70;
+  padding: 4px 10px;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+/* 已收起区 */
+.sh-hidden-zone {
+  margin: 0 24px 26px;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.sh-hidden-empty {
+  padding: 20px 0;
+  font-size: 22px;
+  color: #b8a99e;
+}
+
+.sh-add-cat {
+  margin-top: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  text-align: center;
+  font-size: 24px;
+  color: #c9a063;
+  border: 2px dashed rgba(201, 160, 99, 0.5);
+}
+
+/* 右侧索引条 */
+.sh-rail {
+  position: fixed;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 6px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 8px 20px -12px rgba(74, 59, 50, 0.3);
+  z-index: 50;
+}
+
+.sh-rail-item {
+  padding: 8px 6px;
+  font-size: 22px;
+
+  &:active {
+    transform: scale(0.88);
+  }
+}
+
+/* 重命名弹层 */
+.sh-rename-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(74, 59, 50, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.sh-rename-panel {
+  width: 520px;
+  padding: 36px;
+  border-radius: 28px;
+  background: #fff9f2;
+}
+
+.sh-rename-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #4a3b32;
+  margin-bottom: 24px;
+}
+
+.sh-rename-input {
+  height: 84px;
+  padding: 0 24px;
+  border-radius: 18px;
+  background: #fff;
+  font-size: 28px;
+  color: #4a3b32;
+  margin-bottom: 28px;
+}
+
+.sh-rename-btn {
+  height: 84px;
+  border-radius: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.sh-footer-space {
+  height: 140px;
+}
