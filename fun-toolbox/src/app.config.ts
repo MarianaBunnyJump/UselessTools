@@ -27,14 +27,15 @@ export default defineAppConfig({
   subPackages: [
     {
       root: 'pages/study',
-      pages: [
-        'classics/index',
-        'classics-reader/index',
-        'stroke-card/index',
-        'copybook/index',
-        'pinyin-annotate/index',
-        'zh-convert/index'
-      ]
+      pages: ['classics/index', 'classics-reader/index', 'stroke-card/index', 'copybook/index']
+    },
+    {
+      root: 'pages/text/pinyin-annotate',
+      pages: ['index']
+    },
+    {
+      root: 'pages/text/zh-convert',
+      pages: ['index']
     },
     {
       root: 'pages/create',

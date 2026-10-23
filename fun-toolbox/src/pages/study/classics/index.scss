@@ -1,1 +1,149 @@
 @import '../../../styles/theme.scss';
+
+.classics-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* 进度条 */
+.cl-progress {
+  display: flex;
+  align-items: center;
+  padding: 10px 32px 16px;
+}
+
+.cl-progress-text {
+  font-size: 22px;
+  color: #8d7b70;
+  white-space: nowrap;
+}
+
+.cl-progress-track {
+  flex: 1;
+  height: 12px;
+  margin: 0 14px;
+  border-radius: 6px;
+  background: rgba(74, 59, 50, 0.1);
+  overflow: hidden;
+  border-bottom: 2px dashed rgba(201, 160, 99, 0.35);
+}
+
+.cl-progress-fill {
+  height: 100%;
+  border-radius: 6px;
+}
+
+.cl-progress-total {
+  font-size: 20px;
+  color: #b8a99e;
+}
+
+/* 学段 Tab */
+.cl-stage-tabs {
+  display: flex;
+  padding: 0 32px 16px;
+}
+
+.cl-stage-tab {
+  padding: 12px 36px;
+  margin-right: 16px;
+  border-radius: 24px;
+  font-size: 26px;
+  color: #8d7b70;
+  background: rgba(255, 255, 255, 0.7);
+
+  &.cl-stage-tab--on {
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.cl-scroll {
+  flex: 1;
+  height: calc(100vh - 300px);
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+/* 册 chips */
+.cl-volume-row {
+  white-space: nowrap;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.cl-volume {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 26px;
+  margin-right: 14px;
+  border-radius: 20px;
+  font-size: 24px;
+  color: #6b5a4f;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid transparent;
+
+  &.cl-volume--on {
+    background: #fff;
+    font-weight: 700;
+  }
+}
+
+.cl-volume-read {
+  margin-left: 10px;
+  font-size: 20px;
+  color: #c9a063;
+}
+
+/* 篇目行 */
+.cl-article {
+  display: flex;
+  align-items: center;
+  padding: 24px 24px;
+  margin-bottom: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.cl-article-bar {
+  width: 8px;
+  height: 56px;
+  border-radius: 4px;
+  margin-right: 22px;
+}
+
+.cl-article-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cl-article-title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.cl-article-meta {
+  margin-top: 6px;
+  font-size: 21px;
+  color: #8d7b70;
+}
+
+.cl-article-badge {
+  font-size: 24px;
+  color: #c9a063;
+}
+
+.cl-foot-tip {
+  padding: 20px 0 60px;
+  text-align: center;
+  font-size: 20px;
+  color: #b8a99e;
+  line-height: 1.6;
+}

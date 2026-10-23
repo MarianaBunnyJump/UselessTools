@@ -1,1 +1,207 @@
 @import '../../../styles/theme.scss';
+
+.stc-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.stc-scroll {
+  flex: 1;
+  height: calc(100vh - 110px);
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+/* 查字 */
+.stc-search {
+  display: flex;
+  margin-top: 20px;
+}
+
+.stc-search-input {
+  flex: 1;
+  height: 84px;
+  padding: 0 28px;
+  border-radius: 42px 0 0 42px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 28px;
+  color: #4a3b32;
+}
+
+.stc-placeholder {
+  color: #c9bdb4;
+}
+
+.stc-search-btn {
+  width: 110px;
+  border-radius: 0 42px 42px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* 田字格大卡 */
+.stc-grid-card {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.stc-tian {
+  position: relative;
+  width: 380px;
+  height: 380px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 14px 34px -18px rgba(74, 59, 50, 0.3);
+  overflow: hidden;
+}
+
+.stc-tian-cross {
+  position: absolute;
+  inset: 26px;
+  border: 2px solid rgba(201, 160, 99, 0.55);
+  border-radius: 10px;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    background: rgba(201, 160, 99, 0.5);
+  }
+
+  &::before {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+  }
+
+  &::after {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    margin-top: -1px;
+  }
+}
+
+.stc-char {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 280px;
+  font-weight: 600;
+  color: #4a3b32;
+}
+
+.stc-info {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 26px;
+  color: #8d7b70;
+}
+
+/* 描红行 */
+.stc-sheet {
+  margin-top: 28px;
+  padding: 26px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.stc-sheet-label {
+  font-size: 22px;
+  color: #c9a063;
+  margin-bottom: 18px;
+}
+
+.stc-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.stc-cell {
+  position: relative;
+  width: 106px;
+  height: 106px;
+  border-radius: 12px;
+  background: #fff9f2;
+  overflow: hidden;
+}
+
+.stc-cell-cross {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(201, 160, 99, 0.4);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    margin-left: -0.5px;
+    background: rgba(201, 160, 99, 0.35);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    margin-top: -0.5px;
+    background: rgba(201, 160, 99, 0.35);
+  }
+}
+
+.stc-cell-char {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 76px;
+  color: rgba(74, 59, 50, 0.18);
+}
+
+.stc-op {
+  height: 92px;
+  margin-top: 26px;
+  border-radius: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff9a8b, #ff6a88);
+}
+
+.stc-streak {
+  margin-top: 26px;
+  padding: 20px 26px;
+  border-radius: 20px;
+  font-size: 23px;
+  color: #8d7b70;
+  text-align: center;
+}
+
+.stc-tip {
+  padding: 18px 0 60px;
+  text-align: center;
+  font-size: 20px;
+  color: #b8a99e;
+  line-height: 1.6;
+}

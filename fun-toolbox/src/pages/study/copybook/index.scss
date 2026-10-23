@@ -1,1 +1,99 @@
 @import '../../../styles/theme.scss';
+
+.cpb-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.cpb-scroll {
+  flex: 1;
+  height: calc(100vh - 110px);
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.cpb-input-card {
+  margin-top: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.cpb-input {
+  height: 84px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: #fff9f2;
+  font-size: 28px;
+  color: #4a3b32;
+}
+
+.cpb-placeholder {
+  color: #c9bdb4;
+}
+
+.cpb-style-row {
+  display: flex;
+  margin-top: 18px;
+}
+
+.cpb-style {
+  padding: 10px 32px;
+  margin-right: 16px;
+  border-radius: 22px;
+  font-size: 24px;
+  color: #6b5a4f;
+  background: rgba(74, 59, 50, 0.06);
+
+  &.cpb-style--on {
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+/* 预览：画布按比例缩到屏宽 */
+.cpb-preview-wrap {
+  position: relative;
+  margin-top: 24px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px -16px rgba(74, 59, 50, 0.3);
+}
+
+.cpb-canvas {
+  width: 100%;
+  height: calc(100vw * 1.4133);
+  display: block;
+}
+
+.cpb-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: #b8a99e;
+}
+
+.cpb-save {
+  height: 92px;
+  margin-top: 28px;
+  border-radius: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff9a8b, #ff6a88);
+}
+
+.cpb-tip {
+  padding: 20px 10px 60px;
+  text-align: center;
+  font-size: 20px;
+  color: #b8a99e;
+  line-height: 1.6;
+}
