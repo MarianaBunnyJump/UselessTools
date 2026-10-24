@@ -136,6 +136,7 @@ export default function TextToImage() {
     <View className='page-root tti-root' style={{ background: theme.bg }}>
       <NavBar title='文字转图片' />
       <ScrollView scrollY className='tti-scroll'>
+        <View className='tti-scroll-pad'>
         <View className='tti-card'>
           <Textarea
             className='tti-input'
@@ -161,8 +162,9 @@ export default function TextToImage() {
           {lines.length === 0 && <View className='tti-empty'>先写点什么～</View>}
         </View>
 
-        <View className='tti-save' onClick={save}>保存 / 发给朋友</View>
+        <View className='tti-save' hoverClass='press-down' onClick={save}>保存 / 发给朋友</View>
         <View className='tti-tip'>便签适合一句话 · 长图适合朋友圈文案（自动换行排班）</View>
+      </View>
       </ScrollView>
     </View>
   )

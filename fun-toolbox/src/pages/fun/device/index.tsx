@@ -45,6 +45,7 @@ export default function DeviceInfo() {
     <View className='page-root dev-root' style={{ background: theme.bg }}>
       <NavBar title='设备信息' />
       <ScrollView scrollY className='dev-scroll'>
+        <View className='dev-scroll-pad'>
         {rows.map(r => (
           <View key={r.label} className='dev-row'>
             <Text className='dev-label'>{r.label}</Text>
@@ -52,6 +53,7 @@ export default function DeviceInfo() {
           </View>
         ))}
         <View className='dev-tip'>数据仅在本页展示 · 用于排查兼容性问题</View>
+      </View>
       </ScrollView>
     </View>
   )

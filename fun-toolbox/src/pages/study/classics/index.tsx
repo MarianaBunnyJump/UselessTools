@@ -2,18 +2,11 @@ import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useState, useMemo } from 'react'
 import { getTheme } from '../../../utils/theme'
-import { get } from '../../../utils/storage'
 import { track } from '../../../utils/analytics'
 import NavBar from '../../../components/NavBar'
 import { CLASSIC_STAGES } from '../data/classics'
+import { getProgress, type Progress } from '../data/progress'
 import './index.scss'
-
-/* 篇目进度：read 已读 / recite 背熟等级 0~3 */
-type Progress = Record<string, { read: boolean; recite: number }>
-
-export function getProgress(): Progress {
-  return get<Progress>('classics_progress', {})
-}
 
 export default function ClassicsShelf() {
   const [theme] = useState(getTheme())
@@ -75,6 +68,7 @@ export default function ClassicsShelf() {
       </View>
 
       <ScrollView scrollY className='cl-scroll'>
+        <View className='cl-scroll-pad'>
         {/* 册选择 */}
         <ScrollView scrollX className='cl-volume-row' showScrollbar={false}>
           {stage.volumes.map(v => {
@@ -117,6 +111,7 @@ export default function ClassicsShelf() {
         })}
 
         <View className='cl-foot-tip'>收录为常见课本篇目，具体以你所学教材为准 · 持续扩充中</View>
+      </View>
       </ScrollView>
     </View>
   )

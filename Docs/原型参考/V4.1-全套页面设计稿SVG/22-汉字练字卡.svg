@@ -1,0 +1,39 @@
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>汉字练字卡</title>    <defs>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF9"/><stop offset="0.5" stop-color="#FFF6EC"/><stop offset="1" stop-color="#F7E8D4"/>
+    </linearGradient>
+  </defs>
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="url(#paperGrad)"/>
+    <rect x="0" y="716" width="375" height="96" fill="#FFF6EC" opacity="0.6"/>
+  <g id="statusbar">
+    <text x="28" y="34" font-size="15" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">9:41</text>    <line x1="150" y1="22" x2="158" y2="30" stroke="#4A3B32" stroke-width="2.5"/>    <line x1="158" y1="30" x2="170" y2="18" stroke="#4A3B32" stroke-width="2.5"/>    <rect x="300" y="24" width="22" height="11" rx="5.5" fill="none" stroke="#4A3B32" stroke-width="1.4"/>    <rect x="302" y="26" width="15" height="7" rx="2" fill="#4A3B32"/>    <rect x="326" y="27.5" width="2.5" height="7" rx="1" fill="#4A3B32"/>    <circle cx="322" cy="31" r="5.5" fill="none" stroke="#4A3B32" stroke-width="1.6" fill-opacity="0"/>    <rect x="319.5" y="24.5" width="5" height="5" rx="0" fill="none" fill="none"/>
+  </g>
+  <g id="capsule">
+    <rect x="278" y="48" width="87" height="32" rx="16" fill="rgba(0,0,0,0.06)"/>    <circle cx="305" cy="64" r="2.2" fill="#8D7B70"/>    <circle cx="305" cy="64" r="5.5" fill="none" stroke="#8D7B70" stroke-width="1.4" fill="none"/>    <line x1="330" y1="59" x2="344" y2="59" stroke="#8D7B70" stroke-width="2.4"/>    <line x1="330" y1="65" x2="344" y2="65" stroke="#8D7B70" stroke-width="2.4"/>
+  </g>
+  <g id="navbar">
+    <circle cx="30" cy="64" r="17" fill="rgba(255,255,255,0.9)"/>    <path d="M 35 56 L 25 64 L 35 72" fill="none" stroke="#4A3B32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>    <text x="187" y="70" font-size="17" fill="#4A3B32" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">汉字练字卡</text>
+  </g>
+  <g id="大字卡">
+  <g id="card">
+    <rect x="67" y="113" width="240" height="300" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="67" y="110" width="240" height="300" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <rect x="127" y="150" width="120" height="120" rx="8" fill="none" stroke="#C9A063" stroke-width="2" opacity="0.6"/>    <line x1="187" y1="150" x2="187" y2="270" stroke="#C9A063" stroke-width="1" opacity="0.4"/>    <line x1="127" y1="210" x2="247" y2="210" stroke="#C9A063" stroke-width="1" opacity="0.4"/>    <text x="187" y="242" font-size="74" fill="#4A3B32" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">永</text>    <text x="187" y="302" font-size="14" fill="#8D7B70" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">yǒng · 5 画</text>    <text x="187" y="330" font-size="12" fill="#C9A063" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">横折钩 · 结构：独体</text>
+  </g>
+  <g id="田字格row">
+    <rect x="87" y="440" width="48" height="48" rx="6" fill="none" stroke="#C9A063" stroke-width="1.5" opacity="0.55"/>    <line x1="111" y1="440" x2="111" y2="488" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>    <line x1="87" y1="464" x2="135" y2="464" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>    <text x="111" y="476" font-size="30" fill="rgba(74,59,50,0.18)" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">永</text>
+    <rect x="143" y="440" width="48" height="48" rx="6" fill="none" stroke="#C9A063" stroke-width="1.5" opacity="0.55"/>    <line x1="167" y1="440" x2="167" y2="488" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>    <line x1="143" y1="464" x2="191" y2="464" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>    <text x="167" y="476" font-size="30" fill="rgba(74,59,50,0.18)" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">永</text>
+    <rect x="199" y="440" width="48" height="48" rx="6" fill="none" stroke="#C9A063" stroke-width="1.5" opacity="0.55"/>    <line x1="223" y1="440" x2="223" y2="488" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>    <line x1="199" y1="464" x2="247" y2="464" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>
+    <rect x="255" y="440" width="48" height="48" rx="6" fill="none" stroke="#C9A063" stroke-width="1.5" opacity="0.55"/>    <line x1="279" y1="440" x2="279" y2="488" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>    <line x1="255" y1="464" x2="303" y2="464" stroke="#C9A063" stroke-width="0.8" opacity="0.35"/>
+  </g>
+  <g id="cta">
+  <g id="cta">
+    <defs><linearGradient id="cta-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EF8A66"/><stop offset="1" stop-color="#E06244"/></linearGradient></defs>    <rect x="24" y="535" width="327" height="48" rx="24" fill="#BE4E33" opacity="0.9"/>    <rect x="24" y="530" width="327" height="48" rx="24" fill="url(#cta-grad)"/>    <text x="187.5" y="559.5" font-size="16" fill="#FFF9F2" font-weight="700" text-anchor="middle" letter-spacing="2" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">换一个字</text>
+  </g>
+  </g>
+  <g id="chips">
+  <g id="chips">
+    <rect x="24" y="608" width="62" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="55" y="628" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">一年级</text>    <rect x="96" y="608" width="62" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="127" y="628" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">二年级</text>    <rect x="168" y="608" width="62" height="30" rx="15" fill="#E4674A"/>    <text x="199" y="628" font-size="12" fill="#FFF9F2" font-weight="600" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">高频字</text>
+  </g>
+  </g></svg>

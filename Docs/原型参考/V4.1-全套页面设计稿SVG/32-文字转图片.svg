@@ -1,0 +1,39 @@
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>文字转图片</title>    <defs>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF9"/><stop offset="0.5" stop-color="#FFF6EC"/><stop offset="1" stop-color="#F7E8D4"/>
+    </linearGradient>
+  </defs>
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="url(#paperGrad)"/>
+    <rect x="0" y="716" width="375" height="96" fill="#FFF6EC" opacity="0.6"/>
+  <g id="statusbar">
+    <text x="28" y="34" font-size="15" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">9:41</text>    <line x1="150" y1="22" x2="158" y2="30" stroke="#4A3B32" stroke-width="2.5"/>    <line x1="158" y1="30" x2="170" y2="18" stroke="#4A3B32" stroke-width="2.5"/>    <rect x="300" y="24" width="22" height="11" rx="5.5" fill="none" stroke="#4A3B32" stroke-width="1.4"/>    <rect x="302" y="26" width="15" height="7" rx="2" fill="#4A3B32"/>    <rect x="326" y="27.5" width="2.5" height="7" rx="1" fill="#4A3B32"/>    <circle cx="322" cy="31" r="5.5" fill="none" stroke="#4A3B32" stroke-width="1.6" fill-opacity="0"/>    <rect x="319.5" y="24.5" width="5" height="5" rx="0" fill="none" fill="none"/>
+  </g>
+  <g id="capsule">
+    <rect x="278" y="48" width="87" height="32" rx="16" fill="rgba(0,0,0,0.06)"/>    <circle cx="305" cy="64" r="2.2" fill="#8D7B70"/>    <circle cx="305" cy="64" r="5.5" fill="none" stroke="#8D7B70" stroke-width="1.4" fill="none"/>    <line x1="330" y1="59" x2="344" y2="59" stroke="#8D7B70" stroke-width="2.4"/>    <line x1="330" y1="65" x2="344" y2="65" stroke="#8D7B70" stroke-width="2.4"/>
+  </g>
+  <g id="navbar">
+    <circle cx="30" cy="64" r="17" fill="rgba(255,255,255,0.9)"/>    <path d="M 35 56 L 25 64 L 35 72" fill="none" stroke="#4A3B32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>    <text x="187" y="70" font-size="17" fill="#4A3B32" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">文字转图片</text>
+  </g>
+  <g id="输入卡">
+  <g id="card">
+    <rect x="24" y="107" width="327" height="104" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="24" y="104" width="327" height="104" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <rect x="44" y="124" width="287" height="64" rx="12" fill="#FFF9F2" stroke="rgba(74,59,50,0.10)"/>    <text x="60" y="150" font-size="14" fill="#4A3B32" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">今天也是想躺平的一天</text>    <text x="60" y="172" font-size="14" fill="#E4674A" font-weight="700" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">|</text>
+  </g>
+  <g id="版式chips">
+  <g id="chips">
+    <rect x="24" y="228" width="52" height="30" rx="15" fill="#E4674A"/>    <text x="50" y="248" font-size="13" fill="#FFF9F2" font-weight="600" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">便签</text>    <rect x="86" y="228" width="52" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="112" y="248" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">长图</text>
+  </g>    <rect x="160" y="230" width="22" height="22" rx="8" fill="#FFF9F2" stroke="rgba(74,59,50,0.10)"/>    <rect x="190" y="230" width="22" height="22" rx="8" fill="#F7E8D4" stroke="rgba(74,59,50,0.10)" stroke-width="2"/>    <rect x="220" y="230" width="22" height="22" rx="8" fill="#E8DFF6" stroke="rgba(74,59,50,0.10)"/>
+  </g>
+  <g id="便签预览">
+    <rect x="59" y="282" width="257" height="240" rx="16" fill="#FFF9F2" stroke="rgba(74,59,50,0.08)"/>    <rect x="59" y="282" width="257" height="10" rx="0" fill="#E4674A" opacity="0.8" rx="5"/>    <text x="187" y="360" font-size="20" fill="#4A3B32" font-weight="700" text-anchor="middle" letter-spacing="2" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">今天也是</text>    <text x="187" y="394" font-size="20" fill="#4A3B32" font-weight="700" text-anchor="middle" letter-spacing="2" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">想躺平的一天</text>    <text x="187" y="494" font-size="10.5" fill="#B8A99E" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">— 趣工局 —</text>
+  </g>
+  <g id="cta">
+  <g id="cta">
+    <defs><linearGradient id="cta-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EF8A66"/><stop offset="1" stop-color="#E06244"/></linearGradient></defs>    <rect x="24" y="557" width="327" height="46" rx="23" fill="#BE4E33" opacity="0.9"/>    <rect x="24" y="552" width="327" height="46" rx="23" fill="url(#cta-grad)"/>    <text x="187.5" y="580.5" font-size="16" fill="#FFF9F2" font-weight="700" text-anchor="middle" letter-spacing="2" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">保存 / 发给朋友</text>
+  </g>
+  </g>
+  <g id="footnote">
+    <text x="187" y="636" font-size="11" fill="#B8A99E" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">便签适合一句话 · 长图自动换行排班</text>
+  </g></svg>

@@ -9,9 +9,12 @@
 .ptb-scroll {
   flex: 1;
   height: calc(100vh - 110px);
-  padding: 0 32px;
   box-sizing: border-box;
-}
+
+
+.ptb-scroll-pad {
+  padding: 0 0 48px;
+}}
 
 .ptb-pick {
   margin-top: 160px;

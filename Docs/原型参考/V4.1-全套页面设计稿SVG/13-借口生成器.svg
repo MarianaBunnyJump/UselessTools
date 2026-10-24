@@ -1,0 +1,39 @@
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>借口生成器</title>    <defs>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF9"/><stop offset="0.5" stop-color="#FFF6EC"/><stop offset="1" stop-color="#F7E8D4"/>
+    </linearGradient>
+  </defs>
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="url(#paperGrad)"/>
+    <rect x="0" y="716" width="375" height="96" fill="#FFF6EC" opacity="0.6"/>
+  <g id="statusbar">
+    <text x="28" y="34" font-size="15" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">9:41</text>    <line x1="150" y1="22" x2="158" y2="30" stroke="#4A3B32" stroke-width="2.5"/>    <line x1="158" y1="30" x2="170" y2="18" stroke="#4A3B32" stroke-width="2.5"/>    <rect x="300" y="24" width="22" height="11" rx="5.5" fill="none" stroke="#4A3B32" stroke-width="1.4"/>    <rect x="302" y="26" width="15" height="7" rx="2" fill="#4A3B32"/>    <rect x="326" y="27.5" width="2.5" height="7" rx="1" fill="#4A3B32"/>    <circle cx="322" cy="31" r="5.5" fill="none" stroke="#4A3B32" stroke-width="1.6" fill-opacity="0"/>    <rect x="319.5" y="24.5" width="5" height="5" rx="0" fill="none" fill="none"/>
+  </g>
+  <g id="capsule">
+    <rect x="278" y="48" width="87" height="32" rx="16" fill="rgba(0,0,0,0.06)"/>    <circle cx="305" cy="64" r="2.2" fill="#8D7B70"/>    <circle cx="305" cy="64" r="5.5" fill="none" stroke="#8D7B70" stroke-width="1.4" fill="none"/>    <line x1="330" y1="59" x2="344" y2="59" stroke="#8D7B70" stroke-width="2.4"/>    <line x1="330" y1="65" x2="344" y2="65" stroke="#8D7B70" stroke-width="2.4"/>
+  </g>
+  <g id="navbar">
+    <circle cx="30" cy="64" r="17" fill="rgba(255,255,255,0.9)"/>    <path d="M 35 56 L 25 64 L 35 72" fill="none" stroke="#4A3B32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>    <text x="187" y="70" font-size="17" fill="#4A3B32" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">借口生成器</text>
+  </g>
+  <g id="气泡">
+    <rect x="44" y="110" width="220" height="44" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)"/>    <text x="154" y="137" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">嗨～我是借口大师 🎭</text>    <circle cx="24" cy="132" r="14" fill="#F2A6B0"/>    <text x="24" y="137" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🎭</text>
+  </g>
+  <g id="气泡">
+    <rect x="44" y="170" width="220" height="44" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)"/>    <text x="154" y="197" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">今天遇到啥难题啦？</text>    <circle cx="24" cy="192" r="14" fill="#F2A6B0"/>    <text x="24" y="197" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🎭</text>
+  </g>
+  <g id="气泡-我">
+    <rect x="150" y="230" width="181" height="44" rx="16" fill="#E4674A"/>    <text x="240" y="257" font-size="13" fill="#FFF9F2" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🐶 遛狗忘了</text>
+  </g>
+  <g id="气泡">
+    <rect x="44" y="290" width="220" height="44" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)"/>    <text x="154" y="317" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">哦？这种局最难推了😏</text>    <circle cx="24" cy="312" r="14" fill="#F2A6B0"/>    <text x="24" y="317" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🎭</text>
+  </g>
+  <g id="选项面板">
+    <rect x="0" y="620" width="375" height="192" rx="0" fill="#FFFFFF"/>    <line x1="0" y1="620" x2="375" y2="620" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>    <text x="32" y="654" font-size="13" fill="#8D7B70" font-weight="700" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">换个口味</text>  <g id="chips">
+    <rect x="32" y="672" width="91" height="30" rx="15" fill="#E4674A"/>    <text x="77.5" y="692" font-size="13" fill="#FFF9F2" font-weight="600" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">😅 可怜</text>    <rect x="133" y="672" width="91" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="178.5" y="692" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">😂 搞笑</text>    <rect x="234" y="672" width="91" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="279.5" y="692" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🧊 高冷</text>    <rect x="335" y="672" width="91" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="380.5" y="692" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🤝 诚恳</text>    <rect x="436" y="672" width="91" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="481.5" y="692" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🎭 戏精</text>
+  </g>
+  </g>
+  <g id="cta">
+  <g id="cta">
+    <defs><linearGradient id="cta-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EF8A66"/><stop offset="1" stop-color="#E06244"/></linearGradient></defs>    <rect x="32" y="735" width="311" height="44" rx="22" fill="#BE4E33" opacity="0.9"/>    <rect x="32" y="730" width="311" height="44" rx="22" fill="url(#cta-grad)"/>    <text x="187.5" y="757.5" font-size="16" fill="#FFF9F2" font-weight="700" text-anchor="middle" letter-spacing="2" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">变一个 ✨</text>
+  </g>
+  </g></svg>

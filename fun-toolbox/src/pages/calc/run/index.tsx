@@ -59,6 +59,7 @@ export default function CalcRun() {
     <View className='page-root calcrun-root' style={{ background: theme.bg }}>
       <NavBar title={`${calc.icon} ${calc.name}`} />
       <ScrollView scrollY className='calcrun-scroll'>
+        <View className='calcrun-scroll-pad'>
         {/* 输入 */}
         <View className='calcrun-card'>
           {calc.fields.map(f => (
@@ -121,6 +122,7 @@ export default function CalcRun() {
         </View>
 
         <View className='calcrun-tip'>结果仅供参考 · 大额决策请以官方计算为准</View>
+      </View>
       </ScrollView>
     </View>
   )

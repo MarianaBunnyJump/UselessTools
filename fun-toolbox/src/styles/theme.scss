@@ -1,19 +1,19 @@
 /* ===================== 设计令牌（750 设计稿） ===================== */
 
-/* 主色系：暖色马卡龙 */
-$color-primary: #FF8A80;
-$color-primary-deep: #FF7043;
+/* 主色系：陶土暖调（terracotta 工牌感，替代早期马卡龙粉） */
+$color-primary: #E8795A;
+$color-primary-deep: #CE5B3F;
 $color-text-main: #4A3B32;
 $color-text-sub: #8D7B70;
 $color-text-light: #B8A99E;
 $color-card: rgba(255, 255, 255, 0.82);
 $color-card-solid: #FFFFFF;
-$color-border: rgba(255, 255, 255, 0.65);
+$color-border: rgba(74, 59, 50, 0.06);
 $color-danger: #EF5350;
 $color-success: #66BB6A;
 
 /* 六个工具的主题色 */
-$tool-crusher: #FF8A80;
+$tool-crusher: #E8795A;
 $tool-life: #B39DDB;
 $tool-mixer: #4DB6AC;
 $tool-merit: #FFB74D;
@@ -23,7 +23,7 @@ $tool-wheel: #FFAB91;
 /* 尺寸 */
 $page-padding: 32px;
 $card-radius: 28px;
-$btn-radius: 44px;
+$btn-radius: 32px;
 
 /* 字体：圆体优先（iOS Yuanti SC / 安卓回退系统默认），可爱放松 */
 $font-family: 'Yuanti SC', 'YouYuan', '幼圆', -apple-system, BlinkMacSystemFont,
@@ -33,7 +33,7 @@ $font-hand: 'Yuanti SC', 'YouYuan', 'KaiTi', '楷体', 'STKaiti', 'Xingkai SC', 
 /* 阴影 */
 $shadow-card: 0 10px 30px -12px rgba(74, 59, 50, 0.18);
 $shadow-card-hover: 0 14px 36px -12px rgba(74, 59, 50, 0.24);
-$shadow-btn: 0 8px 20px -8px rgba(255, 138, 128, 0.55);
+$shadow-btn: 0 6px 0 rgba(190, 78, 51, 0.9), 0 16px 30px -14px rgba(74, 59, 50, 0.42);
 
 /* 毛玻璃卡片 */
 @mixin glass-card {
@@ -42,6 +42,13 @@ $shadow-btn: 0 8px 20px -8px rgba(255, 138, 128, 0.55);
   border-radius: $card-radius;
   box-shadow: $shadow-card;
   backdrop-filter: blur(14px);
+}
+
+/* 实体按压按钮（工牌质感）：配合 hoverClass='press-down' 使用 */
+@mixin cta-press($edge: rgba(74, 59, 50, 0.22)) {
+  border-radius: 30px;
+  box-shadow: 0 6px 0 $edge, 0 16px 28px -14px rgba(74, 59, 50, 0.38);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 @mixin flex-center {

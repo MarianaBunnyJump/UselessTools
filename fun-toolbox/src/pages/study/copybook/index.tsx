@@ -10,6 +10,10 @@ import './index.scss'
 const SHEET_W = 750
 const SHEET_H = 1060
 
+/* 描红字体：楷体优先（字帖标准字形），无楷体的设备回退 serif（宋体感，
+   比默认黑体更接近手写帖），iOS/开发者工具均有楷体 */
+const KAI = '"Kaiti SC", "STKaiti", KaiTi, "BiauKai", "楷体", serif'
+
 export default function Copybook() {
   const [theme] = useState(getTheme())
   const [text, setText] = useState('王小明')
@@ -82,11 +86,11 @@ export default function Copybook() {
         }
         /* 描红浅字（前三格） */
         if (g < 3) {
-          ctx.fillStyle = 'rgba(74,59,50,0.16)'
-          ctx.font = '600 96px sans-serif'
+          ctx.fillStyle = 'rgba(74,59,50,0.18)'
+          ctx.font = `104px ${KAI}`
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
-          ctx.fillText(ch, gx + cell / 2, y + cell / 2 + 6)
+          ctx.fillText(ch, gx + cell / 2, y + cell / 2 + 8)
         }
       }
       /* 拼音 */
@@ -159,6 +163,7 @@ export default function Copybook() {
       <NavBar title='字帖生成器' />
 
       <ScrollView scrollY className='cpb-scroll'>
+        <View className='cpb-scroll-pad'>
         <View className='cpb-input-card'>
           <Input
             className='cpb-input'
@@ -180,8 +185,9 @@ export default function Copybook() {
           {chars.length === 0 && <View className='cpb-empty'>先输入内容</View>}
         </View>
 
-        <View className='cpb-save' onClick={save}>{saved ? '已保存 ✓ 再存一张' : '保存图片（可打印）'}</View>
+        <View className='cpb-save' hoverClass='press-down' onClick={save}>{saved ? '已保存 ✓ 再存一张' : '保存图片（可打印）'}</View>
         <View className='cpb-tip'>每字一行：3 格描红 + 2 格临写 · 附拼音 · 白底适合打印</View>
+      </View>
       </ScrollView>
     </View>
   )

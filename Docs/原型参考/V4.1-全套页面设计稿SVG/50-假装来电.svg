@@ -1,0 +1,19 @@
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>假装来电</title>    <defs>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF9"/><stop offset="0.5" stop-color="#FFF6EC"/><stop offset="1" stop-color="#F7E8D4"/>
+    </linearGradient>
+  </defs>
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="url(#paperGrad)"/>
+  <g id="statusbar">
+    <text x="28" y="34" font-size="15" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">9:41</text>    <line x1="150" y1="22" x2="158" y2="30" stroke="#4A3B32" stroke-width="2.5"/>    <line x1="158" y1="30" x2="170" y2="18" stroke="#4A3B32" stroke-width="2.5"/>    <rect x="300" y="24" width="22" height="11" rx="5.5" fill="none" stroke="#4A3B32" stroke-width="1.4"/>    <rect x="302" y="26" width="15" height="7" rx="2" fill="#4A3B32"/>    <rect x="326" y="27.5" width="2.5" height="7" rx="1" fill="#4A3B32"/>    <circle cx="322" cy="31" r="5.5" fill="none" stroke="#4A3B32" stroke-width="1.6" fill-opacity="0"/>    <rect x="319.5" y="24.5" width="5" height="5" rx="0" fill="none" fill="none"/>
+  </g>
+  <g id="capsule">
+    <rect x="278" y="48" width="87" height="32" rx="16" fill="rgba(0,0,0,0.06)"/>    <circle cx="305" cy="64" r="2.2" fill="#8D7B70"/>    <circle cx="305" cy="64" r="5.5" fill="none" stroke="#8D7B70" stroke-width="1.4" fill="none"/>    <line x1="330" y1="59" x2="344" y2="59" stroke="#8D7B70" stroke-width="2.4"/>    <line x1="330" y1="65" x2="344" y2="65" stroke="#8D7B70" stroke-width="2.4"/>
+  </g>
+  <g id="来电界面">
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="#1D1613"/>    <text x="187" y="250" font-size="34" fill="#FFF9F2" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">妈妈</text>    <text x="187" y="288" font-size="15" fill="rgba(255,249,242,0.55)" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">来电…</text>    <circle cx="187" cy="400" r="64" fill="rgba(255,249,242,0.12)"/>    <text x="187" y="424" font-size="44" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">👩</text>    <circle cx="110" cy="640" r="44" fill="#4CAF7D"/>    <text x="110" y="649" font-size="14" fill="#fff" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">接听</text>    <circle cx="264" cy="640" r="44" fill="#EF5350"/>    <text x="264" y="649" font-size="14" fill="#fff" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">挂断</text>
+  </g>
+  <g id="脚本提示">
+    <rect x="24" y="726" width="327" height="46" rx="12" fill="rgba(255,249,242,0.10)"/>    <text x="187" y="754" font-size="12" fill="rgba(255,249,242,0.8)" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">剧本「妈妈来电」· 15 秒后自动接通</text>
+  </g></svg>

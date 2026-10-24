@@ -45,6 +45,7 @@ export default function StrokeCard() {
       <NavBar title='汉字练字卡' />
 
       <ScrollView scrollY className='stc-scroll'>
+        <View className='stc-scroll-pad'>
         {/* 查字 */}
         <View className='stc-search'>
           <Input
@@ -98,6 +99,7 @@ export default function StrokeCard() {
         </View>
 
         <View className='stc-tip'>首批收录 95 个高频字速查；未收录的字自动注音，笔画部首持续补充</View>
+      </View>
       </ScrollView>
     </View>
   )

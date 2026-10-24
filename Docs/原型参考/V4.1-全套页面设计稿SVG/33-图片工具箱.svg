@@ -1,0 +1,41 @@
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>图片小工具箱</title>    <defs>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF9"/><stop offset="0.5" stop-color="#FFF6EC"/><stop offset="1" stop-color="#F7E8D4"/>
+    </linearGradient>
+  </defs>
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="url(#paperGrad)"/>
+    <rect x="0" y="716" width="375" height="96" fill="#FFF6EC" opacity="0.6"/>
+  <g id="statusbar">
+    <text x="28" y="34" font-size="15" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">9:41</text>    <line x1="150" y1="22" x2="158" y2="30" stroke="#4A3B32" stroke-width="2.5"/>    <line x1="158" y1="30" x2="170" y2="18" stroke="#4A3B32" stroke-width="2.5"/>    <rect x="300" y="24" width="22" height="11" rx="5.5" fill="none" stroke="#4A3B32" stroke-width="1.4"/>    <rect x="302" y="26" width="15" height="7" rx="2" fill="#4A3B32"/>    <rect x="326" y="27.5" width="2.5" height="7" rx="1" fill="#4A3B32"/>    <circle cx="322" cy="31" r="5.5" fill="none" stroke="#4A3B32" stroke-width="1.6" fill-opacity="0"/>    <rect x="319.5" y="24.5" width="5" height="5" rx="0" fill="none" fill="none"/>
+  </g>
+  <g id="capsule">
+    <rect x="278" y="48" width="87" height="32" rx="16" fill="rgba(0,0,0,0.06)"/>    <circle cx="305" cy="64" r="2.2" fill="#8D7B70"/>    <circle cx="305" cy="64" r="5.5" fill="none" stroke="#8D7B70" stroke-width="1.4" fill="none"/>    <line x1="330" y1="59" x2="344" y2="59" stroke="#8D7B70" stroke-width="2.4"/>    <line x1="330" y1="65" x2="344" y2="65" stroke="#8D7B70" stroke-width="2.4"/>
+  </g>
+  <g id="navbar">
+    <circle cx="30" cy="64" r="17" fill="rgba(255,255,255,0.9)"/>    <path d="M 35 56 L 25 64 L 35 72" fill="none" stroke="#4A3B32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>    <text x="187" y="70" font-size="17" fill="#4A3B32" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">图片小工具箱</text>
+  </g>
+  <g id="画布区">
+    <rect x="24" y="104" width="327" height="300" rx="18" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)"/>    <rect x="120" y="160" width="135" height="180" rx="12" fill="#F7E8D4"/>    <text x="187" y="250" font-size="44" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🌄</text>    <text x="187" y="290" font-size="12.5" fill="#8D7B70" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">所选图片</text>
+  </g>
+  <g id="操作chips">
+  <g id="chips">
+    <rect x="24" y="428" width="86" height="30" rx="15" fill="#E4674A"/>    <text x="67" y="448" font-size="12" fill="#FFF9F2" font-weight="600" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🔄 旋转</text>    <rect x="120" y="428" width="86" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="163" y="448" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🔁 镜像</text>    <rect x="216" y="428" width="86" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="259" y="448" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">🎨 滤镜</text>    <rect x="312" y="428" width="86" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="355" y="448" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">😀 贴字</text>
+  </g>
+  </g>
+  <g id="滤镜chips">
+  <g id="chips">
+    <rect x="24" y="474" width="50" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="49" y="494" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">原片</text>    <rect x="84" y="474" width="50" height="30" rx="15" fill="#E4674A"/>    <text x="109" y="494" font-size="12" fill="#FFF9F2" font-weight="600" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">暖阳</text>    <rect x="144" y="474" width="50" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="169" y="494" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">胶片</text>    <rect x="204" y="474" width="50" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="229" y="494" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">黑白</text>
+  </g>
+  </g>
+  <g id="隐私说明">
+  <g id="card">
+    <rect x="24" y="531" width="327" height="64" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="24" y="528" width="327" height="64" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <text x="44" y="556" font-size="13" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">所有处理在本机完成 · 不上传</text>    <text x="44" y="580" font-size="12" fill="#8D7B70" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">导出自动抹除位置信息</text>
+  </g>
+  <g id="cta">
+  <g id="cta">
+    <defs><linearGradient id="cta-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EF8A66"/><stop offset="1" stop-color="#E06244"/></linearGradient></defs>    <rect x="24" y="625" width="327" height="48" rx="24" fill="#BE4E33" opacity="0.9"/>    <rect x="24" y="620" width="327" height="48" rx="24" fill="url(#cta-grad)"/>    <text x="187.5" y="649.5" font-size="16" fill="#FFF9F2" font-weight="700" text-anchor="middle" letter-spacing="2" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">保存到相册</text>
+  </g>
+  </g></svg>

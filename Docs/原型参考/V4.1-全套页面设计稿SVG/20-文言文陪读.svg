@@ -1,0 +1,57 @@
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>文言文陪读</title>    <defs>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF9"/><stop offset="0.5" stop-color="#FFF6EC"/><stop offset="1" stop-color="#F7E8D4"/>
+    </linearGradient>
+  </defs>
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="url(#paperGrad)"/>
+    <rect x="0" y="716" width="375" height="96" fill="#FFF6EC" opacity="0.6"/>
+  <g id="statusbar">
+    <text x="28" y="34" font-size="15" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">9:41</text>    <line x1="150" y1="22" x2="158" y2="30" stroke="#4A3B32" stroke-width="2.5"/>    <line x1="158" y1="30" x2="170" y2="18" stroke="#4A3B32" stroke-width="2.5"/>    <rect x="300" y="24" width="22" height="11" rx="5.5" fill="none" stroke="#4A3B32" stroke-width="1.4"/>    <rect x="302" y="26" width="15" height="7" rx="2" fill="#4A3B32"/>    <rect x="326" y="27.5" width="2.5" height="7" rx="1" fill="#4A3B32"/>    <circle cx="322" cy="31" r="5.5" fill="none" stroke="#4A3B32" stroke-width="1.6" fill-opacity="0"/>    <rect x="319.5" y="24.5" width="5" height="5" rx="0" fill="none" fill="none"/>
+  </g>
+  <g id="capsule">
+    <rect x="278" y="48" width="87" height="32" rx="16" fill="rgba(0,0,0,0.06)"/>    <circle cx="305" cy="64" r="2.2" fill="#8D7B70"/>    <circle cx="305" cy="64" r="5.5" fill="none" stroke="#8D7B70" stroke-width="1.4" fill="none"/>    <line x1="330" y1="59" x2="344" y2="59" stroke="#8D7B70" stroke-width="2.4"/>    <line x1="330" y1="65" x2="344" y2="65" stroke="#8D7B70" stroke-width="2.4"/>
+  </g>
+  <g id="navbar">
+    <circle cx="30" cy="64" r="17" fill="rgba(255,255,255,0.9)"/>    <path d="M 35 56 L 25 64 L 35 72" fill="none" stroke="#4A3B32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>    <text x="187" y="70" font-size="17" fill="#4A3B32" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">文言文陪读</text>
+  </g>
+  <g id="进度">
+    <text x="28" y="112" font-size="13" fill="#4A3B32" font-weight="700" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">已读 6 · 背熟 2</text>    <rect x="160" y="102" width="150" height="8" rx="4" fill="rgba(74,59,50,0.08)"/>    <rect x="160" y="102" width="46" height="8" rx="4" fill="#E4674A"/>    <text x="322" y="112" font-size="12" fill="#B8A99E" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">/ 22</text>
+  </g>
+  <g id="学段tabs">
+  <g id="chips">
+    <rect x="24" y="132" width="52" height="30" rx="15" fill="#E4674A"/>    <text x="50" y="152" font-size="13" fill="#FFF9F2" font-weight="600" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">小学</text>    <rect x="86" y="132" width="52" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="112" y="152" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">初中</text>    <rect x="148" y="132" width="52" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="174" y="152" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">高中</text>
+  </g>
+  </g>
+  <g id="册row">
+  <g id="chips">
+    <rect x="24" y="178" width="74" height="30" rx="15" fill="#E4674A"/>    <text x="61" y="198" font-size="12" fill="#FFF9F2" font-weight="600" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">三年级上</text>    <rect x="108" y="178" width="74" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="145" y="198" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">五年级上</text>    <rect x="192" y="178" width="74" height="30" rx="15" fill="rgba(255,255,255,0.9)" stroke="rgba(74,59,50,0.08)"/>    <text x="229" y="198" font-size="12" fill="#4A3B32" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">七年级下</text>
+  </g>
+  </g>
+  <g id="篇目-司马光">
+  <g id="card">
+    <rect x="24" y="235" width="327" height="70" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="24" y="232" width="327" height="70" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <rect x="24" y="246" width="5" height="42" rx="3" fill="#E4674A"/>    <text x="44" y="262" font-size="15.5" fill="#4A3B32" font-weight="700" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">司马光</text>    <text x="44" y="286" font-size="11.5" fill="#8D7B70" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">宋 · 司马光 · 4 句</text>    <text x="336" y="274" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="end" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">✦</text>
+  </g>
+  <g id="篇目-守株待兔">
+  <g id="card">
+    <rect x="24" y="317" width="327" height="70" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="24" y="314" width="327" height="70" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <rect x="24" y="328" width="5" height="42" rx="3" fill="#E4674A"/>    <text x="44" y="344" font-size="15.5" fill="#4A3B32" font-weight="700" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">守株待兔</text>    <text x="44" y="368" font-size="11.5" fill="#8D7B70" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">先秦 · 韩非子 · 4 句</text>
+  </g>
+  <g id="篇目-精卫填海">
+  <g id="card">
+    <rect x="24" y="399" width="327" height="70" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="24" y="396" width="327" height="70" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <rect x="24" y="410" width="5" height="42" rx="3" fill="#E4674A"/>    <text x="44" y="426" font-size="15.5" fill="#4A3B32" font-weight="700" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">精卫填海</text>    <text x="44" y="450" font-size="11.5" fill="#8D7B70" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">先秦 · 山海经 · 4 句</text>    <text x="336" y="438" font-size="13" fill="#4A3B32" font-weight="400" text-anchor="end" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">⭐⭐</text>
+  </g>
+  <g id="篇目-王戎不取道旁李">
+  <g id="card">
+    <rect x="24" y="481" width="327" height="70" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="24" y="478" width="327" height="70" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <rect x="24" y="492" width="5" height="42" rx="3" fill="#E4674A"/>    <text x="44" y="508" font-size="15.5" fill="#4A3B32" font-weight="700" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">王戎不取道旁李</text>    <text x="44" y="532" font-size="11.5" fill="#8D7B70" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">南朝 · 世说新语 · 4 句</text>
+  </g>
+  <g id="footnote">
+    <text x="187" y="768" font-size="11" fill="#B8A99E" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">收录常见课本篇目 · 持续扩充</text>
+  </g></svg>

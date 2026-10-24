@@ -9,9 +9,12 @@
 .stc-scroll {
   flex: 1;
   height: calc(100vh - 110px);
-  padding: 0 32px;
   box-sizing: border-box;
-}
+
+
+.stc-scroll-pad {
+  padding: 0 0 48px;
+}}
 
 /* 查字 */
 .stc-search {
@@ -97,6 +100,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: "Kaiti SC", "STKaiti", KaiTi, "楷体", serif;
   font-size: 280px;
   font-weight: 600;
   color: #4a3b32;
@@ -172,6 +176,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: "Kaiti SC", "STKaiti", KaiTi, "楷体", serif;
   font-size: 76px;
   color: rgba(74, 59, 50, 0.18);
 }

@@ -9,9 +9,12 @@
 .pya-scroll {
   flex: 1;
   height: calc(100vh - 110px);
-  padding: 0 32px;
   box-sizing: border-box;
-}
+
+
+.pya-scroll-pad {
+  padding: 0 0 48px;
+}}
 
 .pya-card {
   margin-top: 22px;

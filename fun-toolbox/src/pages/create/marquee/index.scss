@@ -83,9 +83,12 @@
 .mq-scroll {
   flex: 1;
   height: calc(100vh - 110px);
-  padding: 0 32px;
   box-sizing: border-box;
-}
+
+
+.mq-scroll-pad {
+  padding: 0 0 48px;
+}}
 
 .mq-input-card {
   margin-top: 20px;
@@ -117,7 +120,8 @@
   color: #fff;
   font-size: 30px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ff9a8b, #ff6a88);
+  background: linear-gradient(180deg, #EF8A66, #E06244);
+  @include cta-press(#BE4E33);
 }
 
 .mq-presets {

@@ -56,6 +56,7 @@ export default function ZhConvert() {
       <NavBar title='简繁互转' />
 
       <ScrollView scrollY className='zhc-scroll'>
+        <View className='zhc-scroll-pad'>
         {/* 方向切换 */}
         <View className='zhc-dir'>
           <View
@@ -92,7 +93,7 @@ export default function ZhConvert() {
             <View className='zhc-label'>结果</View>
             <View className='zhc-output'>{out}</View>
             <View className='zhc-ops'>
-              <View className='zhc-op zhc-op--main' onClick={copy}>复制结果</View>
+              <View className='zhc-op zhc-op--main' hoverClass='press-down' onClick={copy}>复制结果</View>
               <View className='zhc-op' onClick={() => { setText(out); setDir(d => (d === 's2t' ? 't2s' : 's2t')) }}>转回去</View>
             </View>
           </View>
@@ -101,6 +102,7 @@ export default function ZhConvert() {
         <View className='zhc-tip'>
           词汇修正示例：头发→頭髮 · 干净→乾淨 · 软件→軟體 · 视频→影片
         </View>
+      </View>
       </ScrollView>
     </View>
   )

@@ -107,6 +107,7 @@ export default function Marquee() {
     <View className='page-root mq-root' style={{ background: theme.bg }}>
       <NavBar title='手持弹幕' />
       <ScrollView scrollY className='mq-scroll'>
+        <View className='mq-scroll-pad'>
         <View className='mq-input-card'>
           <Input
             className='mq-input'
@@ -116,7 +117,7 @@ export default function Marquee() {
             placeholderClass='mq-placeholder'
             onInput={e => setDraft(e.detail.value)}
           />
-          <View className='mq-go' onClick={() => start(draft)}>全屏播放</View>
+          <View className='mq-go' hoverClass='press-down' onClick={() => start(draft)}>全屏播放</View>
         </View>
 
         <View className='mq-presets'>
@@ -135,6 +136,7 @@ export default function Marquee() {
         )}
 
         <View className='mq-tip'>播放时：点屏幕返回 · 摇一摇换配色 · 镜像模式上下两行对称（接机举过头顶对面也能读正字）</View>
+      </View>
       </ScrollView>
     </View>
   )

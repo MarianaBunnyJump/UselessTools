@@ -62,9 +62,12 @@
 .cl-scroll {
   flex: 1;
   height: calc(100vh - 300px);
-  padding: 0 32px;
   box-sizing: border-box;
-}
+
+
+.cl-scroll-pad {
+  padding: 0 0 48px;
+}}
 
 /* 册 chips */
 .cl-volume-row {

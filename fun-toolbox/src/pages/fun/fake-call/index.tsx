@@ -206,6 +206,7 @@ export default function FakeCall() {
     <View className='page-root fc-root' style={{ background: theme.bg }}>
       <NavBar title='假装来电' />
       <ScrollView scrollY className='fc-scroll'>
+        <View className='fc-scroll-pad'>
         <View className='fc-label'>选个剧本</View>
         <View className='fc-scripts'>
           {Object.entries(SCRIPTS).map(([id, s]) => (
@@ -257,6 +258,7 @@ export default function FakeCall() {
         <View className='fc-disclaimer'>
           仅本机模拟演练 · 不接入真实通话 · 朗读需首次授权插件 · 本周已撤退 {totalEscapes} 次
         </View>
+      </View>
       </ScrollView>
     </View>
   )

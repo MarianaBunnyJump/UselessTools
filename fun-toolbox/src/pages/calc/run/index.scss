@@ -9,9 +9,12 @@
 .calcrun-scroll {
   flex: 1;
   height: calc(100vh - 110px);
-  padding: 0 32px;
   box-sizing: border-box;
-}
+
+
+.calcrun-scroll-pad {
+  padding: 0 0 48px;
+}}
 
 .calcrun-card {
   margin-top: 20px;

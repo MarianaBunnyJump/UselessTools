@@ -17,27 +17,28 @@ page,
   flex-direction: column;
 }
 
-/* ---------- 主按钮 ---------- */
+/* ---------- 主按钮（陶土工牌：实体按压） ---------- */
 .btn-primary {
   @include flex-center;
   width: 100%;
   height: 96px;
-  border-radius: $btn-radius;
-  background: linear-gradient(135deg, #FF9A8B, #FF6A88);
-  color: #fff;
+  border-radius: 32px;
+  background: linear-gradient(180deg, #EF8A66 0%, #E06244 100%);
+  color: #FFF9F2;
   font-size: 32px;
   font-weight: 700;
   letter-spacing: 2px;
-  box-shadow: $shadow-btn;
+  box-shadow: 0 6px 0 #BE4E33, 0 16px 30px -14px rgba(74, 59, 50, 0.42);
   border: none;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
 
   &::after {
     border: none;
   }
 
   &.active {
-    transform: scale(0.96);
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #BE4E33, 0 8px 18px -10px rgba(74, 59, 50, 0.35);
   }
 
   &.disabled {
@@ -46,22 +47,30 @@ page,
   }
 }
 
-/* ---------- 次级按钮 ---------- */
+/* ---------- 次级按钮（奶油底 + 墨褐描边） ---------- */
 .btn-ghost {
   @include flex-center;
   flex: 1;
   height: 88px;
-  border-radius: $btn-radius;
-  background: rgba(255, 255, 255, 0.7);
-  border: 2px solid rgba(255, 138, 128, 0.5);
-  color: $color-primary-deep;
+  border-radius: 32px;
+  background: rgba(255, 252, 247, 0.92);
+  border: 2px solid rgba(74, 59, 50, 0.15);
+  color: $color-text-main;
   font-size: 30px;
   font-weight: 600;
-  transition: transform 0.15s ease;
+  box-shadow: 0 5px 0 rgba(74, 59, 50, 0.1);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 
   &.active {
-    transform: scale(0.96);
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 rgba(74, 59, 50, 0.1);
   }
+}
+
+/* ---------- 实体按压反馈（配 hoverClass='press-down'） ---------- */
+.press-down {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 rgba(74, 59, 50, 0.22) !important;
 }
 
 /* ---------- 通用卡片 ---------- */

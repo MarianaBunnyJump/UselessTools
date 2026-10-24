@@ -9,9 +9,12 @@
 .zhc-scroll {
   flex: 1;
   height: calc(100vh - 110px);
-  padding: 0 32px;
   box-sizing: border-box;
-}
+
+
+.zhc-scroll-pad {
+  padding: 0 0 48px;
+}}
 
 .zhc-dir {
   display: flex;
@@ -97,7 +100,8 @@
   &.zhc-op--main {
     color: #fff;
     font-weight: 700;
-    background: linear-gradient(135deg, #ff9a8b, #ff6a88);
+    background: linear-gradient(180deg, #EF8A66, #E06244);
+    @include cta-press(#BE4E33);
   }
 }
 

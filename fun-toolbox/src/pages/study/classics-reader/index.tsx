@@ -2,10 +2,9 @@ import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { getTheme } from '../../../utils/theme'
-import { get, set } from '../../../utils/storage'
 import NavBar from '../../../components/NavBar'
 import { findArticle } from '../data/classics'
-import { getProgress } from '../classics/index'
+import { getProgress, saveProgress } from '../data/progress'
 import './index.scss'
 
 type Mode = 'read' | 'recite'
@@ -46,7 +45,7 @@ export default function ClassicsReader() {
       const cur = p[article.id] || { read: false, recite: 0 }
       if (!cur.read) {
         p[article.id] = { ...cur, read: true }
-        set('classics_progress', p)
+        saveProgress(p)
         setProgress(p)
       }
     }
@@ -114,7 +113,7 @@ export default function ClassicsReader() {
     const cur = p[article.id] || { read: true, recite: 0 }
     const next = good ? Math.min(3, cur.recite + 1) : Math.max(0, cur.recite - 1)
     p[article.id] = { read: true, recite: next }
-    set('classics_progress', p)
+    saveProgress(p)
     setProgress(p)
     Taro.showToast({ title: good ? (next >= 3 ? '背熟！⭐⭐⭐' : `进度 ⭐${'⭐'.repeat(Math.max(0, next - 1))}`) : '再来一遍', icon: 'none', duration: 1200 })
   }
@@ -135,6 +134,7 @@ export default function ClassicsReader() {
       <NavBar title={article.title} />
 
       <ScrollView scrollY className='cr-scroll'>
+        <View className='cr-scroll-pad'>
         <View className='cr-head'>
           <Text className='cr-title'>{article.title}</Text>
           <Text className='cr-meta'>{article.dynasty} · {article.author} · {article.grade}</Text>
@@ -228,6 +228,7 @@ export default function ClassicsReader() {
             ? '点句子高亮跟读（读出声效果最佳） · 点词看释义'
             : `当前背诵进度 ${'⭐'.repeat(cur.recite) || '尚无'} · 点◯偷看一个字`}
         </View>
+      </View>
       </ScrollView>
 
       {/* 释义浮层 */}

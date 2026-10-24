@@ -159,6 +159,7 @@ export default function PhotoToolbox() {
     <View className='page-root ptb-root' style={{ background: theme.bg }}>
       <NavBar title='图片小工具箱' />
       <ScrollView scrollY className='ptb-scroll'>
+        <View className='ptb-scroll-pad'>
         {!src ? (
           <View className='ptb-pick' onClick={pick}>
             <Text className='ptb-pick-icon'>📷</Text>
@@ -216,6 +217,7 @@ export default function PhotoToolbox() {
             <View className='ptb-tip'>导出走画布重编码：不带原图的定位、机型等隐私信息</View>
           </>
         )}
+      </View>
       </ScrollView>
     </View>
   )

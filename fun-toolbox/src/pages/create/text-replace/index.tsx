@@ -85,6 +85,7 @@ export default function TextReplace() {
     <View className='page-root trp-root' style={{ background: theme.bg }}>
       <NavBar title='文本批量替换' />
       <ScrollView scrollY className='trp-scroll'>
+        <View className='trp-scroll-pad'>
         <View className='trp-card'>
           <View className='trp-label'>原文</View>
           <Textarea
@@ -147,6 +148,7 @@ export default function TextReplace() {
         )}
 
         <View className='trp-tip'>替换为留空即为删除 · 规则从上到下依次执行 · 全程本地处理</View>
+      </View>
       </ScrollView>
     </View>
   )

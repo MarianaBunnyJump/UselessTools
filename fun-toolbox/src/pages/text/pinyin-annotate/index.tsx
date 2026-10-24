@@ -72,6 +72,7 @@ export default function PinyinAnnotate() {
       <NavBar title='拼音注音器' />
 
       <ScrollView scrollY className='pya-scroll'>
+        <View className='pya-scroll-pad'>
         <View className='pya-card'>
           <View className='pya-label'>写点什么，我来注音（最多 120 字）</View>
           <Textarea
@@ -105,6 +106,7 @@ export default function PinyinAnnotate() {
         )}
 
         <View className='pya-tip'>多音字按常用读音标注，点字可选正确读音，选择会被记住</View>
+      </View>
       </ScrollView>
 
       {pickIdx >= 0 && candidates.length > 0 && (

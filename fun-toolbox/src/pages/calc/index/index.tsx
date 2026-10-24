@@ -28,6 +28,7 @@ export default function CalcSuite() {
     <View className='page-root calc-index-root' style={{ background: theme.bg }}>
       <NavBar title='生活计算器' />
       <ScrollView scrollY className='calcix-scroll'>
+        <View className='calcix-scroll-pad'>
         {recentCalcs.length > 0 && (
           <>
             <View className='calcix-label'>最近用过</View>
@@ -53,6 +54,7 @@ export default function CalcSuite() {
         </View>
 
         <View className='calcix-tip'>每个结果都附一句「局长碎碎念」人话解读 · 数据不联网</View>
+      </View>
       </ScrollView>
     </View>
   )

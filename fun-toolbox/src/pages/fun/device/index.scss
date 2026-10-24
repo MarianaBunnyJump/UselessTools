@@ -9,9 +9,12 @@
 .dev-scroll {
   flex: 1;
   height: calc(100vh - 110px);
-  padding: 20px 32px;
   box-sizing: border-box;
-}
+
+
+.dev-scroll-pad {
+  padding: 20px 0 48px;
+}}
 
 .dev-row {
   display: flex;

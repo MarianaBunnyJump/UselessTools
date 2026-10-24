@@ -16,11 +16,11 @@ export interface BackgroundPreset {
 export const BACKGROUNDS: BackgroundPreset[] = [
   {
     id: 'cream',
-    name: '奶油橙',
-    bg: 'linear-gradient(172deg, #FFFDF9 0%, #FFF6EC 42%, #FFE9D2 100%)',
-    accent: '#FF8A80',
-    accentDeep: '#FF7043',
-    wheelColors: ['#FFD3C8', '#FFE5D9', '#FFC9BA', '#FFDCCE', '#FFD9CC', '#FFE8DE']
+    name: '奶油陶土',
+    bg: 'linear-gradient(172deg, #FFFDF9 0%, #FFF6EC 42%, #F7E8D4 100%)',
+    accent: '#E4674A',
+    accentDeep: '#C4523A',
+    wheelColors: ['#F9D9CC', '#F9E6D9', '#F5CDBB', '#F8DFD0', '#F7D6C6', '#FAE8DE']
   },
   {
     id: 'sakura',

@@ -1,0 +1,29 @@
+<svg width="375" height="812" viewBox="0 0 375 812" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>气泡庄园</title>    <defs>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF9"/><stop offset="0.5" stop-color="#FFF6EC"/><stop offset="1" stop-color="#F7E8D4"/>
+    </linearGradient>
+  </defs>
+    <rect x="0" y="0" width="375" height="812" rx="0" fill="url(#paperGrad)"/>
+    <rect x="0" y="716" width="375" height="96" fill="#FFF6EC" opacity="0.6"/>
+  <g id="statusbar">
+    <text x="28" y="34" font-size="15" fill="#4A3B32" font-weight="600" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">9:41</text>    <line x1="150" y1="22" x2="158" y2="30" stroke="#4A3B32" stroke-width="2.5"/>    <line x1="158" y1="30" x2="170" y2="18" stroke="#4A3B32" stroke-width="2.5"/>    <rect x="300" y="24" width="22" height="11" rx="5.5" fill="none" stroke="#4A3B32" stroke-width="1.4"/>    <rect x="302" y="26" width="15" height="7" rx="2" fill="#4A3B32"/>    <rect x="326" y="27.5" width="2.5" height="7" rx="1" fill="#4A3B32"/>    <circle cx="322" cy="31" r="5.5" fill="none" stroke="#4A3B32" stroke-width="1.6" fill-opacity="0"/>    <rect x="319.5" y="24.5" width="5" height="5" rx="0" fill="none" fill="none"/>
+  </g>
+  <g id="capsule">
+    <rect x="278" y="48" width="87" height="32" rx="16" fill="rgba(0,0,0,0.06)"/>    <circle cx="305" cy="64" r="2.2" fill="#8D7B70"/>    <circle cx="305" cy="64" r="5.5" fill="none" stroke="#8D7B70" stroke-width="1.4" fill="none"/>    <line x1="330" y1="59" x2="344" y2="59" stroke="#8D7B70" stroke-width="2.4"/>    <line x1="330" y1="65" x2="344" y2="65" stroke="#8D7B70" stroke-width="2.4"/>
+  </g>
+  <g id="navbar">
+    <circle cx="30" cy="64" r="17" fill="rgba(255,255,255,0.9)"/>    <path d="M 35 56 L 25 64 L 35 72" fill="none" stroke="#4A3B32" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>    <text x="187" y="70" font-size="17" fill="#4A3B32" font-weight="700" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">气泡庄园</text>
+  </g>
+  <g id="气泡">
+    <circle cx="80" cy="160" r="26" fill="#F9D9CC"/>    <circle cx="72.2" cy="152.2" r="6.5" fill="rgba(255,255,255,0.7)"/>    <circle cx="290" cy="210" r="18" fill="#DDF0E3"/>    <circle cx="284.6" cy="204.6" r="4.5" fill="rgba(255,255,255,0.7)"/>    <circle cx="150" cy="260" r="14" fill="#F5CDBB"/>    <circle cx="145.8" cy="255.8" r="3.5" fill="rgba(255,255,255,0.7)"/>    <circle cx="250" cy="330" r="30" fill="#E8DFF6"/>    <circle cx="241" cy="321" r="7.5" fill="rgba(255,255,255,0.7)"/>    <circle cx="90" cy="380" r="16" fill="#DCF0FA"/>    <circle cx="85.2" cy="375.2" r="4" fill="rgba(255,255,255,0.7)"/>
+  </g>
+  <g id="说明卡">
+  <g id="card">
+    <rect x="24" y="463" width="327" height="120" rx="16" fill="rgba(74,59,50,0.10)" blur="8" opacity="0.35"/>
+    <rect x="24" y="460" width="327" height="120" rx="16" fill="#FFFFFF" stroke="rgba(74,59,50,0.08)" stroke-width="1"/>
+  </g>    <text x="44" y="496" font-size="16" fill="#4A3B32" font-weight="800" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">点气泡 +1 庄园币</text>    <text x="44" y="524" font-size="12.5" fill="#8D7B70" font-weight="400" text-anchor="start" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">攒币解锁新气泡皮肤 · 纯解压</text>
+  </g>
+  <g id="计数">
+    <text x="187" y="640" font-size="13" fill="#8D7B70" font-weight="400" text-anchor="middle" font-family="'PingFang SC','Yuanti SC','Microsoft YaHei',sans-serif">今日 36 泡</text>
+  </g></svg>

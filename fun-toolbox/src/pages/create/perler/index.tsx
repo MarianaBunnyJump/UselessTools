@@ -134,7 +134,9 @@ export default function Perler() {
         .exec(res => {
           if (res && res[0] && res[0].node) {
             canvasRef.current = res[0].node
-            if (grid.length > 0) renderGrid(grid)
+            /* 空棋盘也先画出来：画布必须常驻挂载，否则条件渲染会导致
+               绑定时机错过、后续 renderGrid 全部落空（V4.1 修复） */
+            renderGrid(grid)
           }
         })
     }, 80)
@@ -220,8 +222,9 @@ export default function Perler() {
       <Canvas type='2d' id='perlerWork' className='prl-hidden' />
 
       <ScrollView scrollY className='prl-scroll'>
+        <View className='prl-scroll-pad'>
         <View className='prl-actions'>
-          <View className='prl-pick' onClick={pickImage}>{busy ? '生成中…' : '📷 选一张照片'}</View>
+          <View className='prl-pick' hoverClass='press-down' onClick={pickImage}>{busy ? '生成中…' : '📷 选一张照片'}</View>
         </View>
 
         {/* 模板库 */}
@@ -232,11 +235,13 @@ export default function Perler() {
           ))}
         </View>
 
-        {grid.length > 0 && (
+        {/* 预览画布：常驻挂载（无条件渲染），空态画空棋盘 */}
+        <View className='prl-preview'>
+          <Canvas type='2d' id='perlerGrid' className='prl-canvas' canvasId='perlerGrid' />
+        </View>
+
+        {grid.length > 0 ? (
           <>
-            <View className='prl-preview'>
-              <Canvas type='2d' id='perlerGrid' className='prl-canvas' canvasId='perlerGrid' />
-            </View>
             <View className='prl-meta'>29×29（15cm 板） · 共 {totalBeads} 颗 · {list.length} 种颜色</View>
 
             {/* 颗粒清单 */}
@@ -253,11 +258,9 @@ export default function Perler() {
               ))}
             </View>
 
-            <View className='prl-export' onClick={exportSheet}>导出图纸大图（网格+色号）</View>
+            <View className='prl-export' hoverClass='press-down' onClick={exportSheet}>导出图纸大图（网格+色号）</View>
           </>
-        )}
-
-        {grid.length === 0 && (
+        ) : (
           <View className='prl-empty'>
             <Text className='prl-empty-icon'>🧩</Text>
             <View className='prl-empty-text'>选照片自动转 29×29 图纸</View>
@@ -266,6 +269,7 @@ export default function Perler() {
         )}
 
         <View className='prl-tip'>取色为通用 48 色系近似匹配，不同品牌色号略有差异</View>
+      </View>
       </ScrollView>
     </View>
   )
