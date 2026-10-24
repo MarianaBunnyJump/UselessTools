@@ -109,28 +109,30 @@ export default function Excuse() {
       />
 
       <ScrollView className='excuse-chat' scrollY scrollWithAnimation scrollIntoView={scrollId}>
-        {messages.map(m => (
-          <View
-            key={m.id}
-            id={`msg-${m.id}`}
-            className={`excuse-msg-row ${m.from === 'bot' ? 'excuse-msg-row--bot' : 'excuse-msg-row--user'}`}
-          >
-            {m.from === 'bot' && <Text className='excuse-avatar'>🎭</Text>}
-            <View className={`excuse-bubble excuse-bubble--${m.from}`}>
-              <Text>{m.text}</Text>
+        <View className='excuse-chat-pad'>
+          {messages.map(m => (
+            <View
+              key={m.id}
+              id={`msg-${m.id}`}
+              className={`excuse-msg-row ${m.from === 'bot' ? 'excuse-msg-row--bot' : 'excuse-msg-row--user'}`}
+            >
+              {m.from === 'bot' && <Text className='excuse-avatar'>🎭</Text>}
+              <View className={`excuse-bubble excuse-bubble--${m.from}`}>
+                <Text>{m.text}</Text>
+              </View>
             </View>
-          </View>
-        ))}
-        {typing && (
-          <View className='excuse-msg-row excuse-msg-row--bot' id='msg-typing'>
-            <Text className='excuse-avatar'>🎭</Text>
-            <View className='excuse-bubble excuse-bubble--bot excuse-typing'>
-              <View className='excuse-typing-dot' />
-              <View className='excuse-typing-dot excuse-typing-dot--2' />
-              <View className='excuse-typing-dot excuse-typing-dot--3' />
+          ))}
+          {typing && (
+            <View className='excuse-msg-row excuse-msg-row--bot' id='msg-typing'>
+              <Text className='excuse-avatar'>🎭</Text>
+              <View className='excuse-bubble excuse-bubble--bot excuse-typing'>
+                <View className='excuse-typing-dot' />
+                <View className='excuse-typing-dot excuse-typing-dot--2' />
+                <View className='excuse-typing-dot excuse-typing-dot--3' />
+              </View>
             </View>
-          </View>
-        )}
+          )}
+        </View>
       </ScrollView>
 
       <View className='excuse-dock safe-bottom'>

@@ -1,0 +1,272 @@
+@import '../../../styles/theme.scss';
+
+/* ===================== 趣味选择器 ===================== */
+
+.fp-root {
+  min-height: 100vh;
+}
+
+/* ---------- 页签 ---------- */
+.fp-tabs {
+  display: flex;
+  margin: 8px 24px 0;
+  padding: 6px;
+  border-radius: 34px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(74, 59, 50, 0.06);
+}
+
+.fp-tab {
+  flex: 1;
+  height: 64px;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 27px;
+  font-weight: 600;
+  color: $color-text-sub;
+  transition: all 0.18s ease;
+}
+
+.fp-tab--on {
+  color: #fff9f2;
+  box-shadow: 0 6px 14px -8px rgba(74, 59, 50, 0.45);
+}
+
+.fp-tab-icon {
+  font-size: 28px;
+}
+
+/* ---------- 3D 舞台 ---------- */
+.fp-stage {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 0;
+}
+
+.fp-canvas {
+  display: block;
+}
+
+/* ---------- 面板 ---------- */
+.fp-panel {
+  margin: 6px 24px 0;
+  padding: 22px 26px 26px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(74, 59, 50, 0.06);
+  box-shadow: 0 10px 30px -16px rgba(74, 59, 50, 0.25);
+}
+
+.fp-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.fp-chip-label {
+  font-size: 24px;
+  color: $color-text-sub;
+}
+
+.fp-chip {
+  padding: 8px 24px;
+  border-radius: 24px;
+  font-size: 24px;
+  color: $color-text-main;
+  background: rgba(74, 59, 50, 0.05);
+  transition: all 0.15s ease;
+}
+
+.fp-chip--on {
+  color: #fff9f2;
+  font-weight: 700;
+}
+
+/* ---------- 结果 ---------- */
+.fp-result-row {
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.fp-result-big {
+  font-size: 56px;
+  font-weight: 800;
+  color: $color-text-main;
+  font-variant-numeric: tabular-nums;
+}
+
+.fp-result-sub {
+  font-size: 24px;
+  color: $color-text-sub;
+}
+
+.fp-result-idle {
+  font-size: 26px;
+  color: $color-text-light;
+}
+
+/* ---------- 主按钮 ---------- */
+.fp-cta {
+  @include cta-press;
+  height: 92px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #ef8a66, #e06244);
+  color: #fff9f2;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.fp-tip {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 21px;
+  color: $color-text-light;
+}
+
+/* ---------- 签文卡 ---------- */
+.fp-fortune-card {
+  margin: 4px 0 18px;
+  padding: 24px 26px;
+  border-radius: 20px;
+  background: #fffaf3;
+  border: 1px solid rgba(201, 160, 99, 0.35);
+}
+
+.fp-fortune-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fp-fortune-grade {
+  padding: 6px 18px;
+  border-radius: 18px;
+  color: #fff9f2;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.fp-fortune-title {
+  flex: 1;
+  font-size: 32px;
+  font-weight: 800;
+  color: $color-text-main;
+}
+
+.fp-fortune-no {
+  font-size: 22px;
+  color: $color-text-light;
+}
+
+.fp-fortune-poem {
+  margin: 18px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+
+  text {
+    font-family: 'Kaiti SC', 'STKaiti', KaiTi, '楷体', serif;
+    font-size: 30px;
+    color: #6b5242;
+    letter-spacing: 4px;
+  }
+}
+
+.fp-fortune-read {
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.fp-fortune-read-label {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(201, 160, 99, 0.2);
+  color: #8a6a33;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 36px;
+}
+
+.fp-fortune-read-text {
+  flex: 1;
+  font-size: 25px;
+  line-height: 1.7;
+  color: $color-text-sub;
+}
+
+/* ---------- 自定义签 ---------- */
+.fp-custom {
+  margin-top: 18px;
+  border-top: 1px dashed rgba(74, 59, 50, 0.12);
+  padding-top: 18px;
+}
+
+.fp-custom-add {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.fp-custom-input {
+  flex: 1;
+  height: 68px;
+  padding: 0 24px;
+  border-radius: 20px;
+  background: #fff9f2;
+  border: 1px solid rgba(74, 59, 50, 0.1);
+  font-size: 26px;
+}
+
+.fp-placeholder {
+  color: $color-text-light;
+}
+
+.fp-custom-btn {
+  padding: 0 30px;
+  height: 68px;
+  border-radius: 20px;
+  background: rgba(228, 103, 74, 0.12);
+  color: #c4523a;
+  font-size: 26px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.fp-custom-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 6px;
+  border-bottom: 1px solid rgba(74, 59, 50, 0.05);
+}
+
+.fp-custom-item-text {
+  flex: 1;
+  font-size: 26px;
+  color: $color-text-main;
+}
+
+.fp-custom-del {
+  padding: 4px 16px;
+  font-size: 30px;
+  color: $color-text-light;
+}

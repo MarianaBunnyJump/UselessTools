@@ -50,3 +50,13 @@
   justify-content: flex-end;
   box-sizing: border-box;
 }
+
+/* 页面滚动时内容从导航下方滑过，不再钻进胶囊区域 */
+.nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 249, 242, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}

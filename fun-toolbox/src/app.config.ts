@@ -53,7 +53,7 @@ export default defineAppConfig({
     },
     {
       root: 'pages/fun',
-      pages: ['fake-call/index', 'device/index']
+      pages: ['fake-call/index', 'device/index', 'fun-picker/index']
     }
   ],
   /* 同声传译插件声明暂缓：需先在 MP 后台「设置→第三方设置→插件管理」添加

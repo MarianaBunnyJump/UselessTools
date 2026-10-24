@@ -453,3 +453,9 @@
   font-size: 22px;
   color: #6b5a4f;
 }
+
+/* 横向滚动行尾部留白：最后一个标签不被截断 */
+.wheel-row-tail {
+  display: inline-block;
+  width: 24px;
+}

@@ -873,6 +873,7 @@ export default function Wheel() {
             <Text className='wheel-scene-name'>{sc.name}</Text>
           </View>
         ))}
+        <View className='wheel-row-tail' />
       </ScrollView>
 
       {/* ---------- 方案 Tab ---------- */}
@@ -899,6 +900,7 @@ export default function Wheel() {
         <View className='wheel-tab wheel-tab--new' onClick={createConfig}>
           ＋新建
         </View>
+        <View className='wheel-row-tail' />
       </ScrollView>
 
       {/* ---------- 转盘（支持拖动甩动 / 点按启动） ---------- */}

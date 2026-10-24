@@ -243,5 +243,16 @@ export const TOOLS: ToolMeta[] = [
     boxColorDeep: '#FFBECF',
     ribbonColor: '#EC6F9C',
     category: 'fun'
+  },
+  {
+    id: 'funpicker',
+    name: '趣味选择器',
+    icon: '🎲',
+    desc: '3D 骰子 硬币 摇签',
+    path: '/pages/fun/fun-picker/index',
+    boxColor: '#F9D9CC',
+    boxColorDeep: '#F5CDBB',
+    ribbonColor: '#C4523A',
+    category: 'fun'
   }
 ]

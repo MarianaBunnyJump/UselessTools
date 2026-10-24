@@ -809,6 +809,44 @@ pages['60-关于'] = () => {
   return svgOpen('关于') + parts.join('\n') + svgClose()
 }
 
+pages['52-趣味选择器'] = () => {
+  const parts = [pageBase('趣味选择器')]
+  parts.push(navBar('趣味选择器'))
+  /* 页签 */
+  parts.push(g('页签',
+    rect(24, 100, 327, 60, 'rgba(255,255,255,0.62)', 30, `stroke="rgba(74,59,50,0.06)"`) +
+    rect(28, 104, 106, 52, T.terra, 26) +
+    text(81, 137, '🎲 骰子', { size: 14, fill: '#FFF9F2', weight: 700, anchor: 'middle' }) +
+    text(187, 137, '🪙 硬币', { size: 14, fill: T.sub, anchor: 'middle' }) +
+    text(293, 137, '🎋 摇签', { size: 14, fill: T.sub, anchor: 'middle' })
+  ))
+  /* 3D 骰子（等轴测示意） */
+  parts.push(g('3D骰子',
+    `    <ellipse cx="187" cy="380" rx="86" ry="22" fill="rgba(74,59,50,0.14)"/>` +
+    `    <path d="M 127 240 L 247 240 L 267 258 L 267 330 L 147 330 L 127 312 Z" fill="#FFF6EC" stroke="#E3D5C6" stroke-width="1.5"/>` +
+    `    <path d="M 127 240 L 147 222 L 267 222 L 247 240 Z" fill="#FFFBF4" stroke="#E3D5C6" stroke-width="1.5"/>` +
+    `    <path d="M 247 240 L 267 222 L 267 294 L 247 312 Z" fill="#F4E7D8" stroke="#E3D5C6" stroke-width="1.5"/>` +
+    circle(167, 282, 9, '#C4523A') + circle(207, 282, 9, '#C4523A') +
+    circle(167, 258, 6, '#C4523A') + circle(207, 258, 6, '#C4523A') +
+    circle(167, 306, 6, '#C4523A') + circle(207, 306, 6, '#C4523A') +
+    circle(237, 240, 5, '#C4523A') + circle(253, 228, 5, '#C4523A')
+  ))
+  parts.push(g('面板',
+    rect(24, 420, 327, 250, 'rgba(255,255,255,0.78)', 26, `stroke="rgba(74,59,50,0.06)"`) +
+    text(52, 462, '个数', { size: 12, fill: T.sub }) +
+    rect(96, 444, 52, 30, 'rgba(74,59,50,0.05)', 15) + text(122, 464, '1 个', { size: 12, anchor: 'middle', fill: T.sub }) +
+    rect(156, 444, 52, 30, T.terra, 15) + text(182, 464, '2 个', { size: 12, fill: '#FFF9F2', weight: 700, anchor: 'middle' }) +
+    rect(216, 444, 52, 30, 'rgba(74,59,50,0.05)', 15) + text(242, 464, '3 个', { size: 12, anchor: 'middle', fill: T.sub }) +
+    text(187, 522, 'Σ 9', { size: 30, weight: 800, anchor: 'middle' }) +
+    text(187, 548, '5 + 4 · 就这一把', { size: 12, fill: T.sub, anchor: 'middle' })
+  ))
+  parts.push(g('cta', cta(24, 596, 327, '掷出去', { h: 46 })))
+  parts.push(g('硬币缩略', circle(60, 200, 22, '#E9CF9E', '', 'stroke="#B98F52" stroke-width="1.5"') + text(60, 206, '趣', { size: 15, anchor: 'middle', fill: '#8A6A33', weight: 700 })))
+  parts.push(g('签筒缩略', rect(298, 178, 26, 46, '#B85C42', 6) + line(306, 168, 316, 178, '#C4523A', 4, 'stroke-linecap="round"') + line(312, 164, 320, 176, '#C4523A', 4, 'stroke-linecap="round"')))
+  parts.push(tip(H - 42, '3D 实时渲染 · 骰子/硬币/摇签三页签'))
+  return svgOpen('趣味选择器') + parts.join('\n') + svgClose()
+}
+
 /* ---------- 生成 ---------- */
 let n = 0
 for (const [name, fn] of Object.entries(pages)) {
