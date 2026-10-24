@@ -63,7 +63,7 @@ export default function ClassicsReader() {
     }
     setPlaying(si)
     if (!ttsAvailable()) {
-      Taro.showToast({ title: '朗读插件未就绪（首次需授权）', icon: 'none', duration: 1600 })
+      Taro.showToast({ title: '朗读未开通（需后台添加同声传译插件），拼音注释照常使用', icon: 'none', duration: 2200 })
       setPlaying(-1)
       setPlayingAll(false)
       return
@@ -231,7 +231,7 @@ export default function ClassicsReader() {
 
         <View className='cr-tip'>
           {mode === 'read'
-            ? '点句子听朗读 · 点词看释义 · 朗读需首次授权插件'
+            ? '点句子听朗读 · 点词看释义（朗读功能需后台开通插件，其余不受影响）'
             : `当前背诵进度 ${'⭐'.repeat(cur.recite) || '尚无'} · 点◯偷看一个字`}
         </View>
       </ScrollView>
