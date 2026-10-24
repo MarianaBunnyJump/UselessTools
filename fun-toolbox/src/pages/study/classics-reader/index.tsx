@@ -3,7 +3,6 @@ import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { getTheme } from '../../../utils/theme'
 import { get, set } from '../../../utils/storage'
-import { speak, ttsAvailable } from '../../../utils/tts'
 import NavBar from '../../../components/NavBar'
 import { findArticle } from '../data/classics'
 import { getProgress } from '../classics/index'
@@ -24,7 +23,10 @@ export default function ClassicsReader() {
   const article = found?.article
 
   const [mode, setMode] = useState<Mode>('read')
-  const [speed, setSpeed] = useState(1.0)
+  /* 跟读节拍：每字毫秒（慢420/中320/快220） */
+  const BEATS = [420, 320, 220]
+  const [beatIdx, setBeatIdx] = useState(1)
+  const beatRef = useRef(BEATS[1])
   const [playing, setPlaying] = useState(-1)   /* 正在朗读的句序 */
   const [playingAll, setPlayingAll] = useState(false)
   const [noteFor, setNoteFor] = useState<{ si: number; word: string; meaning: string } | null>(null)
@@ -62,30 +64,21 @@ export default function ClassicsReader() {
       return
     }
     setPlaying(si)
-    if (!ttsAvailable()) {
-      Taro.showToast({ title: '朗读未开通（需后台添加同声传译插件），拼音注释照常使用', icon: 'none', duration: 2200 })
-      setPlaying(-1)
-      setPlayingAll(false)
-      return
-    }
-    speak(s.text.replace(/[，。；：？！、]/g, '，'), {
-      speed,
-      done: () => {
-        if (thenNext && si + 1 < article.sentences.length) {
-          playTimer.current = setTimeout(() => playSentence(si + 1, true), 420)
-        } else if (thenNext) {
-          setPlaying(-1)
-          setPlayingAll(false)
-        } else {
-          setPlaying(-1)
-        }
-      },
-      fail: () => {
+    /* 跟读节拍：同声传译插件不支持个人主体，改为按字数估算的阅读节奏高亮
+       （自己读出声，工具打节拍）；未来升级主体开通插件后自动切换真朗读 */
+    const chars = s.text.replace(/[，。；：？！、\s]/g, '').length
+    const beat = Math.max(900, chars * beatRef.current)
+    playTimer.current = setTimeout(() => {
+      if (thenNext && si + 1 < article.sentences.length) {
+        playSentence(si + 1, true)
+      } else if (thenNext) {
         setPlaying(-1)
         setPlayingAll(false)
+      } else {
+        setPlaying(-1)
       }
-    })
-  }, [article, speed])
+    }, beat)
+  }, [article])
 
   const toggleSentence = (si: number) => {
     if (playing === si) {
@@ -108,10 +101,11 @@ export default function ClassicsReader() {
     playSentence(0, true)
   }
 
-  const cycleSpeed = () => {
-    const next = speed === 1.0 ? 1.2 : speed === 1.2 ? 0.8 : 1.0
-    setSpeed(next)
-    Taro.showToast({ title: `语速 ${next}×`, icon: 'none', duration: 800 })
+  const cycleBeat = () => {
+    const next = (beatIdx + 1) % BEATS.length
+    beatRef.current = BEATS[next]
+    setBeatIdx(next)
+    Taro.showToast({ title: `跟读节奏：${['慢', '中', '快'][next]}`, icon: 'none', duration: 800 })
   }
 
   const selfGrade = (good: boolean) => {
@@ -158,7 +152,7 @@ export default function ClassicsReader() {
           <View className={`cr-tool ${playingAll ? 'cr-tool--on' : ''}`} onClick={togglePlayAll}>
             {playingAll ? '停止连播' : '本篇连播'}
           </View>
-          <View className='cr-tool' onClick={cycleSpeed}>{speed}×</View>
+          <View className='cr-tool' onClick={cycleBeat}>{['慢', '中', '快'][beatIdx]}速</View>
         </View>
 
         {/* 正文 */}
@@ -231,7 +225,7 @@ export default function ClassicsReader() {
 
         <View className='cr-tip'>
           {mode === 'read'
-            ? '点句子听朗读 · 点词看释义（朗读功能需后台开通插件，其余不受影响）'
+            ? '点句子高亮跟读（读出声效果最佳） · 点词看释义'
             : `当前背诵进度 ${'⭐'.repeat(cur.recite) || '尚无'} · 点◯偷看一个字`}
         </View>
       </ScrollView>
