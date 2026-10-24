@@ -979,24 +979,6 @@ export default function Index() {
         )}
       </View>
 
-      {/* 登记系统入口 */}
-      <View className='home-registration-entry'>
-        <View className='home-registration-card' onClick={() => Taro.navigateTo({ url: '/pages/registration/index' })}>
-          <Text className='home-registration-icon'>📝</Text>
-          <Text className='home-registration-text'>登记系统</Text>
-          <Text className='home-registration-arrow'>▸</Text>
-        </View>
-      </View>
-
-      {/* 临时简单版等级入口 */}
-      <View className='home-simple-level-entry'>
-        <View className='home-simple-level-card' onClick={() => Taro.navigateTo({ url: '/pages/level/simple-level' })}>
-          <Text className='home-simple-level-icon'>📱</Text>
-          <Text className='home-simple-level-text'>简单版等级</Text>
-          <Text className='home-simple-level-arrow'>▸</Text>
-        </View>
-      </View>
-
       <View
         className='home-grid'
         style={{
