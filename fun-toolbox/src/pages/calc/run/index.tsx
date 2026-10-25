@@ -11,9 +11,10 @@ export default function CalcRun() {
   const params = Taro.getCurrentInstance().router?.params || {}
   const calc = findCalc(params.id || CALCS[0].id) || CALCS[0]
 
-  /* 字段初值 */
-  const [values, setValues] = useState<Record<string, number>>(() => {
-    const init: Record<string, number> = {}
+  /* 字段值：数字输入保留原始串（"17." 这类中间态不被 parseFloat 吃掉小数点），
+   * 计算时再统一转数字；select 字段直接存数字 */
+  const [vals, setVals] = useState<Record<string, string | number>>(() => {
+    const init: Record<string, string | number> = {}
     calc.fields.forEach(f => (init[f.key] = f.defaultValue ?? 0))
     return init
   })
@@ -28,6 +29,17 @@ export default function CalcRun() {
     path: '/pages/index/index'
   }))
 
+  const values = useMemo(() => {
+    const nums: Record<string, number> = {}
+    calc.fields.forEach(f => {
+      const raw = vals[f.key]
+      let v = typeof raw === 'number' ? raw : parseFloat(raw)
+      if (isNaN(v)) v = 0
+      nums[f.key] = v
+    })
+    return nums
+  }, [calc, vals])
+
   const result = useMemo(() => {
     try {
       return calc.compute(values)
@@ -37,14 +49,12 @@ export default function CalcRun() {
   }, [calc, values])
 
   const setField = (f: CalcField, raw: string) => {
-    let v = parseFloat(raw)
-    if (isNaN(v)) v = 0
-    setValues(prev => ({ ...prev, [f.key]: v }))
+    setVals(prev => ({ ...prev, [f.key]: raw }))
   }
 
   const setSelect = (f: CalcField, idx: number) => {
     const v = (f.values || [])[idx] ?? 0
-    setValues(prev => ({ ...prev, [f.key]: v }))
+    setVals(prev => ({ ...prev, [f.key]: v }))
   }
 
   const copy = () => {
@@ -72,7 +82,7 @@ export default function CalcRun() {
                   <Input
                     className='calcrun-input'
                     type='digit'
-                    value={String(values[f.key])}
+                    value={String(vals[f.key])}
                     placeholder={f.placeholder}
                     placeholderClass='calcrun-placeholder'
                     onInput={e => setField(f, e.detail.value)}

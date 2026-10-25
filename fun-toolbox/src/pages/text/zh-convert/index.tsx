@@ -31,6 +31,10 @@ function convert(text: string, dir: 's2t' | 't2s'): string {
   return Array.from(out).map(ch => chars[ch] || ch).join('')
 }
 
+/* 运行时字表自检：任何环节（缓存旧包/构建异常）导致字典缺失时直接可见，
+ * 不再静默原样输出让用户以为功能坏了 */
+const DICT_OK = S2T_CHARS['头'] === '頭' && T2S_CHARS['頭'] === '头'
+
 export default function ZhConvert() {
   const [theme] = useState(getTheme())
   const [text, setText] = useState('')
@@ -41,7 +45,11 @@ export default function ZhConvert() {
     path: '/pages/index/index'
   }))
 
-  const out = convert(text, dir)
+  const out = DICT_OK ? convert(text, dir) : ''
+
+  const syncText = (v: string) => {
+    if (v !== text) setText(v)
+  }
 
   const copy = () => {
     if (!out) return
@@ -57,6 +65,9 @@ export default function ZhConvert() {
 
       <ScrollView scrollY className='zhc-scroll'>
         <View className='zhc-scroll-pad'>
+        {!DICT_OK && (
+          <View className='zhc-dict-warn'>字表加载异常：请在开发者工具「清除缓存 → 全部清除」后重新编译</View>
+        )}
         {/* 方向切换 */}
         <View className='zhc-dir'>
           <View
@@ -84,7 +95,8 @@ export default function ZhConvert() {
             placeholder={dir === 's2t' ? '粘贴简体文本' : '粘贴繁体文本'}
             placeholderClass='zhc-placeholder'
             autoHeight
-            onInput={e => setText(e.detail.value)}
+            onInput={e => syncText(e.detail.value)}
+            onBlur={e => syncText(e.detail.value || '')}
           />
         </View>
 
