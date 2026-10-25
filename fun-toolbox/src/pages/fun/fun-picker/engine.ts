@@ -198,7 +198,7 @@ export function advanceDie(d: DieAnim, dt: number) {
 function dieHeight(d: DieAnim): number {
   if (d.phase === 'fly') {
     const t = d.t / FLY_T
-    return 1.55 * 4 * t * (1 - t)
+    return 1.05 * 4 * t * (1 - t)
   }
   if (d.phase === 'settle') {
     const t = d.t / SETTLE_T
@@ -211,24 +211,29 @@ export function drawDice(ctx: any, w: number, h: number, dice: DieAnim[], time: 
   ctx.clearRect(0, 0, w, h)
   const cam: Cam = { cx: w / 2, cy: h / 2 - h * 0.06, f: w * 0.92, d: 6.2 }
   const unit = w / 750 /* 与 rpx 对齐的比例尺 */
-  const s = dice.length > 2 ? 0.82 : 1.02
-  const gap = dice.length * 78 * unit * s
+  /* 屏幕像素定义尺寸换算进投影；多颗时按画布宽度自适应收缩
+   * 总宽需求 = 中心间距跨度 + 两侧各一份阴影/光圈/旋转半径余量 */
+  const px2w = cam.d / cam.f
+  const nDice = Math.max(1, dice.length)
+  const basePx = 300 * unit * (nDice > 2 ? 0.78 : nDice > 1 ? 0.92 : 0.94)
+  const need = ((nDice - 1) * 0.95 + 1.6) * basePx
+  const fit = Math.min(1, (w * 0.88) / need)
+  const sizePx = basePx * fit
+  const half = sizePx * 0.5 * px2w
+  const gapW = sizePx * 0.95 * px2w /* 骰子中心间距 */
 
   dice.forEach((d, di) => {
     const y = dieHeight(d)
-    const pos: V3 = [(di - (dice.length - 1) / 2) * gap, y, 0]
-    const sizePx = 300 * unit * s
-    /* 世界坐标半边长：让投影后的立方体边长 ≈ sizePx */
-    const half = sizePx * cam.d / (2 * cam.f)
+    const pos: V3 = [(di - (dice.length - 1) / 2) * gapW, y, 0]
 
-    /* 桌面阴影 */
-    const shR = sizePx * (0.72 + 0.5 * (1 - Math.min(1, y / 1.6)))
-    const [shx, shy] = proj([pos[0], -half, pos[2] + 0.001], cam)
+    /* 桌面阴影（贴在骰子正下方，投影点即桌面位置） */
+    const shR = sizePx * (0.55 + 0.3 * (1 - Math.min(1, y / 1.6)))
+    const [shx, shy] = proj([pos[0], -half * 0.99, pos[2] + 0.001], cam)
     ctx.save()
     ctx.globalAlpha = 0.16 + 0.1 * Math.min(1, y / 1.5)
     ctx.fillStyle = '#4A3B32'
     ctx.beginPath()
-    ctx.ellipse(shx, shy + sizePx * 0.55, shR, shR * 0.32, 0, 0, Math.PI * 2)
+    ctx.ellipse(shx, shy, shR, shR * 0.32, 0, 0, Math.PI * 2)
     ctx.fill()
     ctx.restore()
 
@@ -282,7 +287,7 @@ export function drawDice(ctx: any, w: number, h: number, dice: DieAnim[], time: 
       ctx.strokeStyle = '#C9A063'
       ctx.lineWidth = unit * 4
       ctx.beginPath()
-      ctx.arc(gx, gy, sizePx * 0.92 + unit * 6 * pulse, 0, Math.PI * 2)
+      ctx.arc(gx, gy, sizePx * 0.8 + unit * 6 * pulse, 0, Math.PI * 2)
       ctx.stroke()
       ctx.restore()
     }
@@ -346,7 +351,7 @@ export function advanceCoin(c: CoinAnim, dt: number) {
 function coinHeight(c: CoinAnim): number {
   if (c.phase === 'fly') {
     const t = c.t / COIN_FLY
-    return 1.7 * 4 * t * (1 - t)
+    return 1.15 * 4 * t * (1 - t)
   }
   if (c.phase === 'settle') {
     const t = c.t / COIN_SETTLE
@@ -359,8 +364,11 @@ export function drawCoin(ctx: any, w: number, h: number, c: CoinAnim, time: numb
   ctx.clearRect(0, 0, w, h)
   const cam: Cam = { cx: w / 2, cy: h / 2 - h * 0.05, f: w * 0.92, d: 6.2 }
   const unit = w / 750
-  const R = 190 * unit
-  const TH = 26 * unit /* 半厚 */
+  /* 屏幕像素定义尺寸，再换算世界坐标（z=0 处 1px = d/f 世界单位） */
+  const px2w = cam.d / cam.f
+  const Rpx = w * 0.3
+  const R = Rpx * px2w
+  const TH = R * 0.14 /* 半厚 */
   const N = 40
   const pos: V3 = [0, coinHeight(c), 0]
 
@@ -370,7 +378,7 @@ export function drawCoin(ctx: any, w: number, h: number, c: CoinAnim, time: numb
   ctx.globalAlpha = 0.16 + 0.1 * Math.min(1, coinHeight(c) / 1.5)
   ctx.fillStyle = '#4A3B32'
   ctx.beginPath()
-  ctx.ellipse(shx, shy + R * 0.45, R * (1.05 - 0.25 * Math.min(1, coinHeight(c) / 1.8)), R * 0.3, 0, 0, Math.PI * 2)
+  ctx.ellipse(shx, shy, Rpx * (1.05 - 0.25 * Math.min(1, coinHeight(c) / 1.8)), Rpx * 0.3, 0, 0, Math.PI * 2)
   ctx.fill()
   ctx.restore()
 
@@ -468,11 +476,11 @@ export function drawCoin(ctx: any, w: number, h: number, c: CoinAnim, time: numb
         const big = at(0, 0)
         ctx.save()
         ctx.fillStyle = shade('#8A6A33', k)
-        ctx.font = `bold ${Math.round(R * 0.78)}px "Kaiti SC", "STKaiti", KaiTi, serif`
+        ctx.font = `bold ${Math.round(Rpx * 0.78)}px "Kaiti SC", "STKaiti", KaiTi, serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText(cap.label, big[0], big[1] + R * 0.02)
-        ctx.font = `bold ${Math.round(R * 0.16)}px sans-serif`
+        ctx.fillText(cap.label, big[0], big[1] + Rpx * 0.02)
+        ctx.font = `bold ${Math.round(Rpx * 0.16)}px sans-serif`
         ctx.fillStyle = shade('#B98F52', k)
         const top = at(0, 0.58)
         const bot = at(0, -0.58)
@@ -494,7 +502,7 @@ export function drawCoin(ctx: any, w: number, h: number, c: CoinAnim, time: numb
     ctx.strokeStyle = '#C9A063'
     ctx.lineWidth = unit * 4
     ctx.beginPath()
-    ctx.arc(gx, gy, R * 1.12 + unit * 6 * pulse, 0, Math.PI * 2)
+    ctx.arc(gx, gy, Rpx * 1.12 + unit * 6 * pulse, 0, Math.PI * 2)
     ctx.stroke()
     ctx.restore()
   }
@@ -546,8 +554,12 @@ export function drawTube(ctx: any, w: number, h: number, tu: TubeAnim, time: num
   ctx.clearRect(0, 0, w, h)
   const cam: Cam = { cx: w / 2, cy: h / 2 - h * 0.08, f: w * 0.92, d: 7.5 }
   const unit = w / 750
-  const R = 175 * unit
-  const TUBE_H = 300 * unit
+  /* 屏幕像素定义尺寸，换算世界坐标 */
+  const px2w = cam.d / cam.f
+  const Rpx = w * 0.235
+  const Hpx = w * 0.42
+  const R = Rpx * px2w
+  const TUBE_H = Hpx * px2w
 
   const shakeAng = tu.phase === 'shake' ? Math.sin(time * 26) * 0.14 * tu.shakeAmp : 0
   const jig = tu.phase === 'shake' ? tu.shakeAmp : 0
@@ -584,10 +596,10 @@ export function drawTube(ctx: any, w: number, h: number, tu: TubeAnim, time: num
     const pb = proj(b3, cam)
     const pt = proj(t3, cam)
     const depth = (b3[2] + t3[2]) / 2
-    const wd = unit * (16 - 3 * Math.max(-1, Math.min(1, depth / 160)))
+    const wd = unit * 17
     const redH = (pt[1] - pb[1]) * 0.18
     list.push({
-      depth: depth + (i % 2) * 2 - 40,
+      depth: depth + (i % 2) * R * 0.02,
       draw: () => {
         ctx.save()
         ctx.lineCap = 'round'
@@ -643,7 +655,7 @@ export function drawTube(ctx: any, w: number, h: number, tu: TubeAnim, time: num
   const rimTop = rimPts.map(p => rotP([p[0], TUBE_H, p[2]]))
   const rim2d = rimTop.map(p => proj(p, cam))
   list.push({
-    depth: vDot(rotP([0, TUBE_H, 0]), [0, 0, 1]) + 60,
+    depth: vDot(rotP([0, TUBE_H, 0]), [0, 0, 1]) + R * 0.35,
     draw: () => {
       ctx.beginPath()
       ctx.moveTo(rim2d[0][0], rim2d[0][1])
@@ -684,7 +696,7 @@ export function drawTube(ctx: any, w: number, h: number, tu: TubeAnim, time: num
   ctx.globalAlpha = 0.14
   ctx.fillStyle = '#4A3B32'
   ctx.beginPath()
-  ctx.ellipse(shc[0], shc[1] + R * 0.28, R * 1.15, R * 0.26, 0, 0, Math.PI * 2)
+  ctx.ellipse(shc[0], shc[1], Rpx * 1.15, Rpx * 0.26, 0, 0, Math.PI * 2)
   ctx.fill()
   ctx.restore()
 
@@ -695,10 +707,10 @@ export function drawTube(ctx: any, w: number, h: number, tu: TubeAnim, time: num
     const bob = tu.phase === 'reveal' ? Math.sin(time * 2.2) * unit * 6 : 0
     const startX = 0
     const startY = TUBE_H * 0.55
-    const endY = TUBE_H * 1.72
+    const endY = TUBE_H * 0.45
     const p3b: V3 = [startX * (1 - ease), startY + (endY - startY) * ease, 0]
     const b = proj(rotP(p3b), cam)
-    const tip = proj(rotP([p3b[0], p3b[1] + TUBE_H * 0.98, p3b[2]]), cam)
+    const tip = proj(rotP([p3b[0], p3b[1] + TUBE_H * 0.5, p3b[2]]), cam)
     const wd = unit * 26
     ctx.save()
     ctx.lineCap = 'round'
@@ -730,7 +742,7 @@ export function drawTube(ctx: any, w: number, h: number, tu: TubeAnim, time: num
       ctx.strokeStyle = '#C9A063'
       ctx.lineWidth = unit * 4
       ctx.beginPath()
-      ctx.arc((b[0] + tip[0]) / 2, (b[1] + tip[1]) / 2, TUBE_H * 0.62, 0, Math.PI * 2)
+      ctx.arc((b[0] + tip[0]) / 2, (b[1] + tip[1]) / 2, Hpx * 0.55, 0, Math.PI * 2)
       ctx.stroke()
       ctx.restore()
     }
