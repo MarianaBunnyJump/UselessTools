@@ -70,11 +70,18 @@ export default function ClassicsShelf() {
       <ScrollView scrollY className='cl-scroll'>
         <View className='cl-scroll-pad'>
         {/* 册选择 */}
-        <ScrollView scrollX className='cl-volume-row' showScrollbar={false}>
+        <ScrollView
+          scrollX
+          className='cl-volume-row'
+          showScrollbar={false}
+          scrollWithAnimation
+          scrollIntoView={`vol-${volumeId}`}
+        >
           {stage.volumes.map(v => {
             const read = v.articles.filter(a => progress[a.id]?.read).length
             return (
               <View
+                id={`vol-${v.id}`}
                 key={v.id}
                 className={`cl-volume ${v.id === volumeId ? 'cl-volume--on' : ''}`}
                 style={v.id === volumeId ? { borderColor: theme.accent } : undefined}

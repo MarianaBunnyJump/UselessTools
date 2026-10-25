@@ -457,8 +457,10 @@ const senior: ClassicStage = {
 
 import { SUJIAO_STAGES } from './classics-sujiao'
 
-/* 苏教版全集（构建时生成，见 scripts/gen-sujiao-classics.mjs）按教材册序排在精读 tab 之后 */
-export const CLASSIC_STAGES: ClassicStage[] = [primary, junior, senior, ...SUJIAO_STAGES]
+/* 只保留苏教初中/高中两个学段（用户 2026-10-26 要求）；
+ * 精读三段语料（primary/junior/senior，人工校对拼音+注释）保留在源码，需要时改回
+ * [primary, junior, senior, ...SUJIAO_STAGES] 即可恢复。 */
+export const CLASSIC_STAGES: ClassicStage[] = [...SUJIAO_STAGES]
 
 export function findArticle(id: string): { article: ClassicArticle; stage: ClassicStage; volume: ClassicVolume } | null {
   for (const stage of CLASSIC_STAGES) {
