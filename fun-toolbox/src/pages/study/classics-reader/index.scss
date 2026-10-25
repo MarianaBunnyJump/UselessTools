@@ -236,3 +236,57 @@
   color: #fff;
   background: #4a3b32;
 }
+
+/* ---------- 我的批注（本机保存） ---------- */
+.cr-mynote {
+  margin-top: 26px;
+  padding: 22px 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px dashed rgba(201, 160, 99, 0.45);
+}
+
+.cr-mynote-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cr-mynote-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #8a6a33;
+}
+
+.cr-mynote-save {
+  padding: 6px 24px;
+  border-radius: 20px;
+  font-size: 23px;
+  font-weight: 600;
+  color: #fff9f2;
+  background: rgba(201, 160, 99, 0.9);
+}
+
+.cr-mynote-save--ok {
+  background: rgba(74, 59, 50, 0.12);
+  color: #8d7b70;
+  font-weight: 400;
+}
+
+.cr-mynote-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 16px;
+  min-height: 120px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: #fffdf8;
+  border: 1px solid rgba(74, 59, 50, 0.08);
+  font-size: 26px;
+  line-height: 1.7;
+  color: #4a3b32;
+}
+
+.cr-mynote-placeholder {
+  color: #b8a99e;
+}

@@ -96,7 +96,7 @@ export default function ClassicsShelf() {
               <View className='cl-article-info'>
                 <Text className='cl-article-title'>{a.title}</Text>
                 <Text className='cl-article-meta'>
-                  {a.dynasty} · {a.author} · {a.sentences.length} 句
+                  {[a.dynasty, a.author, a.sentences.length + ' 句'].filter(Boolean).join(' · ')}
                 </Text>
               </View>
               {p && p.recite >= 3 ? (

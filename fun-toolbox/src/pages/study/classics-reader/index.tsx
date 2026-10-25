@@ -1,7 +1,8 @@
-import { View, Text, ScrollView } from '@tarojs/components'
+import { View, Text, Textarea, ScrollView } from '@tarojs/components'
 import Taro, { useShareAppMessage } from '@tarojs/taro'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { getTheme } from '../../../utils/theme'
+import { get, set } from '../../../utils/storage'
 import NavBar from '../../../components/NavBar'
 import { findArticle } from '../data/classics'
 import { getProgress, saveProgress } from '../data/progress'
@@ -33,6 +34,9 @@ export default function ClassicsReader() {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({})
   const [progress, setProgress] = useState(getProgress())
   const playTimer = useRef<any>(null)
+  /* 我的批注：本机保存（classics_note_<id>），换篇自动切换 */
+  const [myNote, setMyNote] = useState(() => get<string>(`classics_note_${params.id || ''}`, ''))
+  const [myNoteSaved, setMyNoteSaved] = useState(true)
 
   useShareAppMessage(() => ({
     title: article ? `一起读《${article.title}》` : '文言文陪读',
@@ -105,6 +109,18 @@ export default function ClassicsReader() {
     beatRef.current = BEATS[next]
     setBeatIdx(next)
     Taro.showToast({ title: `跟读节奏：${['慢', '中', '快'][next]}`, icon: 'none', duration: 800 })
+  }
+
+  const saveMyNote = () => {
+    if (!article) return
+    const key = `classics_note_${article.id}`
+    if (get<string>(key, '') === myNote) {
+      setMyNoteSaved(true)
+      return
+    }
+    set(key, myNote)
+    setMyNoteSaved(true)
+    Taro.showToast({ title: '批注已存本机', icon: 'none', duration: 900 })
   }
 
   const selfGrade = (good: boolean) => {
@@ -217,10 +233,35 @@ export default function ClassicsReader() {
           </View>
         )}
 
-        {/* 局长批注 */}
-        <View className='cr-comment' style={{ background: `${theme.accent}14` }}>
-          <Text className='cr-comment-title' style={{ color: theme.accentDeep }}>📌 局长批注</Text>
-          <Text className='cr-comment-text'>{article.comment}</Text>
+        {/* 局长批注（苏教版等无内置批注则不显示） */}
+        {article.comment !== '' && (
+          <View className='cr-comment' style={{ background: `${theme.accent}14` }}>
+            <Text className='cr-comment-title' style={{ color: theme.accentDeep }}>📌 局长批注</Text>
+            <Text className='cr-comment-text'>{article.comment}</Text>
+          </View>
+        )}
+
+        {/* 我的批注：本机保存，随时回来接着写 */}
+        <View className='cr-mynote'>
+          <View className='cr-mynote-head'>
+            <Text className='cr-mynote-title'>✏️ 我的批注</Text>
+            <Text className={`cr-mynote-save ${myNoteSaved ? 'cr-mynote-save--ok' : ''}`} onClick={saveMyNote}>
+              {myNoteSaved ? '已保存 ✓' : '保存'}
+            </Text>
+          </View>
+          <Textarea
+            className='cr-mynote-input'
+            value={myNote}
+            maxlength={500}
+            placeholder='写点自己的理解、易错字、老师划的重点…（保存在本机，回来还在）'
+            placeholderClass='cr-mynote-placeholder'
+            autoHeight
+            onInput={e => {
+              setMyNote(e.detail.value)
+              setMyNoteSaved(false)
+            }}
+            onBlur={saveMyNote}
+          />
         </View>
 
         <View className='cr-tip'>
