@@ -21,6 +21,8 @@ interface SimpleHomeProps {
   onOpen: (tool: ToolMeta) => void
   accent: string
   accentDeep: string
+  /* 顶栏顶部留白（真实 px，由首页按胶囊位置计算），避免状态栏遮挡 */
+  topPad: number
 }
 
 interface Group {
@@ -28,7 +30,7 @@ interface Group {
   tools: ToolMeta[]
 }
 
-export default function SimpleHome({ tools, order, onOpen, accent, accentDeep }: SimpleHomeProps) {
+export default function SimpleHome({ tools, order, onOpen, accent, accentDeep, topPad }: SimpleHomeProps) {
   const [editing, setEditing] = useState(false)
   const [hidden, setHidden] = useState<string[]>(getHiddenTools())
   const [cats, setCats] = useState<ToolCategory[]>(getCategories())
@@ -58,7 +60,12 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep }:
 
   const hiddenTools = hidden.map(id => byId.get(id)).filter((t): t is ToolMeta => !!t)
 
-  const jump = (catId: string) => setScrollTo(`grp-${catId}`)
+  /* 先清空再写目标：重复点同一个分类也能重新滚到分组顶部 */
+  const jump = (catId: string) => {
+    const target = `grp-${catId}`
+    setScrollTo('')
+    setTimeout(() => setScrollTo(target), 20)
+  }
 
   const toggleHidden = (id: string) => {
     const next = hidden.includes(id) ? hidden.filter(x => x !== id) : [...hidden, id]
@@ -158,7 +165,7 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep }:
   return (
     <View className='simple-home'>
       {/* 顶栏：等级 + 模式切换 */}
-      <View className='sh-topbar'>
+      <View className='sh-topbar' style={{ paddingTop: `${topPad}px` }}>
         <View className='sh-level-mini'>
           <Text className='sh-level-txt'>🏅 Lv.{level.level}</Text>
           <View className='sh-level-track'>
@@ -177,6 +184,7 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep }:
         <View className='sh-edit-tip'>点 👁 隐藏/放出 · ↑↓ 调顺序 · 点分类名换归属 · 点图标可换图</View>
       )}
 
+      <View className='sh-body'>
       <ScrollView
         className='sh-scroll'
         scrollY
@@ -255,16 +263,21 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep }:
         <View className='sh-footer-space' />
       </ScrollView>
 
-      {/* 右侧分类索引条 */}
+      {/* 右侧分类索引条：放在滚动区外的右侧留白里，避免被滚动层吞掉点击 */}
       {!editing && groups.length > 1 && (
         <View className='sh-rail'>
           {groups.map(g => (
-            <Text key={g.cat.id} className='sh-rail-item' onClick={() => jump(g.cat.id)}>
-              {g.cat.icon}
-            </Text>
+            <View
+              key={g.cat.id}
+              className={`sh-rail-item ${scrollTo === `grp-${g.cat.id}` ? 'sh-rail-item--on' : ''}`}
+              onClick={() => jump(g.cat.id)}
+            >
+              <Text className='sh-rail-icon'>{g.cat.icon}</Text>
+            </View>
           ))}
         </View>
       )}
+      </View>
 
       {/* 分类重命名弹层 */}
       {renameTarget && (

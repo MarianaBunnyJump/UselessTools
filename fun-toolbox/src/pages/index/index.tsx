@@ -887,7 +887,7 @@ export default function Index() {
   /* ---------- 简洁模式：独立渲染（所有 hooks 已执行完毕） ---------- */
   if (layoutMode === 'simple') {
     return (
-      <View className='page-root home-root' style={{ background: theme.bg }}>
+      <View className='page-root home-root home-root--simple' style={{ background: theme.bg }}>
         {showOnboarding && <Onboarding theme={theme} onFinish={handleOnboardingFinish} />}
         <SimpleHome
           tools={TOOLS}
@@ -895,6 +895,7 @@ export default function Index() {
           onOpen={handleOpen}
           accent={theme.accent}
           accentDeep={theme.accentDeep}
+          topPad={layout.headerPad}
         />
       </View>
     )

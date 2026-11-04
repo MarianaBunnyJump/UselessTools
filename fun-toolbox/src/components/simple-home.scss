@@ -7,11 +7,13 @@
 .simple-home {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  flex: 1;
+  min-height: 0;
 }
 
 /* 顶栏 */
 .sh-topbar {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -72,6 +74,7 @@
 }
 
 .sh-edit-tip {
+  flex-shrink: 0;
   margin: 0 24px 10px;
   padding: 10px 18px;
   border-radius: 14px;
@@ -80,9 +83,19 @@
   background: rgba(255, 255, 255, 0.55);
 }
 
+/* 列表 + 右侧索引条：索引条占用滚动区外的留白，避免压在滚动层上点不到 */
+.sh-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+
 .sh-scroll {
   flex: 1;
-  height: calc(100vh - 100px);
+  min-width: 0;
+  height: 100%;
+  margin-right: 56px;
 }
 
 /* ---------- 分组 ---------- */
@@ -332,26 +345,40 @@
 
 /* 右侧索引条 */
 .sh-rail {
-  position: fixed;
-  right: 6px;
+  position: absolute;
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  padding: 12px 6px;
-  border-radius: 20px;
+  align-items: center;
+  padding: 8px 4px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 8px 20px -12px rgba(74, 59, 50, 0.3);
   z-index: 50;
 }
 
 .sh-rail-item {
-  padding: 8px 6px;
-  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
 
   &:active {
     transform: scale(0.88);
   }
+
+  &.sh-rail-item--on {
+    background: rgba(201, 160, 99, 0.18);
+  }
+}
+
+.sh-rail-icon {
+  font-size: 22px;
+  line-height: 1;
 }
 
 /* 重命名弹层 */

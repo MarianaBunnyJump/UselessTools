@@ -5,6 +5,13 @@
   min-height: 100vh;
 }
 
+/* 简洁模式：整页固定高度，列表在内部滚动，避免状态栏/胶囊压住顶栏 */
+.home-root--simple {
+  height: 100vh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
 /* 背景印花画布：垫在内容层下（后续定位元素按 DOM 顺序盖在它上面） */
 .pattern-canvas {
   position: fixed;
