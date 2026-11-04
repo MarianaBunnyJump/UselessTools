@@ -164,8 +164,8 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep, t
 
   return (
     <View className='simple-home'>
-      {/* 顶栏：等级 + 模式切换 */}
-      <View className='sh-topbar' style={{ paddingTop: `${topPad}px` }}>
+      {/* 顶栏：与微信胶囊同高对齐，内容靠左 */}
+      <View className='sh-topbar' style={{ marginTop: `${topPad}px` }}>
         <View className='sh-level-mini'>
           <Text className='sh-level-txt'>🏅 Lv.{level.level}</Text>
           <View className='sh-level-track'>

@@ -210,6 +210,7 @@ export default function Index() {
   }, [])
 
   /* ---------- 首帧尺寸标定：真实卡片宽高反推槽位（兼容安卓字体高度差异） ---------- */
+  /* 依赖 layoutMode：简洁模式下没有 .home-grid，首次挂载量不到；切回礼盒时需要重新标定 */
   useEffect(() => {
     try {
       const info = Taro.getSystemInfoSync()
@@ -257,7 +258,7 @@ export default function Index() {
       clearTimeout(pressTimer.current)
       clearTimeout(settleTimer.current)
     }
-  }, [])
+  }, [layoutMode])
 
   /* ---------- 背景印花 ---------- */
   /* 缓存画布节点：设置页触发重绘时本页不在栈顶，
@@ -895,7 +896,7 @@ export default function Index() {
           onOpen={handleOpen}
           accent={theme.accent}
           accentDeep={theme.accentDeep}
-          topPad={layout.headerPad}
+          topPad={layout.gearTop}
         />
       </View>
     )
