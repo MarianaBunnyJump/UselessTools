@@ -1,0 +1,13 @@
+{
+  "name": "counter-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "一起数数 · 零依赖计数器后端",
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "engines": {
+    "node": ">=22.5"
+  }
+}

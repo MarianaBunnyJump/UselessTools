@@ -30,5 +30,11 @@ yarn-error.log*
 # WeChat DevTools
 miniprogram_npm/
 
+# Counter server data
+server/data/
+*.db
+*.db-wal
+*.db-shm
+
 # SWC compiler cache
 .swc/
