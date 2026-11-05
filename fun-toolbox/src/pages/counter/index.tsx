@@ -1,107 +1,146 @@
-import { View, Text, Input, Button, ScrollView } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import Taro, { useShareAppMessage, useDidShow } from '@tarojs/taro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import NavBar from '../../components/NavBar'
 import {
-  CounterCard,
-  CounterMember,
-  enqueue,
-  enqueueEvent,
-  formatRelative,
-  formatStamp,
-  loadActiveId,
-  loadCards,
+  CounterTag,
+  CounterEntry,
+  CounterAnniversary,
   newId,
   nextColorIdx,
+  loadTags,
+  saveTag,
+  removeTagLocal,
+  loadActiveId,
   saveActiveId,
-  saveCards,
-  starterCard,
-  clearPendingCard,
-  removePendingEvent,
-  colorOf,
-  CounterMark
+  enqueue,
+  enqueueEntries,
+  enqueueMarks,
+  removePendingEntry,
+  removePendingMark,
+  clearPendingTag
 } from '../../utils/counterStore'
 import {
   isCloudEnabled,
   syncAll,
   ensureSession,
-  joinByCode,
-  memberDisplayName,
-  memberColor
+  joinByCode
 } from '../../utils/counterApi'
+import { exportCsvFile, pickAndImportCsv } from '../../utils/counterCsv'
+import {
+  todayStr,
+  allSum,
+  daySum,
+  fmtCN,
+  fmtAmt,
+  relDay,
+  forecast
+} from '../../utils/counterCalc'
+import TagRow from './components/TagRow'
+import BigCard from './components/BigCard'
+import CalBlock from './components/CalBlock'
+import RecordSheet from './components/RecordSheet'
+import AnnSheet from './components/AnnSheet'
+import ManageSheet from './components/ManageSheet'
+import NewTagSheet, { NewTagDraft } from './components/NewTagSheet'
+import DataSheet from './components/DataSheet'
+import CropSheet from './components/CropSheet'
 import './index.scss'
 
-type SheetKind = 'create' | 'history' | 'share' | null
+type SheetKind = 'add' | 'edit' | 'ann' | 'manage' | 'data' | 'newTag' | 'crop' | null
 
-const toast = (title: string) => {
-  Taro.showToast({ title, icon: 'none', duration: 1800 })
+const toast = (title: string, duration = 1700) => {
+  Taro.showToast({ title, icon: 'none', duration })
 }
 
-const LOCAL_SELF: CounterMember = { id: 'local-self', name: '我', colorIdx: 0, role: 'owner', contribution: 0 }
+function starterTag(): CounterTag {
+  const now = Date.now()
+  return {
+    id: newId('t'),
+    name: '喝水打卡',
+    unit: '杯',
+    colorIdx: 0,
+    synced: false,
+    members: [],
+    version: 0,
+    createdAt: now,
+    updatedAt: now,
+    entries: [],
+    anniversaries: []
+  }
+}
 
 export default function Counter() {
-  const [cards, setCards] = useState<CounterCard[]>([])
+  const [tags, setTags] = useState<CounterTag[]>([])
   const [activeId, setActiveId] = useState('')
+  const [selDate, setSelDate] = useState(todayStr())
+  const [calY, setCalY] = useState(new Date().getFullYear())
+  const [calM, setCalM] = useState(new Date().getMonth() + 1)
   const [sheet, setSheet] = useState<SheetKind>(null)
-  const [newTitle, setNewTitle] = useState('')
-  const [newValue, setNewValue] = useState(0)
-  const [confirmDel, setConfirmDel] = useState('')
-  const [confirmHis, setConfirmHis] = useState('')
+  const [editId, setEditId] = useState('')
   const [popKey, setPopKey] = useState(0)
-  const [floatInfo, setFloatInfo] = useState<{ key: number; delta: number } | null>(null)
-  const [markTick, setMarkTick] = useState(0)
   const [syncing, setSyncing] = useState(false)
   const [syncError, setSyncError] = useState('')
+  const [mgPhoto, setMgPhoto] = useState('')
+  const [ntPhoto, setNtPhoto] = useState('')
+  const [cropFor, setCropFor] = useState<'new' | 'manage'>('new')
+  const [cropImg, setCropImg] = useState('')
   const [cloud] = useState(isCloudEnabled())
 
-  const cardsRef = useRef<CounterCard[]>([])
+  const tagsRef = useRef<CounterTag[]>([])
   const activeIdRef = useRef('')
   const syncTimer = useRef<any>(null)
   const popTimer = useRef<any>(null)
-  const floatTimer = useRef<any>(null)
-  const tickTimer = useRef<any>(null)
 
-  const activeCard = cards.find(c => c.id === activeId) || cards[0]
+  const activeTag = tags.find(t => t.id === activeId) || tags[0]
 
-  const selectCard = useCallback((id: string) => {
-    if (!id) return
-    activeIdRef.current = id
-    saveActiveId(id)
-    setActiveId(id)
-    setConfirmDel('')
-    setConfirmHis('')
+  const commit = useCallback((next: CounterTag[]) => {
+    tagsRef.current = next
+    setTags([...next])
   }, [])
 
+  const updateTag = useCallback((tagId: string, mutate: (t: CounterTag) => CounterTag) => {
+    const list = tagsRef.current
+    const idx = list.findIndex(t => t.id === tagId)
+    if (idx < 0) return
+    const next = [...list]
+    next[idx] = mutate(list[idx])
+    saveTag(next[idx])
+    commit(next)
+  }, [commit])
+
   const reload = useCallback(() => {
-    const next = loadCards()
-    cardsRef.current = next
-    setCards(next)
-    if (!next.some(c => c.id === activeIdRef.current)) {
+    const next = loadTags()
+    commit(next)
+    if (!next.some(t => t.id === activeIdRef.current)) {
       const fallback = next[0] ? next[0].id : ''
       activeIdRef.current = fallback
       saveActiveId(fallback)
       setActiveId(fallback)
     }
-  }, [])
+  }, [commit])
 
   const runSync = useCallback(
-    async (delay = 0) => {
+    async (opts: { silent?: boolean; delay?: number } = {}) => {
       if (!cloud) return
       if (syncTimer.current) clearTimeout(syncTimer.current)
       const exec = async () => {
         setSyncing(true)
+        if (!opts.silent) toast('正在同步 · 拉取好友端的改动')
         try {
           await syncAll()
           reload()
           setSyncError('')
+          if (!opts.silent) toast('已同步 · 刚刚')
         } catch (e: any) {
           setSyncError(e && e.message ? e.message : '同步失败')
+          if (!opts.silent) toast(e && e.message ? e.message : '同步失败')
         } finally {
           setSyncing(false)
         }
       }
-      if (delay > 0) {
-        syncTimer.current = setTimeout(exec, delay)
+      if (opts.delay && opts.delay > 0) {
+        syncTimer.current = setTimeout(exec, opts.delay)
       } else {
         await exec()
       }
@@ -110,43 +149,42 @@ export default function Counter() {
   )
 
   const scheduleSync = useCallback(
-    (delay = 700) => {
-      if (!cloud) return
-      runSync(delay)
+    (delay = 800) => {
+      runSync({ silent: true, delay })
     },
-    [cloud, runSync]
+    [runSync]
   )
-
-  const commit = useCallback((next: CounterCard[]) => {
-    cardsRef.current = next
-    saveCards(next)
-    setCards([...next])
-  }, [])
 
   /* ---------------- 初始化 / 口令加入 ---------------- */
   useEffect(() => {
-    let list = loadCards()
+    let list = loadTags()
     if (!list.length) {
-      const starter = starterCard()
+      const starter = starterTag()
       starter.colorIdx = nextColorIdx()
       list = [starter]
-      saveCards(list)
-      enqueue({ key: 'c' + starter.id, type: 'create', cardId: starter.id })
+      saveTag(starter)
+      enqueue({ key: 'c' + starter.id, type: 'createTag', tagId: starter.id })
     }
     const savedActive = loadActiveId()
-    const initialActive = list.some(c => c.id === savedActive) ? savedActive : list[0].id
-    cardsRef.current = list
+    const initialActive = list.some(t => t.id === savedActive) ? savedActive : list[0].id
+    tagsRef.current = list
     activeIdRef.current = initialActive
-    setCards(list)
+    setTags(list)
     setActiveId(initialActive)
     saveActiveId(initialActive)
+
+    /* 跨天刷新 TODAY：进入页面时校准今天 */
+    setSelDate(todayStr())
+    const now = new Date()
+    setCalY(now.getFullYear())
+    setCalM(now.getMonth() + 1)
 
     const params = Taro.getCurrentInstance().router?.params
     const code = params && params.code ? String(params.code) : ''
     if (code) {
       ;(async () => {
         if (!cloud) {
-          toast('云同步未开启，暂时无法加入好友的计数')
+          toast('云同步未开启，暂时无法加入好友的标签')
           return
         }
         try {
@@ -154,9 +192,10 @@ export default function Counter() {
           await ensureSession()
           const joined = await joinByCode(code)
           reload()
-          selectCard(joined.id)
-          toast(`已加入「${joined.title}」`)
-          runSync(0)
+          activeIdRef.current = joined.id
+          saveActiveId(joined.id)
+          setActiveId(joined.id)
+          toast(`已加入「${joined.name}」`)
         } catch (e: any) {
           toast(e && e.message ? e.message : '口令无效或已过期')
         } finally {
@@ -164,496 +203,479 @@ export default function Counter() {
         }
       })()
     } else {
-      runSync(500)
+      runSync({ silent: true, delay: 500 })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useDidShow(() => {
-    runSync(0)
+    runSync({ silent: true })
   })
 
   useShareAppMessage(() => {
-    const card = cardsRef.current.find(c => c.id === activeIdRef.current)
-    if (card && card.shareCode) {
+    const t = tagsRef.current.find(x => x.id === activeIdRef.current)
+    if (t && t.shareCode) {
       return {
-        title: `一起数「${card.title}」，现在是 ${card.value} ${card.unit}`,
-        path: `/pages/counter/index?code=${card.shareCode}`
+        title: `一起数「${t.name}」，累计 ${allSum(t)} ${t.unit}`,
+        path: `/pages/counter/index?code=${t.shareCode}`
       }
     }
-    return { title: '一起数数 · 一屏到底，数到尽头', path: '/pages/counter/index' }
+    return { title: '一起数数 · 日历账 · 全家一起记', path: '/pages/counter/index' }
   })
 
-  /* ---------------- 计数动作 ---------------- */
-  const bump = (delta: number) => {
-    const card = cardsRef.current.find(c => c.id === activeIdRef.current)
-    if (!card) return
-    const nextValue = Math.max(0, card.value + delta)
-    const real = nextValue - card.value
-    if (!real) return
+  /* ---------------- 日历 ---------------- */
+  const pickDay = (ds: string) => {
+    if (ds > todayStr()) {
+      toast('今天之后的日子还没到，记不了')
+      return
+    }
+    setSelDate(ds)
+  }
 
-    const now = Date.now()
-    const event = { id: newId('v'), type: 'delta' as const, delta: real, value: nextValue, ts: now }
-    enqueueEvent(card.id, event)
-    commit(
-      cardsRef.current.map(c =>
-        c.id === card.id
-          ? { ...c, value: nextValue, updatedAt: now, lastBy: '我', lastAt: now, synced: false }
-          : c
-      )
+  const calNav = (dir: -1 | 1) => {
+    let m = calM + dir
+    let y = calY
+    if (m < 1) {
+      m = 12
+      y -= 1
+    }
+    if (m > 12) {
+      m = 1
+      y += 1
+    }
+    setCalY(y)
+    setCalM(m)
+  }
+
+  /* ---------------- 记录 / 编辑 ---------------- */
+  const saveEntry = (time: string, amount: number, note: string) => {
+    const t = activeTag
+    if (!t) return
+    const below = t.target ? allSum(t) < t.target : false
+    const entry: CounterEntry = { id: newId('e'), date: selDate, time, amount, note, by: '我' }
+    enqueueEntries(t.id, [entry])
+    updateTag(t.id, x => ({ ...x, entries: [...x.entries, entry], updatedAt: Date.now(), synced: false }))
+
+    setSheet(null)
+    toast(
+      t.target && below && allSum({ ...t, entries: [...t.entries, entry] }) >= t.target
+        ? `达成目标 ${t.target} ${t.unit}！立个纪念日吧`
+        : `已记录 ${fmtAmt(amount)} ${t.unit} · ${time}`
     )
-
-    setPopKey(k => k + 1)
-    if (popTimer.current) clearTimeout(popTimer.current)
-    popTimer.current = setTimeout(() => setPopKey(0), 220)
-
-    setFloatInfo({ key: now, delta: real })
-    if (floatTimer.current) clearTimeout(floatTimer.current)
-    floatTimer.current = setTimeout(() => setFloatInfo(null), 1000)
-
-    if (process.env.TARO_ENV === 'weapp') {
-      try {
-        const r = Taro.vibrateShort({ type: 'light' } as any)
-        if (r && typeof r.catch === 'function') r.catch(() => {})
-      } catch (e) {
-        /* 低版本基础库忽略 */
-      }
+    if (selDate === todayStr()) {
+      setPopKey(k => k + 1)
+      if (popTimer.current) clearTimeout(popTimer.current)
+      popTimer.current = setTimeout(() => setPopKey(0), 220)
     }
     scheduleSync(800)
   }
 
-  const markHistory = () => {
-    const card = cardsRef.current.find(c => c.id === activeIdRef.current)
-    if (!card) return
-    const now = Date.now()
-    const mark: CounterMark = { id: newId('m'), ts: now, value: card.value }
-    const event = { id: mark.id, type: 'mark' as const, value: card.value, ts: now }
-    enqueueEvent(card.id, event)
-
-    commit(
-      cardsRef.current.map(c =>
-        c.id === card.id
-          ? {
-              ...c,
-              history: [mark, ...c.history].slice(0, 500),
-              updatedAt: now,
-              lastBy: '我',
-              lastAt: now,
-              synced: false
-            }
-          : c
+  const saveEdit = (time: string, amount: number, note: string) => {
+    const t = activeTag
+    if (!t) return
+    const below = t.target ? allSum(t) < t.target : false
+    let updated: CounterTag | null = null
+    updateTag(t.id, x => {
+      const entries = x.entries.map(e =>
+        e.id === editId ? { ...e, time, amount, note, by: e.by || '我' } : e
       )
+      updated = { ...x, entries, updatedAt: Date.now(), synced: false }
+      return updated
+    })
+    enqueueEntries(t.id, [{ id: editId, date: (updated?.entries.find(e => e.id === editId)?.date) || selDate, time, amount, note, by: '我' }])
+    setSheet(null)
+    setEditId('')
+    toast(
+      t.target && below && updated && allSum(updated) >= (t.target || 0)
+        ? `达成目标 ${t.target} ${t.unit}！立个纪念日吧`
+        : '改好了，合计已重算'
     )
-
-    setMarkTick(k => k + 1)
-    if (tickTimer.current) clearTimeout(tickTimer.current)
-    tickTimer.current = setTimeout(() => setMarkTick(0), 600)
-    toast(`已标记 · ${card.value} ${card.unit}`)
     scheduleSync(800)
   }
 
-  /* ---------------- 卡片与历史 ---------------- */
-  const handleDeleteCard = (id: string) => {
-    if (confirmDel !== id) {
-      setConfirmDel(id)
-      toast('再点一下确认删除')
-      return
-    }
-    const card = cardsRef.current.find(c => c.id === id)
-    if (!card) return
-    if (card.shareCode) {
-      enqueue({ key: 'd' + id, type: 'deleteCard', cardId: id })
+  const deleteEntry = (entryId: string) => {
+    const t = activeTag
+    if (!t) return
+    if (t.synced) {
+      enqueue({ key: 'de' + entryId, type: 'delEntry', tagId: t.id, entryId })
     } else {
-      clearPendingCard(id)
+      removePendingEntry(t.id, entryId)
     }
-
-    let next = cardsRef.current.filter(c => c.id !== id)
-    if (!next.length) {
-      const starter = starterCard()
-      starter.colorIdx = nextColorIdx()
-      next = [starter]
-      enqueue({ key: 'c' + starter.id, type: 'create', cardId: starter.id })
-    }
-    commit(next)
-    if (activeIdRef.current === id) selectCard(next[0].id)
-    setConfirmDel('')
-    toast('卡片已删除')
+    updateTag(t.id, x => ({ ...x, entries: x.entries.filter(e => e.id !== entryId), updatedAt: Date.now() }))
+    setSheet(null)
+    setEditId('')
+    toast('这一条已删除，合计重算')
     scheduleSync(600)
   }
 
-  const handleDeleteMark = (markId: string) => {
-    if (confirmHis !== markId) {
-      setConfirmHis(markId)
-      toast('再点一下确认删除')
+  /* ---------------- 标记历史 ---------------- */
+  const markAnn = (time: string) => {
+    const t = activeTag
+    if (!t) return
+    if (selDate > todayStr()) {
+      toast('今天之后的日子还没到，标不了')
       return
     }
-    const card = cardsRef.current.find(c => c.id === activeIdRef.current)
-    if (!card) return
-    if (card.shareCode) {
-      enqueue({ key: 'dm' + markId, type: 'deleteMark', cardId: card.id, markId })
-    } else {
-      removePendingEvent(card.id, markId)
+    if (t.anniversaries.some(a => a.date === selDate)) {
+      toast('这一天已经是纪念日了')
+      return
     }
-    commit(
-      cardsRef.current.map(c =>
-        c.id === card.id ? { ...c, history: c.history.filter(h => h.id !== markId) } : c
-      )
-    )
-    setConfirmHis('')
-    toast('这条时间戳已删除')
+    const mark: CounterAnniversary = {
+      id: newId('a'),
+      date: selDate,
+      time,
+      label: `「${t.name}」纪念日`,
+      valueAtMark: daySum(t, selDate)
+    }
+    enqueueMarks(t.id, [mark])
+    updateTag(t.id, x => ({ ...x, anniversaries: [...x.anniversaries, mark], updatedAt: Date.now(), synced: false }))
+    toast(`★ 已标记为历史 ${time}，日历上会亮星标`)
+    scheduleSync(800)
+  }
+
+  const deleteAnn = (markId: string) => {
+    const t = activeTag
+    if (!t) return
+    if (t.synced) {
+      enqueue({ key: 'dm' + markId, type: 'delMark', tagId: t.id, markId })
+    } else {
+      removePendingMark(t.id, markId)
+    }
+    updateTag(t.id, x => ({ ...x, anniversaries: x.anniversaries.filter(a => a.id !== markId), updatedAt: Date.now() }))
+    toast('纪念日已删除')
     scheduleSync(600)
   }
 
-  const createCard = () => {
-    const title = newTitle.trim() || '我的计数'
-    const now = Date.now()
-    const card: CounterCard = {
-      id: newId('c'),
-      title: title.slice(0, 12),
-      unit: '次',
-      value: Math.max(0, Math.min(9999, newValue)),
-      colorIdx: nextColorIdx(),
-      history: [],
+  /* ---------------- 新建 / 管理 ---------------- */
+  const createTag = (draft: NewTagDraft) => {
+    const tag: CounterTag = {
+      id: newId('t'),
+      name: (draft.name || '').trim().slice(0, 12) || '我的标签',
+      unit: (draft.unit || '次').trim().slice(0, 4) || '次',
+      colorIdx: draft.colorIdx,
+      target: draft.target,
+      photo: draft.photo,
+      synced: false,
       members: [],
       version: 0,
-      synced: false,
-      createdAt: now,
-      updatedAt: now
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      entries: [],
+      anniversaries: []
     }
-    enqueue({ key: 'c' + card.id, type: 'create', cardId: card.id })
-    commit([...cardsRef.current, card])
-    selectCard(card.id)
+    saveTag(tag)
+    enqueue({ key: 'c' + tag.id, type: 'createTag', tagId: tag.id })
+    if (draft.photo) enqueue({ key: 'ph' + tag.id, type: 'photo', tagId: tag.id })
+    nextColorIdx()
+    commit([...tagsRef.current, tag])
+    activeIdRef.current = tag.id
+    saveActiveId(tag.id)
+    setActiveId(tag.id)
     setSheet(null)
-    setNewTitle('')
-    setNewValue(0)
-    toast('计数创建好了，开始数吧')
+    setNtPhoto('')
+    setSelDate(todayStr())
+    toast('标签建好了，今天记第一笔吧')
     scheduleSync(600)
+  }
+
+  const saveMeta = (name: string, unit: string, target: number | undefined) => {
+    const t = activeTag
+    if (!t) return
+    updateTag(t.id, x => {
+      const next: CounterTag = {
+        ...x,
+        name: name.slice(0, 12) || x.name,
+        unit: unit.slice(0, 4) || x.unit,
+        target,
+        updatedAt: Date.now(),
+        synced: false
+      }
+      if (mgPhoto) {
+        next.photo = mgPhoto
+        next.colorIdx = 6
+      }
+      return next
+    })
+    if (t.synced) enqueue({ key: 'um' + t.id + Date.now().toString(36), type: 'updateMeta', tagId: t.id })
+    if (mgPhoto) enqueue({ key: 'ph' + t.id, type: 'photo', tagId: t.id })
+    toast('标签已更新，好友端实时同步')
+    scheduleSync(800)
+  }
+
+  const setCol = (idx: number) => {
+    const t = activeTag
+    if (!t) return
+    updateTag(t.id, x => ({ ...x, colorIdx: idx, photo: undefined, updatedAt: Date.now(), synced: false }))
+    setMgPhoto('')
+    if (t.synced) enqueue({ key: 'um' + t.id + Date.now().toString(36), type: 'updateMeta', tagId: t.id })
+    scheduleSync(800)
+  }
+
+  const deleteTag = () => {
+    const t = activeTag
+    if (!t) return
+    if (t.synced) {
+      enqueue({ key: 'dt' + t.id, type: 'delTag', tagId: t.id })
+    } else {
+      clearPendingTag(t.id)
+    }
+    let next = tagsRef.current.filter(x => x.id !== t.id)
+    removeTagLocal(t.id)
+    if (!next.length) {
+      const starter = starterTag()
+      starter.colorIdx = nextColorIdx()
+      saveTag(starter)
+      enqueue({ key: 'c' + starter.id, type: 'createTag', tagId: starter.id })
+      next = [starter]
+    }
+    commit(next)
+    activeIdRef.current = next[0].id
+    saveActiveId(next[0].id)
+    setActiveId(next[0].id)
+    setSheet(null)
+    setMgPhoto('')
+    toast('标签已删除')
+    scheduleSync(600)
+  }
+
+  /* ---------------- 照片 ---------------- */
+  const pickPhoto = (for_: 'new' | 'manage') => {
+    setCropFor(for_)
+    Taro.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      success: (res: any) => {
+        const file = res.tempFiles && res.tempFiles[0]
+        if (file && file.tempFilePath) setCropImg(file.tempFilePath)
+      }
+    } as any)
+  }
+
+  const confirmCrop = (tempPath: string) => {
+    /* 存到 USER_DATA_PATH 持久目录，只存路径不进 storage */
+    try {
+      const fs = Taro.getFileSystemManager()
+      const saved = fs.saveFileSync(tempPath)
+      if (cropFor === 'new') {
+        setNtPhoto(saved)
+      } else {
+        setMgPhoto(saved)
+      }
+      toast('照片已裁剪 · 会随标签一起同步')
+    } catch (e) {
+      toast('照片保存失败，再试一次')
+    }
+    setCropImg('')
+    setSheet(cropFor === 'new' ? 'newTag' : 'manage')
+  }
+
+  /* ---------------- 导入导出 ---------------- */
+  const exportCsv = async () => {
+    try {
+      const mode = await exportCsvFile(tagsRef.current)
+      toast(mode === 'shared' ? 'CSV 已生成，留意聊天发送面板' : '已复制文本（数据较长可能截断）')
+    } catch (e: any) {
+      toast(e && e.message ? e.message : '导出失败')
+    }
+  }
+
+  const importCsv = async () => {
+    try {
+      const result = await pickAndImportCsv()
+      if (!result) return
+      reload()
+      toast(`导入完成：记录 ${result.nE} 条、历史标记 ${result.nA} 个${result.nSkip ? `，跳过 ${result.nSkip} 行` : ''}`)
+      setSheet(null)
+      scheduleSync(800)
+    } catch (e: any) {
+      toast('这个文件读不出来，换一个试试')
+    }
   }
 
   const copyCode = () => {
-    if (!activeCard || !activeCard.shareCode) {
+    const t = activeTag
+    if (!t || !t.shareCode) {
       toast(cloud ? '口令正在生成，稍等一下' : '云同步未开启，暂无口令')
       return
     }
-    Taro.setClipboardData({ data: activeCard.shareCode }).then(() => {
+    Taro.setClipboardData({ data: t.shareCode }).then(() => {
       toast('口令已复制，发给朋友吧')
     })
   }
 
   /* ---------------- 渲染 ---------------- */
-  const displayMembers: CounterMember[] =
-    activeCard && activeCard.members.length
-      ? activeCard.members
-      : activeCard
-      ? [{ ...LOCAL_SELF, colorIdx: activeCard.colorIdx }]
-      : []
-
-  const cloudLabel = !cloud ? '本机' : activeCard && activeCard.synced ? '已同步' : '待同步'
-  const latestMark = activeCard && activeCard.history.length ? activeCard.history[0] : null
+  const editing = sheet === 'edit' ? activeTag?.entries.find(e => e.id === editId) : undefined
+  const addTitle = sheet === 'add' ? `记录 · ${fmtCN(selDate)}${relDay(selDate) ? `（${relDay(selDate)}）` : ''}` : ''
+  const editTitle = editing ? `${fmtCN(editing.date)}${relDay(editing.date) ? `（${relDay(editing.date)}）` : ''} ${editing.time}` : ''
+  const fc = activeTag ? forecast(activeTag) : null
 
   return (
     <View className='page-root counter-page'>
       <NavBar
         title='一起数数'
         right={
-          <View
-            className='nav-share'
-            onClick={() => {
-              setSheet('share')
-              if (cloud && activeCard && !activeCard.shareCode) runSync(0)
-            }}
-          >
-            <Text className='nav-share-icon'>↗</Text>
+          <View className='nav-actions'>
+            <View className='nav-btn' onClick={() => runSync({})}>
+              <Text className={`nav-btn-ico ${syncing ? 'spin' : ''}`}>↻</Text>
+            </View>
+            <View className='nav-btn' onClick={() => setSheet('data')}>
+              <Text className='nav-btn-ico'>⇩</Text>
+            </View>
+            <View className='nav-btn' onClick={() => setSheet('manage')}>
+              <Text className='nav-btn-ico'>☰</Text>
+            </View>
           </View>
         }
       />
 
-      {!activeCard ? null : (
-        <View className='counter-body'>
-          <View
-            className='main-block'
-            key={activeCard.id}
-            style={{ background: `linear-gradient(180deg, ${colorOf(activeCard.colorIdx).deep[0]}, ${colorOf(activeCard.colorIdx).deep[1]})` }}
-          >
-            <View className='mb-top'>
-              <Text className='mb-title'>{activeCard.title}</Text>
-              <View className='mb-pills'>
-                <Text className={`mb-pill ${cloud && activeCard.synced ? '' : 'mb-pill--wait'}`}>{cloudLabel}</Text>
-                <View className='mb-pill mb-pill--his' onClick={() => setSheet('history')}>
-                  <Text className='mb-pill-icon'>◷</Text>
-                  <Text>历史</Text>
-                  <Text className='mb-badge'>{activeCard.history.length}</Text>
-                </View>
-              </View>
-            </View>
+      {activeTag ? (
+        <View className='app-body'>
+          <TagRow
+            tags={tags}
+            activeId={activeTag.id}
+            onPick={id => {
+              activeIdRef.current = id
+              saveActiveId(id)
+              setActiveId(id)
+            }}
+            onNew={() => setSheet('newTag')}
+          />
 
-            <View className='mb-num'>
-              <Text className={`mb-num-val ${popKey ? 'is-pop' : ''}`} key={popKey}>{activeCard.value}</Text>
-              <Text className='mb-unit'>{activeCard.unit}</Text>
-            </View>
+          <BigCard
+            tag={activeTag}
+            calY={calY}
+            calM={calM}
+            cloud={cloud}
+            popKey={popKey}
+            onOpenAdd={() => {
+              if (selDate > todayStr()) {
+                toast('今天之后的日子还没到，记不了')
+                return
+              }
+              setSheet('add')
+            }}
+            onOpenAnn={() => {
+              if (selDate > todayStr()) {
+                toast('今天之后的日子还没到，标不了')
+                return
+              }
+              setSheet('ann')
+            }}
+          />
 
-            <View className='mb-actions'>
-              <View className='mb-btn mb-minus' onClick={() => bump(-1)}>
-                <Text className='mb-btn-sign'>−</Text>
-                {floatInfo && floatInfo.delta < 0 ? (
-                  <Text className='mb-float' key={floatInfo.key}>{floatInfo.delta}</Text>
-                ) : null}
-              </View>
-              <View className='mb-mark' onClick={markHistory}>
-                <Text className='mb-mark-icon'>◷</Text>
-                <Text>标记历史</Text>
-                <View className={`mb-mark-tick ${markTick ? 'show' : ''}`} key={markTick}>
-                  <Text>✓</Text>
-                </View>
-              </View>
-              <View className='mb-btn mb-plus' onClick={() => bump(1)}>
-                <Text className='mb-btn-sign'>+</Text>
-                {floatInfo && floatInfo.delta > 0 ? (
-                  <Text className='mb-float' key={floatInfo.key}>+{floatInfo.delta}</Text>
-                ) : null}
-              </View>
-            </View>
-
-            <View className='mb-stamp'>
-              {latestMark ? (
-                <Text className='mb-stamp-text'>✓ 最近标记 · {formatStamp(latestMark.ts)} · {latestMark.value} {activeCard.unit}</Text>
-              ) : (
-                <Text className='mb-stamp-text'>还没标记过历史，点上面的「标记历史」留下第一条</Text>
-              )}
-            </View>
-          </View>
-
-          <View className='panel-title'>
-            <Text className='panel-title-main'>我的计数</Text>
-            <Text className='panel-title-hint'>{cards.length} 张</Text>
-          </View>
-
-          <View className='card-list'>
-            {cards.map(card => {
-              const col = colorOf(card.colorIdx)
-              const on = card.id === activeCard.id
-              const cardMembers = card.members.length ? card.members : [{ ...LOCAL_SELF, colorIdx: card.colorIdx }]
-              return (
-                <View
-                  key={card.id}
-                  className={`mini-card ${on ? 'on' : ''}`}
-                  onClick={() => selectCard(card.id)}
-                >
-                  <View className='m-topbar' style={{ background: col.hex }} />
-                  <View className='m-name'>
-                    <Text className='m-name-text'>{card.title}</Text>
-                    <Text className='m-name-sub'>{on ? '正在顶部显示' : '点一下换到顶部'}</Text>
-                  </View>
-                  <Text className='m-val' style={{ color: col.hex }}>{card.value}</Text>
-                  <Text className='m-unit'>{card.unit}</Text>
-                  {cloud && card.synced ? <Text className='m-sync'>☁ 云</Text> : null}
-                  {cardMembers.length ? (
-                    <View className='m-members'>
-                      {cardMembers.slice(0, 3).map((m, i) => (
-                        <Text
-                          key={m.id + i}
-                          className='m-ava'
-                          style={{ background: memberColor(m).hex }}
-                        >
-                          {memberDisplayName(m).slice(0, 1)}
-                        </Text>
-                      ))}
-                    </View>
-                  ) : null}
-                  <View
-                    className='m-share'
-                    onClick={(e: any) => {
-                      e.stopPropagation()
-                      selectCard(card.id)
-                      setSheet('share')
-                      if (cloud && !card.shareCode) runSync(0)
-                    }}
-                  >
-                    <Text>↗</Text>
-                  </View>
-                  <View
-                    className={`m-del ${confirmDel === card.id ? 'confirm' : ''}`}
-                    onClick={(e: any) => {
-                      e.stopPropagation()
-                      handleDeleteCard(card.id)
-                    }}
-                  >
-                    <Text>{confirmDel === card.id ? '删' : '×'}</Text>
-                  </View>
-                </View>
-              )
-            })}
-          </View>
-
-          <View className='add-card' onClick={() => setSheet('create')}>
-            <Text className='add-card-icon'>+</Text>
-            <Text>新建一张计数</Text>
-          </View>
-        </View>
-      )}
-
-      {/* ---------------- 新建 ---------------- */}
-      {sheet === 'create' ? (
-        <View className='sheet-mask' catchMove onClick={() => setSheet(null)}>
-          <View className='sheet-inner' onClick={(e: any) => e.stopPropagation()}>
-            <View className='sheet-grab' />
-            <View className='sheet-head'>
-              <Text className='sheet-title'>新建一张计数</Text>
-              <View className='sheet-x' onClick={() => setSheet(null)}><Text>×</Text></View>
-            </View>
-
-            <View className='form-field'>
-              <Text className='form-label'>它叫什么</Text>
-              <Input
-                className='form-input'
-                value={newTitle}
-                maxlength={12}
-                placeholder='比如：今天写了几个字'
-                placeholderStyle='color:#B8A99E'
-                onInput={(e: any) => setNewTitle(e.detail.value)}
-                focus
-              />
-            </View>
-
-            <View className='form-field'>
-              <Text className='form-label'>从几开始</Text>
-              <View className='num-row'>
-                <View className='num-btn' onClick={() => setNewValue(v => Math.max(0, v - 1))}>
-                  <Text>−</Text>
-                </View>
-                <Text className='num-val'>{newValue}</Text>
-                <View className='num-btn' onClick={() => setNewValue(v => Math.min(9999, v + 1))}>
-                  <Text>+</Text>
-                </View>
-              </View>
-            </View>
-
-            <View className='add-actions'>
-              <View className='add-cancel' onClick={() => setSheet(null)}>取消</View>
-              <View className='add-ok' onClick={createCard}>创建，开始数</View>
-            </View>
-          </View>
+          <CalBlock
+            tag={activeTag}
+            calY={calY}
+            calM={calM}
+            selDate={selDate}
+            fc={fc}
+            onPickDay={pickDay}
+            onCalNav={calNav}
+            onOpenEdit={id => {
+              setEditId(id)
+              setSheet('edit')
+            }}
+            onOpenAdd={() => {
+              if (selDate > todayStr()) {
+                toast('今天之后的日子还没到，记不了')
+                return
+              }
+              setSheet('add')
+            }}
+          />
         </View>
       ) : null}
 
-      {/* ---------------- 历史 ---------------- */}
-      {sheet === 'history' && activeCard ? (
-        <View className='sheet-mask' catchMove onClick={() => setSheet(null)}>
-          <View className='sheet-inner' onClick={(e: any) => e.stopPropagation()}>
-            <View className='sheet-grab' />
-            <View className='sheet-head'>
-              <Text className='sheet-title'>「{activeCard.title}」的历史</Text>
-              <View className='sheet-x' onClick={() => setSheet(null)}><Text>×</Text></View>
-            </View>
-
-            {activeCard.history.length ? (
-              <ScrollView className='his-list' scrollY>
-                {activeCard.history.map(h => (
-                  <View className='his-item' key={h.id}>
-                    <View className='h-dot'><Text>{h.value}</Text></View>
-                    <View className='h-info'>
-                      <Text className='h-time'>{formatStamp(h.ts)}</Text>
-                      <Text className='h-note'>{h.value} {activeCard.unit} · {activeCard.synced ? '云端同步' : '本机时间戳'}</Text>
-                    </View>
-                    <View
-                      className={`h-del ${confirmHis === h.id ? 'confirm' : ''}`}
-                      onClick={() => handleDeleteMark(h.id)}
-                    >
-                      <Text>{confirmHis === h.id ? '删' : '×'}</Text>
-                    </View>
-                  </View>
-                ))}
-              </ScrollView>
-            ) : (
-              <View className='his-empty'>
-                <Text>还没有时间戳。</Text>
-                <Text>回到大块，数到一个想留住的数字，</Text>
-                <Text>点一下 <Text className='his-empty-strong'>「标记历史」</Text> 就有了。</Text>
-              </View>
-            )}
-          </View>
-        </View>
+      {/* ---------------- 记录 / 编辑 ---------------- */}
+      {sheet === 'add' && activeTag ? (
+        <RecordSheet
+          title={addTitle}
+          initTime='12:00'
+          initAmount={1}
+          initNote=''
+          isEdit={false}
+          onSave={saveEntry}
+          onClose={() => setSheet(null)}
+        />
       ) : null}
 
-      {/* ---------------- 好友协作 ---------------- */}
-      {sheet === 'share' && activeCard ? (
-        <View className='sheet-mask' catchMove onClick={() => setSheet(null)}>
-          <View className='sheet-inner' onClick={(e: any) => e.stopPropagation()}>
-            <View className='sheet-grab' />
-            <View className='sheet-head'>
-              <Text className='sheet-title'>分享「{activeCard.title}」</Text>
-              <View className='sheet-x' onClick={() => setSheet(null)}><Text>×</Text></View>
-            </View>
+      {sheet === 'edit' && editing ? (
+        <RecordSheet
+          title={editTitle}
+          initTime={editing.time}
+          initAmount={editing.amount}
+          initNote={editing.note}
+          isEdit
+          onSave={saveEdit}
+          onDelete={() => deleteEntry(editing.id)}
+          onClose={() => {
+            setSheet(null)
+            setEditId('')
+          }}
+        />
+      ) : null}
 
-            <View className='share-card'>
-              <View className='sc-top' style={{ background: colorOf(activeCard.colorIdx).deep[1] }}>
-                <Text>{activeCard.value}</Text>
-              </View>
-              <View className='sc-info'>
-                <Text className='sc-name'>{activeCard.title}</Text>
-                <Text className='sc-num'>当前 {activeCard.value} {activeCard.unit}</Text>
-              </View>
-              <Text className={`sc-status ${cloud && activeCard.synced ? 'ok' : ''}`}>{cloudLabel}</Text>
-            </View>
+      {/* ---------------- 标记历史 ---------------- */}
+      {sheet === 'ann' && activeTag ? (
+        <AnnSheet
+          tag={activeTag}
+          selDate={selDate}
+          onMark={markAnn}
+          onDelete={deleteAnn}
+          onClose={() => setSheet(null)}
+        />
+      ) : null}
 
-            <View className='share-code'>
-              <View className='code-box'>
-                <Text>{activeCard.shareCode || (cloud ? '同步中' : '未开启')}</Text>
-              </View>
-              <View className='share-copy' onClick={copyCode}>
-                <Text>复制口令</Text>
-              </View>
-            </View>
-            <Text className='share-code-hint'>6 位口令 · 朋友打开分享卡片会自动加入</Text>
+      {/* ---------------- 标签与分享 ---------------- */}
+      {sheet === 'manage' && activeTag ? (
+        <ManageSheet
+          tag={activeTag}
+          photo={mgPhoto}
+          cloud={cloud}
+          syncing={syncing}
+          syncError={syncError}
+          onSaveMeta={saveMeta}
+          onSetCol={setCol}
+          onPickPhoto={() => pickPhoto('manage')}
+          onCopyCode={copyCode}
+          onDelTag={deleteTag}
+          onClose={() => {
+            setSheet(null)
+            setMgPhoto('')
+          }}
+        />
+      ) : null}
 
-            <Button className='share-send' openType='share'>发送给好友</Button>
+      {/* ---------------- 导入导出 ---------------- */}
+      {sheet === 'data' ? (
+        <DataSheet onExport={exportCsv} onImport={importCsv} onClose={() => setSheet(null)} />
+      ) : null}
 
-            <View className='share-members'>
-              {displayMembers.map((m, i) => (
-                <View className='share-member' key={m.id + i}>
-                  <View className='m-ava-big' style={{ background: memberColor(m).hex }}>
-                    <Text>{memberDisplayName(m).slice(0, 1)}</Text>
-                  </View>
-                  <View className='share-member-info'>
-                    <Text className='share-member-name'>{memberDisplayName(m)}</Text>
-                    <Text className='share-member-sub'>{m.role === 'owner' ? '创建者' : '好友'} · 共同维护</Text>
-                  </View>
-                  <Text className='share-member-count'>+{m.contribution} 次</Text>
-                </View>
-              ))}
-              <View className='share-member'>
-                <View className='m-ava-big m-ava-empty'><Text>＋</Text></View>
-                <View className='share-member-info'>
-                  <Text className='share-member-name'>等待朋友加入</Text>
-                  <Text className='share-member-sub'>分享卡片或口令任一即可</Text>
-                </View>
-              </View>
-            </View>
+      {/* ---------------- 新建标签 ---------------- */}
+      {sheet === 'newTag' ? (
+        <NewTagSheet
+          photo={ntPhoto}
+          onSave={createTag}
+          onSetCol={() => setNtPhoto('')}
+          onPickPhoto={() => pickPhoto('new')}
+          onClose={() => {
+            setSheet(null)
+            setNtPhoto('')
+          }}
+        />
+      ) : null}
 
-            <View className='share-record'>
-              <Text>
-                {activeCard.lastBy
-                  ? `${activeCard.lastBy} ${formatRelative(activeCard.lastAt)}数了一下`
-                  : '还没有同步记录'}
-                {latestMark ? ` · ${formatStamp(latestMark.ts)} 标记了 ${latestMark.value} ${activeCard.unit}` : ''}
-              </Text>
-            </View>
-
-            <View className='share-sync'>
-              <Text className={cloud && !syncError ? 'share-sync-ok' : 'share-sync-warn'}>
-                {!cloud
-                  ? '云同步未开启 · 数据只保存在本机'
-                  : syncError
-                  ? `同步异常 · ${syncError}`
-                  : syncing
-                  ? '正在同步…'
-                  : activeCard.shareCode
-                  ? `已同步 · ${displayMembers.length} 位小伙伴随时可数`
-                  : '等待联网生成口令'}
-              </Text>
-            </View>
-          </View>
-        </View>
+      {/* ---------------- 裁剪照片 ---------------- */}
+      {cropImg ? (
+        <CropSheet
+          imgPath={cropImg}
+          onConfirm={confirmCrop}
+          onCancel={() => {
+            setCropImg('')
+            setSheet(cropFor === 'new' ? 'newTag' : 'manage')
+          }}
+        />
       ) : null}
     </View>
   )
