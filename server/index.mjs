@@ -88,11 +88,91 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_members_account ON members(account_id, joined_at DESC);
   CREATE INDEX IF NOT EXISTS idx_events_card ON events(card_id, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_events_client ON events(card_id, client_id);
+
+  /* ============ v2 · 日历账（tag → entries / marks / photos） ============ */
+
+  CREATE TABLE IF NOT EXISTS tags (
+    id TEXT PRIMARY KEY,
+    share_code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    unit TEXT NOT NULL DEFAULT '次',
+    color_idx INTEGER NOT NULL DEFAULT 0,
+    target INTEGER,
+    photo_url TEXT,
+    owner_id TEXT NOT NULL REFERENCES accounts(id),
+    version INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    deleted_at INTEGER
+  );
+
+  CREATE TABLE IF NOT EXISTS tag_members (
+    tag_id TEXT NOT NULL REFERENCES tags(id),
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    nickname TEXT NOT NULL,
+    color_idx INTEGER NOT NULL DEFAULT 0,
+    role TEXT NOT NULL DEFAULT 'member',
+    joined_at INTEGER NOT NULL,
+    PRIMARY KEY (tag_id, account_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS tag_entries (
+    id TEXT PRIMARY KEY,
+    tag_id TEXT NOT NULL REFERENCES tags(id),
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    client_id TEXT NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT '',
+    by TEXT NOT NULL DEFAULT '',
+    created_at INTEGER NOT NULL,
+    deleted_at INTEGER,
+    UNIQUE (tag_id, client_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS tag_marks (
+    id TEXT PRIMARY KEY,
+    tag_id TEXT NOT NULL REFERENCES tags(id),
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    client_id TEXT NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL DEFAULT '12:00',
+    label TEXT NOT NULL DEFAULT '纪念日',
+    value_at_mark INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    deleted_at INTEGER,
+    UNIQUE (tag_id, client_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS photos (
+    hash TEXT PRIMARY KEY,
+    path TEXT NOT NULL,
+    bytes INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_tags_owner ON tags(owner_id, updated_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_tag_members_account ON tag_members(account_id, joined_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_tag_entries_tag ON tag_entries(tag_id, date ASC, time ASC);
+  CREATE INDEX IF NOT EXISTS idx_tag_entries_client ON tag_entries(tag_id, client_id);
+  CREATE INDEX IF NOT EXISTS idx_tag_marks_tag ON tag_marks(tag_id, date ASC);
+  CREATE INDEX IF NOT EXISTS idx_tag_marks_client ON tag_marks(tag_id, client_id);
 `)
 
+const PHOTOS_DIR = path.join(path.dirname(DB_PATH), 'photos')
+fs.mkdirSync(PHOTOS_DIR, { recursive: true })
+
 const MAX_BODY = 64 * 1024
+const MAX_PHOTO_BODY = 2 * 1024 * 1024
 const CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'
 const now = () => Date.now()
+
+function todayStr() {
+  const d = new Date()
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
 
 class HttpError extends Error {
   constructor(status, code, message) {
@@ -216,6 +296,394 @@ function readBody(req) {
   })
 }
 
+/* 原始二进制请求体（照片上传专用，上限 2MB） */
+function readBodyRaw(req) {
+  return new Promise((resolve, reject) => {
+    let size = 0
+    let settled = false
+    const chunks = []
+    req.on('data', chunk => {
+      if (settled) return
+      size += chunk.length
+      if (size > MAX_PHOTO_BODY) {
+        settled = true
+        reject(new HttpError(413, 'BODY_TOO_LARGE', '照片太大了，换一张小一点的'))
+        req.destroy()
+        return
+      }
+      chunks.push(chunk)
+    })
+    req.on('end', () => {
+      if (settled) return
+      settled = true
+      resolve(Buffer.concat(chunks))
+    })
+    req.on('error', err => {
+      if (settled) return
+      settled = true
+      reject(err)
+    })
+  })
+}
+
+/* ---------------- v2 · 日历账标签读写 ---------------- */
+
+function tagRow(tagId) {
+  return db.prepare('SELECT * FROM tags WHERE id = ? AND deleted_at IS NULL').get(tagId)
+}
+
+function tagMembership(tagId, accountId) {
+  return db.prepare('SELECT * FROM tag_members WHERE tag_id = ? AND account_id = ?').get(tagId, accountId)
+}
+
+function buildTag(account, row) {
+  const members = db.prepare(`
+    SELECT m.account_id AS id, m.nickname AS name, m.color_idx AS colorIdx, m.role AS role,
+           (SELECT COUNT(*) FROM tag_entries te WHERE te.tag_id = m.tag_id AND te.deleted_at IS NULL AND te.account_id = m.account_id) AS contribution
+    FROM tag_members m
+    WHERE m.tag_id = ?
+    ORDER BY CASE WHEN m.role = 'owner' THEN 0 ELSE 1 END, m.joined_at ASC
+    LIMIT 20
+  `).all(row.id)
+
+  const sums = db.prepare(`
+    SELECT COALESCE(SUM(amount), 0) AS total, COUNT(*) AS cnt
+    FROM tag_entries WHERE tag_id = ? AND deleted_at IS NULL
+  `).get(row.id)
+
+  const last = db.prepare(`
+    SELECT te.by AS name, te.created_at AS ts
+    FROM tag_entries te
+    WHERE te.tag_id = ? AND te.deleted_at IS NULL
+    ORDER BY te.created_at DESC, te.rowid DESC
+    LIMIT 1
+  `).get(row.id)
+
+  return {
+    id: row.id,
+    name: row.name,
+    unit: row.unit,
+    colorIdx: row.color_idx,
+    target: row.target ?? undefined,
+    photoUrl: row.photo_url || undefined,
+    shareCode: row.share_code,
+    version: row.version,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    isOwner: row.owner_id === account.id,
+    allSum: sums.total,
+    entryCount: sums.cnt,
+    members,
+    lastBy: last ? last.name : undefined,
+    lastAt: last ? last.ts : undefined
+  }
+}
+
+function visibleTag(account, tagId) {
+  const row = tagRow(tagId)
+  if (!row) throw new HttpError(404, 'TAG_NOT_FOUND', '标签不存在或已删除')
+  if (!tagMembership(tagId, account.id)) throw new HttpError(403, 'NOT_MEMBER', '你还没有加入这个标签')
+  return row
+}
+
+function tagDetail(account, row) {
+  const entries = db.prepare(`
+    SELECT client_id AS id, date, time, amount, note, by, account_id AS byId, created_at AS ts
+    FROM tag_entries
+    WHERE tag_id = ? AND deleted_at IS NULL
+    ORDER BY date ASC, time ASC, rowid ASC
+    LIMIT 2000
+  `).all(row.id)
+  const marks = db.prepare(`
+    SELECT client_id AS id, date, time, label, value_at_mark AS valueAtMark, created_at AS ts
+    FROM tag_marks
+    WHERE tag_id = ? AND deleted_at IS NULL
+    ORDER BY date ASC, rowid ASC
+    LIMIT 500
+  `).all(row.id)
+  return { tag: buildTag(account, row), entries, marks }
+}
+
+async function handleCreateTag(req, res, account) {
+  limit(req, 'tag-create', 30, 60 * 60 * 1000, account.id)
+  const body = await readBody(req)
+  const id = body.id === undefined ? 't' + randomBytes(10).toString('hex') : String(body.id)
+  if (!validId(id)) throw new HttpError(400, 'BAD_ID', '标签 ID 格式不正确')
+
+  const existing = db.prepare('SELECT * FROM tags WHERE id = ?').get(id)
+  if (existing) {
+    if (existing.owner_id === account.id && !existing.deleted_at) {
+      return ok(res, buildTag(account, existing))
+    }
+    throw new HttpError(409, 'ID_TAKEN', '标签 ID 已被占用')
+  }
+
+  const name = cleanText(body.name, 12, '我的标签')
+  const unit = cleanText(body.unit, 4, '次')
+  const colorIdx = intIn(body.colorIdx, 0, 6, 0)
+  const target = intIn(body.target, 0, 1_000_000_000, 0)
+  const shareCode = uniqueShareCode()
+  const t = now()
+
+  db.exec('BEGIN IMMEDIATE')
+  try {
+    db.prepare(`
+      INSERT INTO tags (id, share_code, name, unit, color_idx, target, photo_url, owner_id, version, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, NULL, ?, 0, ?, ?)
+    `).run(id, shareCode, name, unit, colorIdx, target > 0 ? target : null, account.id, t, t)
+    db.prepare(`
+      INSERT INTO tag_members (tag_id, account_id, nickname, color_idx, role, joined_at)
+      VALUES (?, ?, ?, ?, 'owner', ?)
+    `).run(id, account.id, account.nickname, colorFor(account.id), t)
+    db.exec('COMMIT')
+  } catch (err) {
+    db.exec('ROLLBACK')
+    throw err
+  }
+
+  ok(res, buildTag(account, tagRow(id)), 201)
+}
+
+function handleListTags(req, res, account) {
+  limit(req, 'tag-list', 120, 60 * 1000, account.id)
+  const rows = db.prepare(`
+    SELECT tg.* FROM tags tg
+    JOIN tag_members m ON m.tag_id = tg.id
+    WHERE m.account_id = ? AND tg.deleted_at IS NULL
+    ORDER BY tg.updated_at DESC
+    LIMIT 100
+  `).all(account.id)
+  ok(res, rows.map(row => buildTag(account, row)))
+}
+
+async function handleGetTag(req, res, account, tagId) {
+  limit(req, 'tag-get', 180, 60 * 1000, account.id)
+  const row = visibleTag(account, tagId)
+  ok(res, tagDetail(account, row))
+}
+
+async function handleUpdateTagMeta(req, res, account, tagId) {
+  limit(req, 'tag-meta', 60, 60 * 1000, account.id)
+  const row = visibleTag(account, tagId)
+  const body = await readBody(req)
+  const name = cleanText(body.name, 12, row.name)
+  const unit = cleanText(body.unit, 4, row.unit)
+  const colorIdx = intIn(body.colorIdx, 0, 6, row.color_idx)
+  const target = intIn(body.target, 0, 1_000_000_000, 0)
+  db.prepare('UPDATE tags SET name = ?, unit = ?, color_idx = ?, target = ?, version = version + 1, updated_at = ? WHERE id = ?')
+    .run(name, unit, colorIdx, target > 0 ? target : null, now(), tagId)
+  ok(res, buildTag(account, tagRow(tagId)))
+}
+
+async function handleJoinTag(req, res, account) {
+  limit(req, 'join-account', 8, 60 * 1000, account.id)
+  limit(req, 'join-ip', 20, 60 * 1000)
+  const body = await readBody(req)
+  const code = normalizeCode(body.code)
+  if (!validCode(code)) throw new HttpError(400, 'BAD_CODE', '口令格式不正确')
+
+  const row = db.prepare('SELECT * FROM tags WHERE share_code = ? AND deleted_at IS NULL').get(code)
+  if (!row) throw new HttpError(404, 'CODE_NOT_FOUND', '口令无效或已过期')
+
+  const exists = tagMembership(row.id, account.id)
+  if (!exists) {
+    db.prepare(`
+      INSERT INTO tag_members (tag_id, account_id, nickname, color_idx, role, joined_at)
+      VALUES (?, ?, ?, ?, 'member', ?)
+    `).run(row.id, account.id, account.nickname, colorFor(account.id), now())
+  }
+  ok(res, buildTag(account, row))
+}
+
+async function handleTagEntries(req, res, account, tagId) {
+  limit(req, 'tag-entries', 240, 60 * 1000, account.id)
+  limit(req, 'tag-entries-ip', 400, 60 * 1000)
+  visibleTag(account, tagId)
+  const body = await readBody(req)
+  if (!Array.isArray(body.entries) || body.entries.length < 1 || body.entries.length > 50) {
+    throw new HttpError(400, 'BAD_ENTRIES', '每次需提交 1-50 条记录')
+  }
+
+  const t = now()
+  const today = todayStr()
+  const prepared = []
+
+  for (const raw of body.entries) {
+    if (!raw || typeof raw !== 'object') throw new HttpError(400, 'BAD_ENTRY', '记录格式不正确')
+    const clientId = String(raw.id || '')
+    if (!validId(clientId)) throw new HttpError(400, 'BAD_ENTRY_ID', '记录 ID 格式不正确')
+    if (!validDate(raw.date)) throw new HttpError(400, 'BAD_ENTRY_DATE', '日期格式不正确')
+    if (raw.date > today) throw new HttpError(400, 'BAD_ENTRY_DATE', '今天之后的日子还没到，记不了')
+    if (!validTime(raw.time)) throw new HttpError(400, 'BAD_ENTRY_TIME', '时间格式不正确')
+    const amount = intIn(raw.amount, -100000, 100000, 0)
+    if (!amount) throw new HttpError(400, 'BAD_ENTRY_AMOUNT', '数量不能为 0')
+    const note = cleanText(raw.note, 20, '')
+    prepared.push({ clientId, date: raw.date, time: String(raw.time).padStart(5, '0'), amount, note })
+  }
+
+  let applied = 0
+  let duplicates = 0
+
+  db.exec('BEGIN IMMEDIATE')
+  try {
+    const row = tagRow(tagId)
+    if (!row) throw new HttpError(404, 'TAG_NOT_FOUND', '标签不存在或已删除')
+    const upsert = db.prepare(`
+      INSERT INTO tag_entries (id, tag_id, account_id, client_id, date, time, amount, note, by, created_at, deleted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+      ON CONFLICT(tag_id, client_id) DO UPDATE SET
+        date = excluded.date, time = excluded.time, amount = excluded.amount,
+        note = excluded.note, deleted_at = NULL
+    `)
+    const findEntry = db.prepare('SELECT id FROM tag_entries WHERE tag_id = ? AND client_id = ?')
+    for (const e of prepared) {
+      if (findEntry.get(tagId, e.clientId)) duplicates += 1
+      upsert.run('e' + randomBytes(12).toString('hex'), tagId, account.id, e.clientId, e.date, e.time, e.amount, e.note, account.nickname, t)
+      applied += 1
+    }
+    db.prepare('UPDATE tags SET version = version + ?, updated_at = ? WHERE id = ?').run(applied, t, tagId)
+    db.exec('COMMIT')
+  } catch (err) {
+    db.exec('ROLLBACK')
+    throw err
+  }
+
+  ok(res, { tag: buildTag(account, tagRow(tagId)), applied, duplicates })
+}
+
+function handleListTagEntries(req, res, account, tagId, since) {
+  limit(req, 'tag-entry-list', 120, 60 * 1000, account.id)
+  visibleTag(account, tagId)
+  const rows = db.prepare(`
+    SELECT client_id AS id, date, time, amount, note, by, account_id AS byId, created_at AS ts
+    FROM tag_entries
+    WHERE tag_id = ? AND deleted_at IS NULL AND created_at > ?
+    ORDER BY created_at ASC, rowid ASC
+    LIMIT 2000
+  `).all(tagId, since)
+  ok(res, rows)
+}
+
+function handleDeleteTagEntry(req, res, account, tagId, clientId) {
+  limit(req, 'tag-entry-delete', 120, 60 * 1000, account.id)
+  const row = visibleTag(account, tagId)
+  const entry = db.prepare('SELECT * FROM tag_entries WHERE tag_id = ? AND client_id = ? AND deleted_at IS NULL').get(tagId, clientId)
+  if (!entry) throw new HttpError(404, 'ENTRY_NOT_FOUND', '这一条记录不存在')
+  if (row.owner_id !== account.id && entry.account_id !== account.id) {
+    throw new HttpError(403, 'NOT_ALLOWED', '只能删除自己的记录')
+  }
+  db.prepare('UPDATE tag_entries SET deleted_at = ? WHERE id = ?').run(now(), entry.id)
+  db.prepare('UPDATE tags SET version = version + 1, updated_at = ? WHERE id = ?').run(now(), tagId)
+  ok(res, { deleted: true })
+}
+
+async function handleTagMarks(req, res, account, tagId) {
+  limit(req, 'tag-marks', 60, 60 * 1000, account.id)
+  visibleTag(account, tagId)
+  const body = await readBody(req)
+  if (!Array.isArray(body.marks) || body.marks.length < 1 || body.marks.length > 20) {
+    throw new HttpError(400, 'BAD_MARKS', '每次需提交 1-20 个标记')
+  }
+
+  const t = now()
+  const prepared = []
+  for (const raw of body.marks) {
+    if (!raw || typeof raw !== 'object') throw new HttpError(400, 'BAD_MARK', '标记格式不正确')
+    const clientId = String(raw.id || '')
+    if (!validId(clientId)) throw new HttpError(400, 'BAD_MARK_ID', '标记 ID 格式不正确')
+    if (!validDate(raw.date)) throw new HttpError(400, 'BAD_MARK_DATE', '日期格式不正确')
+    if (!validTime(raw.time)) throw new HttpError(400, 'BAD_MARK_TIME', '时间格式不正确')
+    const label = cleanText(raw.label, 20, '纪念日')
+    const valueAtMark = intIn(raw.valueAtMark, 0, 1_000_000_000, 0)
+    prepared.push({ clientId, date: raw.date, time: String(raw.time).padStart(5, '0'), label, valueAtMark })
+  }
+
+  let applied = 0
+  let duplicates = 0
+
+  db.exec('BEGIN IMMEDIATE')
+  try {
+    const row = tagRow(tagId)
+    if (!row) throw new HttpError(404, 'TAG_NOT_FOUND', '标签不存在或已删除')
+    const upsert = db.prepare(`
+      INSERT INTO tag_marks (id, tag_id, account_id, client_id, date, time, label, value_at_mark, created_at, deleted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+      ON CONFLICT(tag_id, client_id) DO UPDATE SET
+        date = excluded.date, time = excluded.time, label = excluded.label,
+        value_at_mark = excluded.value_at_mark, deleted_at = NULL
+    `)
+    const findMark = db.prepare('SELECT id FROM tag_marks WHERE tag_id = ? AND client_id = ?')
+    for (const m of prepared) {
+      if (findMark.get(tagId, m.clientId)) duplicates += 1
+      upsert.run('m' + randomBytes(12).toString('hex'), tagId, account.id, m.clientId, m.date, m.time, m.label, m.valueAtMark, t)
+      applied += 1
+    }
+    db.prepare('UPDATE tags SET version = version + ?, updated_at = ? WHERE id = ?').run(applied, t, tagId)
+    db.exec('COMMIT')
+  } catch (err) {
+    db.exec('ROLLBACK')
+    throw err
+  }
+
+  ok(res, { tag: buildTag(account, tagRow(tagId)), applied, duplicates })
+}
+
+function handleDeleteTagMark(req, res, account, tagId, clientId) {
+  limit(req, 'tag-mark-delete', 60, 60 * 1000, account.id)
+  const row = visibleTag(account, tagId)
+  const mark = db.prepare('SELECT * FROM tag_marks WHERE tag_id = ? AND client_id = ? AND deleted_at IS NULL').get(tagId, clientId)
+  if (!mark) throw new HttpError(404, 'MARK_NOT_FOUND', '这个标记不存在')
+  if (row.owner_id !== account.id && mark.account_id !== account.id) {
+    throw new HttpError(403, 'NOT_ALLOWED', '只能删除自己的标记')
+  }
+  db.prepare('UPDATE tag_marks SET deleted_at = ? WHERE id = ?').run(now(), mark.id)
+  db.prepare('UPDATE tags SET version = version + 1, updated_at = ? WHERE id = ?').run(now(), tagId)
+  ok(res, { deleted: true })
+}
+
+async function handleTagPhoto(req, res, account, tagId) {
+  limit(req, 'tag-photo', 20, 60 * 1000, account.id)
+  const row = visibleTag(account, tagId)
+  const contentType = String(req.headers['content-type'] || '')
+  if (!/^image\/(jpeg|jpg|png)/i.test(contentType)) {
+    throw new HttpError(400, 'BAD_CONTENT_TYPE', '照片接口只接受 image/jpeg')
+  }
+  const buf = await readBodyRaw(req)
+  if (!buf.length) throw new HttpError(400, 'EMPTY_PHOTO', '照片内容为空')
+
+  const hash = sha256(buf.toString('hex') + buf.length)
+  const file = `${hash}.jpg`
+  const filePath = path.join(PHOTOS_DIR, file)
+  if (!db.prepare('SELECT 1 FROM photos WHERE hash = ?').get(hash)) {
+    fs.writeFileSync(filePath, buf)
+    db.prepare('INSERT INTO photos (hash, path, bytes, created_at) VALUES (?, ?, ?, ?)').run(hash, file, buf.length, now())
+  }
+  const photoUrl = `/api/v1/photos/${file}`
+  db.prepare('UPDATE tags SET photo_url = ?, version = version + 1, updated_at = ? WHERE id = ?').run(photoUrl, now(), tagId)
+  ok(res, { photoUrl, tag: buildTag(account, tagRow(tagId)) })
+}
+
+function servePhoto(req, res, file) {
+  if (!/^[a-f0-9]{64}\.jpg$/i.test(file)) throw new HttpError(404, 'NOT_FOUND', '照片不存在')
+  const filePath = path.join(PHOTOS_DIR, file)
+  if (!fs.existsSync(filePath)) throw new HttpError(404, 'NOT_FOUND', '照片不存在')
+  const buf = fs.readFileSync(filePath)
+  for (const [k, v] of Object.entries(baseHeaders)) res.setHeader(k, v)
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'image/jpeg')
+  res.setHeader('Content-Length', buf.length)
+  res.setHeader('Cache-Control', 'public, max-age=86400')
+  res.end(buf)
+}
+
+function handleDeleteTag(req, res, account, tagId) {
+  limit(req, 'tag-delete', 30, 60 * 1000, account.id)
+  const row = visibleTag(account, tagId)
+  if (row.owner_id !== account.id) throw new HttpError(403, 'NOT_OWNER', '只有创建者可以删除')
+  db.prepare('UPDATE tags SET deleted_at = ?, updated_at = ? WHERE id = ?').run(now(), now(), tagId)
+  ok(res, { deleted: true })
+}
+
 /* ---------------- 校验 ---------------- */
 
 function cleanText(value, max, fallback = '') {
@@ -236,6 +704,14 @@ function validId(value) {
   return typeof value === 'string' && /^[A-Za-z0-9_-]{8,40}$/.test(value)
 }
 
+function validDate(value) {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
+}
+
+function validTime(value) {
+  return typeof value === 'string' && /^\d{1,2}:\d{2}$/.test(value)
+}
+
 function validCode(value) {
   return typeof value === 'string' && /^[A-Z0-9]{6}$/.test(value)
 }
@@ -253,8 +729,9 @@ function makeShareCode() {
 function uniqueShareCode() {
   for (let i = 0; i < 8; i++) {
     const code = makeShareCode()
-    const exists = db.prepare('SELECT 1 FROM cards WHERE share_code = ?').get(code)
-    if (!exists) return code
+    const inCards = db.prepare('SELECT 1 FROM cards WHERE share_code = ?').get(code)
+    const inTags = db.prepare('SELECT 1 FROM tags WHERE share_code = ?').get(code)
+    if (!inCards && !inTags) return code
   }
   throw new HttpError(500, 'CODE_FAILED', '口令生成失败，请重试')
 }
@@ -587,7 +1064,62 @@ async function route(req, res) {
     return handleSession(req, res)
   }
 
+  /* 照片读取是公开的：小程序 <Image> 组件带不了 Authorization 头 */
+  if (parts.length === 4 && parts[2] === 'photos' && req.method === 'GET') {
+    return servePhoto(req, res, decodeURIComponent(parts[3]))
+  }
+
   const account = requireAuth(req)
+
+  /* ---- v2 · 日历账标签 ---- */
+
+  if (tail.length === 1 && tail[0] === 'tags') {
+    if (req.method === 'GET') return handleListTags(req, res, account)
+    if (req.method === 'POST') return handleCreateTag(req, res, account)
+    throw new HttpError(405, 'METHOD_NOT_ALLOWED', '请求方法不支持')
+  }
+
+  if (tail.length === 2 && tail[0] === 'tags' && tail[1] === 'join' && req.method === 'POST') {
+    return handleJoinTag(req, res, account)
+  }
+
+  if (tail.length >= 2 && tail[0] === 'tags') {
+    const tagId = decodeURIComponent(tail[1])
+
+    if (tail.length === 2) {
+      if (req.method === 'GET') return handleGetTag(req, res, account, tagId)
+      if (req.method === 'DELETE') return handleDeleteTag(req, res, account, tagId)
+      if (req.method === 'POST') return handleUpdateTagMeta(req, res, account, tagId)
+      throw new HttpError(405, 'METHOD_NOT_ALLOWED', '请求方法不支持')
+    }
+
+    if (tail.length === 3 && tail[2] === 'entries') {
+      if (req.method === 'GET') {
+        const since = intIn(url.searchParams.get('since'), 0, Number.MAX_SAFE_INTEGER, 0)
+        return handleListTagEntries(req, res, account, tagId, since)
+      }
+      if (req.method === 'POST') return handleTagEntries(req, res, account, tagId)
+      throw new HttpError(405, 'METHOD_NOT_ALLOWED', '请求方法不支持')
+    }
+
+    if (tail.length === 3 && tail[2] === 'marks' && req.method === 'POST') {
+      return handleTagMarks(req, res, account, tagId)
+    }
+
+    if (tail.length === 3 && tail[2] === 'photo' && req.method === 'POST') {
+      return handleTagPhoto(req, res, account, tagId)
+    }
+
+    if (tail.length === 4 && tail[2] === 'entries' && req.method === 'DELETE') {
+      return handleDeleteTagEntry(req, res, account, tagId, decodeURIComponent(tail[3]))
+    }
+
+    if (tail.length === 4 && tail[2] === 'marks' && req.method === 'DELETE') {
+      return handleDeleteTagMark(req, res, account, tagId, decodeURIComponent(tail[3]))
+    }
+  }
+
+  /* ---- v1 · 单值卡片（旧版兼容） ---- */
 
   if (tail.length === 1 && tail[0] === 'cards') {
     if (req.method === 'GET') return handleListCards(req, res, account)
