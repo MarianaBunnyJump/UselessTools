@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>趣工局 · 清新糖果全页面设计稿</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23FFF9F2'/%3E%3Ccircle cx='32' cy='32' r='18' fill='%23E8795A'/%3E%3C/svg%3E">
+<style>
+/* ================= 令牌 · 清新糖果 ================= */
+:root{
+  --bg:#FFF9F2;
+  --paper:#FFFFFF;
+  --paper2:#F9F5EF;
+  --ink:#2D2A26;
+  --ink2:#6B645C;
+  --ink3:#9A9288;
+  --line:#E8E0D4;
+  --accent:#E8795A;         /* 陶土平涂 · 唯一高饱和点 */
+  --accent-deep:#C95B3F;
+  --danger:#E57373;
+  --ok:#6FBF73;
+  --c1:#F2C4B8;             /* 豆沙粉 */
+  --c2:#B8C8D8;             /* 雾霾蓝 */
+  --c3:#C8D8C0;             /* 鼠尾草绿 */
+  --c4:#F2E4B8;             /* 奶黄 */
+  --c5:#DCCEF0;             /* 香芋紫 */
+  --shadow:0 2px 6px rgba(45,42,38,.05);
+  --shadow-s:0 1px 2px rgba(45,42,38,.04);
+  --r-lg:16px;
+  --r-md:12px;
+  --r-sm:8px;
+  --t-fast:60ms;
+  --t-mid:120ms;
+  --t-slow:180ms;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#EFEDE8;color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.6;font-size:15px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+input{font-family:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ================= 页面顶条：三问三答 ================= */
+.fix-strip{background:var(--paper);border-bottom:1px solid var(--line)}
+.fix-strip-in{max-width:880px;margin:0 auto;padding:10px 20px;font-size:13px;color:var(--ink2);line-height:1.7;display:flex;flex-direction:column;gap:2px}
+.fix-strip b{color:var(--accent-deep);font-weight:700}
+.fix-strip .fs-tag{display:inline-block;font-size:11px;font-weight:700;color:var(--accent-deep);background:#FBE4DA;border-radius:6px;padding:1px 7px;margin-right:6px}
+
+/* ================= 应用外壳 ================= */
+.app{max-width:460px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;box-shadow:0 0 0 1px rgba(45,42,38,.06),0 20px 60px -30px rgba(45,42,38,.25);padding-bottom:64px}
+.view{display:none;animation:viewIn var(--t-slow) ease-out}
+.view.on{display:block}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* 应用顶栏（无毛玻璃，纯色+发丝线） */
+.topbar{display:flex;align-items:center;gap:8px;padding:12px 20px;background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.topbar .tb-title{font-size:17px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .tb-sub{font-size:12px;color:var(--ink3);font-weight:400;margin-left:4px}
+.tb-back{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;margin-left:-12px;color:var(--ink2);border-radius:var(--r-sm);transition:background var(--t-fast) ease}
+.tb-back:active{background:var(--paper2)}
+.tb-back svg{width:22px;height:22px}
+.tb-action{min-height:44px;padding:0 6px;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--ink2);font-weight:600;border-radius:var(--r-sm);transition:background var(--t-fast) ease}
+.tb-action:active{background:var(--paper2)}
+.tb-action svg{width:19px;height:19px}
+
+/* ================= 通用组件 ================= */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--ink2);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 12px;transition:all var(--t-fast) ease;min-height:34px}
+.chip.on{color:var(--accent-deep);background:#FBE4DA;border-color:#F0C0AC}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:700;border-radius:var(--r-md);min-height:44px;padding:0 18px;transition:transform var(--t-fast) ease,background var(--t-fast) ease,box-shadow var(--t-fast) ease;user-select:none}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:active{background:var(--accent-deep)}
+.btn-ghost{background:var(--paper);border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:active{background:var(--paper2)}
+.btn-danger:active{background:#F9D0D0;color:var(--danger)}
+.icon-btn{min-width:44px;min-height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;transition:background var(--t-fast) ease}
+.icon-btn:active{background:var(--paper2)}
+.icon-btn svg{width:22px;height:22px}
+.input{width:100%;min-height:48px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:0 14px;font-size:15px;color:var(--ink);transition:border-color var(--t-fast) ease}
+.input::placeholder{color:var(--ink3)}
+.input:focus{outline:none;border-color:var(--accent)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;flex:none}
+.emoji{line-height:1}
+.chevron{width:18px;height:18px;color:var(--ink3);flex:none}
+
+/* ================= 主页 ================= */
+.lv-card{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:16px 16px 0}
+.lv-badge{font-size:12px;font-weight:800;color:#fff;background:var(--ink);border-radius:8px;padding:3px 9px;white-space:nowrap}
+.lv-bar{flex:1;height:6px;background:var(--paper2);border-radius:999px;overflow:hidden;min-width:60px}
+.lv-bar i{display:block;height:100%;width:34%;background:var(--accent);border-radius:999px}
+.lv-meta{font-size:11.5px;color:var(--ink3);white-space:nowrap}
+.lv-all{min-height:44px;display:inline-flex;align-items:center;gap:2px;font-size:13px;font-weight:600;color:var(--ink2);padding:0 4px;border-radius:var(--r-sm)}
+.lv-all:active{background:var(--paper2)}
+.scene-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 0}
+.scene{position:relative;border-radius:var(--r-lg);padding:16px 14px 14px;min-height:132px;display:flex;flex-direction:column;transition:transform var(--t-mid) ease,box-shadow var(--t-mid) ease}
+.scene:active{transform:scale(.98)}
+.scene .sc-icon{font-size:24px}
+.scene .sc-name{font-size:16px;font-weight:800;margin-top:8px}
+.scene .sc-desc{font-size:11.5px;color:var(--ink2);margin-top:2px;line-height:1.5}
+.scene .sc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px}
+.scene .sc-count{font-size:11px;font-weight:700;color:var(--ink2)}
+.scene .sc-emo{font-size:13px;letter-spacing:1px}
+.home-foot{margin:22px 16px 26px;text-align:center;font-size:12px;color:var(--ink3)}
+.home-foot .hf-line{display:inline-flex;align-items:center;gap:6px}
+.home-foot b{color:var(--ink2);font-weight:600}
+
+/* ================= 场景库 ================= */
+.lib-search{padding:12px 16px 4px;position:relative}
+.lib-search .search-ico{position:absolute;left:30px;top:24px;width:16px;height:16px;color:var(--ink3);pointer-events:none}
+.lib-search .input{padding-left:38px}
+.lib-chips{display:flex;gap:8px;padding:10px 16px 6px}
+.tool-list{list-style:none;padding:6px 16px 20px}
+.tool-group-t{font-size:12px;font-weight:700;color:var(--ink3);padding:14px 4px 6px}
+.tool-row{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow-s);transition:transform var(--t-fast) ease,background var(--t-fast) ease;min-height:56px;width:100%;text-align:left}
+.tool-row:active{transform:scale(.985);background:var(--paper2)}
+.tool-row .tr-emo{font-size:22px;flex:none;width:32px;text-align:center}
+.tool-row .tr-main{flex:1;min-width:0}
+.tool-row .tr-name{font-size:15px;font-weight:600}
+.tool-row .tr-desc{font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-empty{padding:40px 16px;text-align:center;color:var(--ink3);font-size:13px}
+
+/* ================= 计数器 ================= */
+.score{position:relative;margin:16px 16px 0;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden}
+.score .sc-strip{height:6px;transition:background var(--t-mid) ease}
+.score-in{padding:18px 18px 16px}
+.sc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sc-label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
+.sc-label .emoji{font-size:18px}
+.sc-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--ink2);background:var(--paper2);border-radius:999px;padding:4px 9px;transition:background var(--t-mid) ease}
+.sc-pill.on{color:var(--accent-deep);background:#FBE4DA}
+.sc-num-wrap{text-align:center;padding:14px 0 4px}
+.sc-num{font-size:96px;line-height:1.05;font-weight:700;letter-spacing:1px;font-variant-numeric:tabular-nums;color:var(--ink);transition:transform var(--t-mid) ease}
+.sc-num.bump{animation:bump var(--t-slow) ease-out}
+@keyframes bump{0%{transform:scale(1.04)}100%{transform:scale(1)}}
+.sc-unit{font-size:13px;color:var(--ink3);letter-spacing:1px;margin-top:2px}
+.sc-actions{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
+.circle-btn{min-width:56px;min-height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;transition:transform var(--t-fast) ease,background var(--t-fast) ease;user-select:none}
+.circle-btn:active{transform:scale(.94)}
+.cb-minus{background:var(--paper);border:2px solid var(--line);color:var(--ink)}
+.cb-plus{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(232,121,90,.35)}
+.cb-plus:active{background:var(--accent-deep)}
+.mark-btn{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 14px;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2);transition:all var(--t-fast) ease}
+.mark-btn:active{background:var(--paper2);transform:translateY(1px)}
+.mark-btn svg{width:15px;height:15px}
+.sc-stamp{text-align:center;font-size:11.5px;color:var(--ink3);min-height:20px;margin-top:10px;transition:opacity var(--t-mid) ease}
+.sc-stamp b{color:var(--ink2);font-weight:600}
+.cards{list-style:none;padding:14px 16px 24px}
+.card-row{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:11px 14px;margin-bottom:8px;box-shadow:var(--shadow-s);transition:all var(--t-mid) ease;width:100%;text-align:left;position:relative;overflow:hidden}
+.card-row.on{border-color:var(--row-accent,#E8795A);background:#FFFDF9;box-shadow:0 0 0 1px var(--row-accent,#E8795A)}
+.card-row .cr-edge{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--row-accent,#E8795A)}
+.card-row .cr-emo{font-size:20px;flex:none;width:30px;text-align:center}
+.card-row .cr-main{flex:1;min-width:0}
+.card-row .cr-name{font-size:14px;font-weight:600}
+.card-row .cr-num{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.card-row .cr-share{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--ink3);transition:background var(--t-fast) ease}
+.card-row .cr-share:active{background:var(--paper2)}
+.card-row .cr-share svg{width:19px;height:19px}
+.add-row{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;background:var(--paper);border:1.5px dashed var(--line);border-radius:var(--r-lg);color:var(--ink2);font-size:14px;font-weight:700;transition:all var(--t-fast) ease;width:100%}
+.add-row:active{background:var(--paper2)}
+.add-row svg{width:18px;height:18px}
+
+/* ================= 浮层 sheet ================= */
+.sheet-mask{position:fixed;inset:0;background:rgba(45,42,38,.4);opacity:0;pointer-events:none;transition:opacity var(--t-slow) ease;z-index:40}
+.sheet-mask.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(105%);width:min(460px,100%);background:var(--paper);border-radius:24px 24px 0 0;z-index:41;transition:transform var(--t-slow) ease;max-height:82vh;display:flex;flex-direction:column}
+.sheet.on{transform:translateX(-50%) translateY(0)}
+.sheet .sh-grip{width:36px;height:4px;border-radius:999px;background:var(--line);margin:10px auto 2px;flex:none}
+.sheet .sh-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 20px 12px;flex:none}
+.sheet .sh-title{font-size:17px;font-weight:700}
+.sheet .sh-close{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink2);border-radius:50%;margin-right:-10px}
+.sheet .sh-close:active{background:var(--paper2)}
+.sheet .sh-close svg{width:20px;height:20px}
+.sheet .sh-body{padding:0 20px 20px;overflow-y:auto}
+.sh-field{margin-bottom:12px}
+.sh-field .f-label{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+.emo-pick{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:6px}
+.emo-opt{aspect-ratio:1;border-radius:50%;border:2px solid var(--line);background:var(--paper);font-size:20px;display:inline-flex;align-items:center;justify-content:center;transition:all var(--t-fast) ease}
+.emo-opt.on{border-color:var(--accent);background:#FBE4DA}
+.color-dots{display:flex;gap:8px;margin-top:6px}
+.color-dot{width:28px;height:28px;border-radius:50%;border:2px solid transparent;transition:all var(--t-fast) ease}
+.color-dot.on{border-color:var(--ink)}
+.sh-actions{display:flex;gap:10px;margin-top:6px}
+.sh-actions .btn{flex:1}
+.his-list{list-style:none}
+.his-day{font-size:11.5px;font-weight:700;color:var(--ink3);padding:12px 2px 6px;border-top:1px solid var(--line)}
+.his-day:first-child{border-top:none;padding-top:4px}
+.his-item{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.his-item:last-child{border-bottom:none}
+.his-item .hi-time{color:var(--ink2);flex:1}
+.his-item .hi-val{font-weight:700;font-variant-numeric:tabular-nums}
+.his-item .hi-del{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink3);border-radius:50%;transition:all var(--t-fast) ease;margin-right:-10px}
+.his-item .hi-del.warn{color:var(--danger);background:#FBE9E9}
+.his-item .hi-del svg{width:18px;height:18px}
+.his-empty{padding:36px 0;text-align:center;color:var(--ink3);font-size:13px}
+.his-empty .he-emo{font-size:34px;margin-bottom:8px}
+.collab-card{background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;margin-bottom:10px}
+.collab-card .cc-label{font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px}
+.collab-card .cc-link{font-size:14px;font-weight:600;color:var(--accent-deep);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.collab-card .cc-pw{font-size:22px;font-weight:800;letter-spacing:5px;font-variant-numeric:tabular-nums}
+.member-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.member-row:last-child{border-bottom:none}
+.member-row .mr-emo{font-size:17px}
+.member-row .mr-name{flex:1;font-weight:600}
+.member-row .mr-val{color:var(--ink2);font-variant-numeric:tabular-nums}
+.member-row .mr-me{font-size:10.5px;font-weight:700;color:var(--accent-deep);background:#FBE4DA;border-radius:6px;padding:1px 6px}
+.sync-tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ok);font-weight:600}
+.sync-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+/* ================= 设计系统 ================= */
+.ds{padding:14px 16px 24px}
+.ds-sec{margin-top:22px}
+.ds-sec:first-child{margin-top:8px}
+.ds-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;margin-bottom:10px}
+.ds-title .dt-no{font-size:11px;font-weight:800;color:var(--accent-deep);background:#FBE4DA;border-radius:6px;padding:2px 7px}
+.ds-sub{font-size:12px;color:var(--ink2);margin:-4px 0 10px;line-height:1.7}
+.swatch-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sw{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--paper)}
+.sw .sw-main{height:46px;position:relative}
+.sw .sw-main .sw-hex{position:absolute;right:8px;bottom:6px;font-size:10.5px;font-weight:700;background:rgba(255,255,255,.75);border-radius:5px;padding:1px 6px;font-variant-numeric:tabular-nums}
+.sw .sw-info{padding:8px 10px}
+.sw .sw-info b{font-size:12.5px;display:block}
+.sw .sw-info span{font-size:11px;color:var(--ink3);line-height:1.5;display:block;margin-top:2px}
+.ts-row{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.ts-row:last-child{border-bottom:none}
+.ts-row .ts-demo{flex:none;min-width:44%;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts-row .ts-meta{font-size:11px;color:var(--ink3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ts-row .ts-use{font-size:11.5px;color:var(--ink2);flex:1;text-align:right}
+.comp-block{border:1px solid var(--line);border-radius:var(--r-md);padding:14px;background:var(--paper);margin-bottom:8px}
+.comp-block .cb-name{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.comp-block .cb-name .cb-tag{font-size:10px;font-weight:700;color:var(--ink3);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.comp-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.motion-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.motion-row:last-child{border-bottom:none}
+.motion-row .mo-time{font-weight:800;color:var(--accent-deep);min-width:64px;font-variant-numeric:tabular-nums}
+.motion-row .mo-name{font-weight:600;min-width:88px}
+.motion-row .mo-use{color:var(--ink2);font-size:12.5px;flex:1}
+
+/* ================= 评审导航（非产品内导航） ================= */
+.revnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(460px,100%);display:flex;background:var(--paper);border-top:1px solid var(--line);z-index:30}
+.revnav .rn{flex:1;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--ink3);transition:color var(--t-fast) ease}
+.revnav .rn.on{color:var(--accent-deep)}
+.revnav .rn svg{width:20px;height:20px}
+.revnav .rn .rn-review{font-size:9px;color:var(--ink3);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:3px}
+
+/* ================= Toast ================= */
+.toast{position:fixed;left:50%;bottom:66px;transform:translateX(-50%) translateY(14px);background:var(--ink);color:#fff;font-size:13px;padding:10px 16px;border-radius:var(--r-sm);opacity:0;pointer-events:none;transition:opacity var(--t-slow) ease,transform var(--t-slow) ease;z-index:60;max-width:calc(100vw - 40px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ================= 桌面优化 ================= */
+@media (min-width:768px){
+  .app{margin-top:0}
+  .fix-strip-in{flex-direction:row;gap:18px}
+  .scene-grid{gap:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 三问三答：这版怎么改的 ===== -->
+<div class="fix-strip">
+  <div class="fix-strip-in">
+    <span><span class="fs-tag">去油</span><b>毛玻璃 / 渐变 / 厚阴影 / 28px+ 大圆角</b>全部撤掉，改白底 + 低饱和暖彩 + 轻阴影、圆角收敛到 16px。</span>
+    <span><span class="fs-tag">去卡</span>工具<b>2 次点击可达</b>（主页场景盒 → 场景库），浮层 180ms 滑入、所有动效 ≤200ms，无弹跳。</span>
+    <span><span class="fs-tag">换气</span>弃用圆体，改<b>系统 sans</b>；计数器数字 <b>tabular 等宽</b>、700 字重，字级阶梯重建。</span>
+  </div>
+</div>
+
+<!-- ===== 应用外壳 ===== -->
+<div class="app">
+
+  <!-- ===== 视图：主页 ===== -->
+  <section class="view" id="view-home">
+    <div class="topbar">
+      <span class="tb-title">趣工局</span>
+      <span class="tb-sub">Lv.2 · 220 工分</span>
+      <button class="tb-action" data-toast="设置页在本稿未展开（原型演示）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>设置</button>
+    </div>
+
+    <div class="lv-card card">
+      <span class="lv-badge">Lv.2</span>
+      <span class="lv-bar"><i></i></span>
+      <span class="lv-meta num">220/400 工分</span>
+      <button class="lv-all" data-goto="#/library/all">全部工具 <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+
+    <div class="scene-grid">
+      <button class="scene" data-goto="#/library/fun" style="background:var(--c1)">
+        <span class="sc-icon">🎡</span>
+        <span class="sc-name">解压一下</span>
+        <span class="sc-desc">捏一捏，放空自己</span>
+        <span class="sc-foot"><span class="sc-count">11 个工具</span><span class="sc-emo">🗑️🪵🫧</span></span>
+      </button>
+      <button class="scene" data-goto="#/library/study" style="background:var(--c2)">
+        <span class="sc-icon">📖</span>
+        <span class="sc-name">学习陪读</span>
+        <span class="sc-desc">读、写、注音</span>
+        <span class="sc-foot"><span class="sc-count">5 个工具</span><span class="sc-emo">📖✍️✒️</span></span>
+      </button>
+      <button class="scene" data-goto="#/library/create" style="background:var(--c4)">
+        <span class="sc-icon">🎨</span>
+        <span class="sc-name">做点东西</span>
+        <span class="sc-desc">图、字、拼豆</span>
+        <span class="sc-foot"><span class="sc-count">5 个工具</span><span class="sc-emo">🧩🖼️📱</span></span>
+      </button>
+      <button class="scene" data-goto="#/library/calc" style="background:var(--c3)">
+        <span class="sc-icon">🧮</span>
+        <span class="sc-name">生活小算</span>
+        <span class="sc-desc">算清日常账</span>
+        <span class="sc-foot"><span class="sc-count">1 个工具</span><span class="sc-emo">🧮</span></span>
+      </button>
+    </div>
+
+    <div class="home-foot">
+      <span class="hf-line"><b>趣工局</b> · Design by Mariana · 2026</span>
+      <br><span>任何工具 2 次点击可达</span>
+    </div>
+  </section>
+
+  <!-- ===== 视图：场景库（JS 渲染列表） ===== -->
+  <section class="view" id="view-library">
+    <div class="topbar">
+      <button class="tb-back" data-goto="#/home" aria-label="返回主页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="tb-title" id="libTitle">解压一下</span>
+      <span class="tb-sub num" id="libCount">11 个</span>
+      <span style="flex:1"></span>
+    </div>
+    <div class="lib-search">
+      <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input class="input" id="libSearch" type="text" placeholder="搜索 22 个工具" autocomplete="off">
+    </div>
+    <div class="lib-chips">
+      <button class="chip on" id="chipScene">本场景</button>
+      <button class="chip" id="chipAll">全部工具</button>
+    </div>
+    <ul class="tool-list" id="toolList"></ul>
+  </section>
+
+  <!-- ===== 视图：计数器（JS 渲染） ===== -->
+  <section class="view" id="view-counter">
+    <div class="topbar">
+      <button class="tb-back" data-goto="#/library/all" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="tb-title">一起数数</span>
+      <span class="tb-sub">一屏到底</span>
+      <span style="flex:1"></span>
+      <button class="tb-action" data-goto="#/design">设计稿说明</button>
+    </div>
+    <div id="scoreWrap"></div>
+    <div class="cards-head" style="padding:16px 16px 2px;font-size:12px;font-weight:700;color:var(--ink3)">我的计数</div>
+    <ul class="cards" id="cardsWrap"></ul>
+  </section>
+
+  <!-- ===== 视图：设计系统 ===== -->
+  <section class="view" id="view-design">
+    <div class="topbar">
+      <button class="tb-back" data-goto="#/counter" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="tb-title">设计系统</span>
+      <span class="tb-sub">清新糖果 · 评审用</span>
+    </div>
+    <!-- 内容由 JS 渲染 -->
+    <div id="dsWrap"></div>
+  </section>
+
+  <!-- ===== 浮层（新建 / 历史 / 协作 共用） ===== -->
+  <div class="sheet-mask" id="sheetMask"></div>
+  <div class="sheet" id="sheetBox" role="dialog" aria-modal="true"></div>
+
+</div>
+
+<!-- ===== 评审导航（非产品内导航，方便看稿） ===== -->
+<nav class="revnav">
+  <button class="rn" data-goto="#/home" id="rn-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg>首页</button>
+  <button class="rn" data-goto="#/library/all" id="rn-lib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="5" width="16" height="14" rx="4"/><path d="M8.5 9.5h7M8.5 13h4"/></svg>场景库</button>
+  <button class="rn" data-goto="#/counter" id="rn-counter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>计数器</button>
+  <button class="rn" data-goto="#/design" id="rn-design"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l2.5 5.5L20 12l-5.5 2.5L12 20l-2.5-5.5L4 12l5.5-2.5z"/></svg>设计系统<span class="rn-review">评审</span></button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ================= 数据 ================= */
+var SCENES = {
+  fun:{name:'解压一下', desc:'捏一捏，放空自己', color:'var(--c1)', icon:'🎡', emo:['🗑️','🪵','🫧']},
+  study:{name:'学习陪读', desc:'读、写、注音', color:'var(--c2)', icon:'📖', emo:['📖','✍️','✒️']},
+  create:{name:'做点东西', desc:'图、字、拼豆', color:'var(--c4)', icon:'🎨', emo:['🧩','🖼️','📱']},
+  calc:{name:'生活小算', desc:'算清日常账', color:'var(--c3)', icon:'🧮', emo:['🧮']}
+};
+/* 22 个工具（src/data/tools.ts 真实数据：名称/图标/描述/分类/配色） */
+var TOOLS = [
+  {id:'crusher',name:'情绪粉碎机',icon:'🗑️',desc:'把烦心事撕个粉碎',cat:'fun',color:'#FFD3C8'},
+  {id:'life',name:'人生倒计时',icon:'⏳',desc:'看看还剩多少个周日',cat:'fun',color:'#DCCEF0'},
+  {id:'mixer',name:'白噪音混音台',icon:'🎵',desc:'自己调一杯安静',cat:'fun',color:'#C5EBCF'},
+  {id:'merit',name:'电子木鱼',icon:'🪵',desc:'功德+1',cat:'fun',color:'#FFE5C4'},
+  {id:'excuse',name:'借口生成器',icon:'💬',desc:'帮你说出那个不字',cat:'fun',color:'#FFD6E0'},
+  {id:'wheel',name:'转盘选择器',icon:'🎡',desc:'让转盘替你做决定',cat:'fun',color:'#FFE0CB'},
+  {id:'bubble',name:'无限气泡纸',icon:'🫧',desc:'把一整张捏个遍',cat:'fun',color:'#C9EEFC'},
+  {id:'praise',name:'彩虹屁夸夸机',icon:'🌈',desc:'把人夸得明明白白',cat:'fun',color:'#FFF3C4'},
+  {id:'fakecall',name:'假装来电',icon:'☎️',desc:'体面撤退 模拟演练',cat:'fun',color:'#FFD6E0'},
+  {id:'funpicker',name:'趣味选择器',icon:'🎲',desc:'3D 骰子 硬币 摇签',cat:'fun',color:'#F9D9CC'},
+  {id:'counter',name:'一起数数',icon:'🔢',desc:'一屏到底 数到尽头',cat:'fun',color:'#DCE9DF'},
+  {id:'classics',name:'文言文陪读',icon:'📖',desc:'逐句拼音 跟读背诵',cat:'study',color:'#FFF3C4'},
+  {id:'stroke',name:'汉字练字卡',icon:'✍️',desc:'查字 · 田字格描红',cat:'study',color:'#FFE8D6'},
+  {id:'copybook',name:'字帖生成器',icon:'✒️',desc:'姓名课文 一键成帖',cat:'study',color:'#DCCEF0'},
+  {id:'pinyin',name:'拼音注音器',icon:'🔤',desc:'任意文本 逐字注音',cat:'study',color:'#C9EEFC'},
+  {id:'zhconvert',name:'简繁互转',icon:'字',desc:'词汇级转换 更地道',cat:'study',color:'#C5EBCF'},
+  {id:'perler',name:'拼豆图纸生成',icon:'🧩',desc:'图片转图纸 带清单',cat:'create',color:'#FFE0CB'},
+  {id:'marquee',name:'手持弹幕',icon:'📱',desc:'全屏大字 接机应援',cat:'create',color:'#37474F'},
+  {id:'textimage',name:'文字转图片',icon:'🖼️',desc:'便签 长图 九宫格',cat:'create',color:'#FFF3C4'},
+  {id:'photo',name:'图片小工具箱',icon:'📷',desc:'裁剪调色 隐私清理',cat:'create',color:'#C9EEFC'},
+  {id:'textreplace',name:'文本批量替换',icon:'🔁',desc:'多组规则 一键处理',cat:'create',color:'#DCCEF0'},
+  {id:'calc',name:'生活计算器',icon:'🧮',desc:'房贷个税 单位健康',cat:'calc',color:'#D7E8D4'}
+];
+var CARD_COLORS = ['#E8795A','#B8C8D8','#C8D8C0','#F2C4B8','#F2E4B8','#DCCEF0'];
+var EMO_OPTS = ['💧','📖','💰','🌙','🏃','🎯','🍅','❤️'];
+var cards = [
+  {id:'w1',name:'喝水打卡',unit:'杯',emoji:'💧',value:8,color:'#B8C8D8',history:[{t:'11-02 21:17',v:4},{t:'11-03 14:02',v:5},{t:'11-04 09:41',v:8}]},
+  {id:'w2',name:'背单词',unit:'词',emoji:'📖',value:42,color:'#C8D8C0',history:[{t:'11-03 22:15',v:35},{t:'11-04 07:30',v:42}]},
+  {id:'w3',name:'攒钱罐',unit:'元',emoji:'💰',value:1280,color:'#F2E4B8',history:[{t:'10-28 19:45',v:900},{t:'11-01 10:00',v:1100}]},
+  {id:'w4',name:'早睡打卡',unit:'天',emoji:'🌙',value:6,color:'#DCCEF0',history:[{t:'11-03 23:50',v:5},{t:'11-04 23:10',v:6}]},
+  {id:'w5',name:'运动打卡',unit:'次',emoji:'🏃',value:13,color:'#F2C4B8',history:[]}
+];
+var curIdx = 0;
+var cardSeq = 0;
+/* ================= 工具函数 ================= */
+function $(s,root){return (root||document).querySelector(s)}
+function $$(s,root){return Array.prototype.slice.call((root||document).querySelectorAll(s))}
+var toastEl=$('#toast'),toastTimer=null;
+function showToast(msg){toastEl.textContent=msg;toastEl.classList.add('show');if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastEl.classList.remove('show')},2200)}
+function curCard(){return cards[curIdx]}
+/* ================= 路由 ================= */
+function route(){
+  var h=location.hash||'#/home';
+  var m=h.match(/^#\/library\/(\w+)/);
+  if(m){showLib(m[1]);return}
+  if(h==='#/counter'){showCounter();return}
+  if(h==='#/design'){showDesign();return}
+  showHome();
+}
+function showView(id){
+  $$('.view').forEach(function(v){v.classList.remove('on')});
+  $('#'+id).classList.add('on');
+  window.scrollTo(0,0);
+}
+function navOn(id){
+  ['home','lib','counter','design'].forEach(function(k){
+    var el=$('#rn-'+k);el.classList.toggle('on',k===id);
+  });
+}
+function showHome(){showView('view-home');navOn('home');closeSheet();}
+function showLib(scene){
+  libScene=scene;libAll=false;renderLib();
+  showView('view-library');navOn('lib');closeSheet();
+}
+function showCounter(){renderCounter();showView('view-counter');navOn('counter');closeSheet();}
+function showDesign(){renderDs();showView('view-design');navOn('design');closeSheet();}
+/* ================= 事件委托 ================= */
+document.addEventListener('click',function(e){
+  var g=e.target.closest('[data-goto]');
+  if(g){location.hash=g.getAttribute('data-goto');return}
+  var t=e.target.closest('[data-toast]');
+  if(t){showToast(t.getAttribute('data-toast'));return}
+});
+/* ================= 浮层 ================= */
+var maskEl=$('#sheetMask'),sheetEl=$('#sheetBox');
+function openSheet(html){sheetEl.innerHTML=html;maskEl.classList.add('on');sheetEl.classList.add('on')}
+function closeSheet(){maskEl.classList.remove('on');sheetEl.classList.remove('on')}
+maskEl.addEventListener('click',closeSheet);
+/* ================= 场景库 ================= */
+var libScene='fun',libAll=false,libQuery='';
+var chipScene=$('#chipScene'),chipAll=$('#chipAll'),libSearch=$('#libSearch');
+chipScene.addEventListener('click',function(){libAll=false;libQuery='';libSearch.value='';renderLib()});
+chipAll.addEventListener('click',function(){libAll=true;libQuery='';libSearch.value='';renderLib()});
+libSearch.addEventListener('input',function(){libQuery=libSearch.value.trim();renderLib()});
+function toolRow(t){
+  var go = t.id==='counter' ? 'data-goto="#/counter"' : ('data-toast="原型演示：' + t.name + ' 在本稿未展开"');
+  return '<li><button class="tool-row" ' + go + '><span class="dot" style="background:' + t.color + '"></span><span class="tr-emo">' + t.icon + '</span><span class="tr-main"><span class="tr-name">' + t.name + '</span><br><span class="tr-desc">' + t.desc + '</span></span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></li>';
+}
+function renderLib(){
+  var title,count=0,html='';
+  var q=libQuery.toLowerCase();
+  var list;
+  if(q){
+    list=TOOLS.filter(function(t){return (t.name+' '+t.desc).toLowerCase().indexOf(q)>-1});
+    title='搜索：「'+libQuery+'」';
+    count=list.length;
+    var seen={};
+    html=list.map(function(t){
+      var h='';if(!seen[t.cat]){seen[t.cat]=1;h='<div class="tool-group-t">'+SCENES[t.cat].name+'</div>'}
+      return h+toolRow(t);
+    }).join('');
+  }else if(libAll){
+    title='全部工具';count=TOOLS.length;
+    ['fun','study','create','calc'].forEach(function(c){
+      var ts=TOOLS.filter(function(t){return t.cat===c});
+      html+='<div class="tool-group-t">'+SCENES[c].name+' · '+ts.length+' 个</div>'+ts.map(toolRow).join('');
+    });
+  }else{
+    var sc=SCENES[libScene];title=sc.name;
+    var ts=TOOLS.filter(function(t){return t.cat===libScene});
+    count=ts.length;
+    if(libScene==='fun'){
+      var relax=['crusher','life','mixer','merit','bubble','praise','counter'];
+      var fun1=TOOLS.filter(function(t){return relax.indexOf(t.id)>-1});
+      var fun2=TOOLS.filter(function(t){return t.cat==='fun'&&relax.indexOf(t.id)<0});
+      html='<div class="tool-group-t">解压 · '+fun1.length+' 个</div>'+fun1.map(toolRow).join('')+'<div class="tool-group-t">整活 · '+fun2.length+' 个</div>'+fun2.map(toolRow).join('');
+    }else{
+      html=ts.map(toolRow).join('');
+    }
+  }
+  if(!html){html='<div class="lib-empty">没有找到匹配的工具，换个词试试</div>'}
+  $('#libTitle').textContent=title;
+  $('#libCount').textContent=count+' 个';
+  $('#toolList').innerHTML=html;
+  chipScene.classList.toggle('on',!libAll&&!q);
+  chipAll.classList.toggle('on',libAll&&!q);
+}
+/* ================= 计数器 ================= */
+function fmtNow(){var d=new Date();function p(n){return (n<10?'0':'')+n}return (p(d.getMonth()+1))+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
+function renderCounter(){
+  var c=curCard();
+  var his=c.history.length;
+  var last=c.history.length?c.history[c.history.length-1]:null;
+  $('#scoreWrap').innerHTML=
+  '<div class="score">'+
+    '<div class="sc-strip" style="background:'+c.color+'"></div>'+
+    '<div class="score-in">'+
+      '<div class="sc-top">'+
+        '<span class="sc-label"><span class="emoji">'+c.emoji+'</span>'+c.name+'</span>'+
+        '<span style="display:flex;align-items:center;gap:8px">'+
+          '<button class="sc-pill'+(his?' on':'')+'" id="hisPill">历史 <b class="num" id="hisBadge">'+his+'</b></button>'+
+          '<span class="sync-tag">已同步</span>'+
+        '</span>'+
+      '</div>'+
+      '<div class="sc-num-wrap"><div class="sc-num num" id="scNum">'+c.value+'</div><div class="sc-unit">'+c.unit+'</div></div>'+
+      '<div class="sc-actions">'+
+        '<button class="circle-btn cb-minus" id="btnMinus" aria-label="减一">−</button>'+
+        '<button class="mark-btn" id="btnMark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>标记历史</button>'+
+        '<button class="circle-btn cb-plus" id="btnPlus" aria-label="加一">+</button>'+
+      '</div>'+
+      '<div class="sc-stamp" id="scStamp">'+(last?'最近一次：<b>'+last.t+' · '+last.v+' '+c.unit+'</b>':'点「标记历史」，记下这一刻')+'</div>'+
+    '</div>'+
+  '</div>';
+  $('#cardsWrap').innerHTML=cards.map(function(card,i){
+    var on=i===curIdx;
+    return '<li><button class="card-row'+(on?' on':'')+'" data-idx="'+i+'" style="--row-accent:'+card.color+'">'+
+      '<span class="cr-edge"></span><span class="cr-emo">'+card.emoji+'</span>'+
+      '<span class="cr-main"><span class="cr-name">'+card.name+'</span></span>'+
+      '<span class="cr-num num">'+card.value+'</span>'+
+      '<span class="cr-share" data-share="'+i+'" aria-label="分享"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg></span>'+
+    '</button></li>';
+  }).join('')+
+  '<li><button class="add-row" id="btnAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>新建计数</button></li>';
+  bindCounter();
+}
+function bumpNum(){
+  var el=$('#scNum');if(!el)return;
+  el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');
+}
+function bindCounter(){
+  var c=curCard();
+  $('#btnPlus').addEventListener('click',function(){c.value++;bumpNum();$('#scNum').textContent=c.value;syncCardNum()});
+  $('#btnMinus').addEventListener('click',function(){if(c.value>0){c.value--;bumpNum();$('#scNum').textContent=c.value;syncCardNum()}});
+  $('#btnMark').addEventListener('click',function(){
+    c.history.push({t:fmtNow(),v:c.value});
+    renderCounter();
+    showToast('已记下这一刻 · '+c.value+' '+c.unit);
+  });
+  $('#hisPill').addEventListener('click',openHistory);
+  $('#btnAdd').addEventListener('click',openNew);
+  $$('.card-row').forEach(function(row){
+    row.addEventListener('click',function(e){
+      if(e.target.closest('[data-share]')){return}
+      curIdx=parseInt(row.getAttribute('data-idx'),10);renderCounter();
+    });
+  });
+  $$('.cr-share').forEach(function(s){
+    s.addEventListener('click',function(e){e.stopPropagation();openCollab(parseInt(s.getAttribute('data-share'),10))});
+  });
+}
+function syncCardNum(){var row=document.querySelector('.card-row[data-idx="'+curIdx+'"]');if(row){row.querySelector('.cr-num').textContent=cards[curIdx].value}}
+/* ================= 新建计数 ================= */
+var newEmo=0,newColor=cardSeq%CARD_COLORS.length;
+function openNew(){
+  newEmo=0;
+  openSheet(
+  '<div class="sh-grip"></div>'+
+  '<div class="sh-head"><span class="sh-title">新建计数</span><button class="sh-close" id="shClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
+  '<div class="sh-body">'+
+    '<div class="sh-field"><div class="f-label">名称</div><input class="input" id="newName" placeholder="比如：喝水打卡" value=""></div>'+
+    '<div class="sh-field"><div class="f-label">单位</div><input class="input" id="newUnit" placeholder="杯 / 词 / 元，可留空" value=""></div>'+
+    '<div class="sh-field"><div class="f-label">图标</div><div class="emo-pick" id="newEmoPick">'+
+      EMO_OPTS.map(function(e,i){return '<button class="emo-opt'+(i===0?' on':'')+'" data-e="'+i+'">'+e+'</button>'}).join('')+
+    '</div></div>'+
+    '<div class="sh-field"><div class="f-label">颜色（自动轮换）</div><div class="color-dots">'+
+      CARD_COLORS.map(function(c,i){return '<span class="color-dot'+(i===cardSeq%CARD_COLORS.length?' on':'')+'" style="background:'+c+'"></span>'}).join('')+
+    '</div></div>'+
+    '<div class="sh-actions"><button class="btn btn-ghost" id="newCancel">取消</button><button class="btn btn-primary" id="newOk">完成 · 开数</button></div>'+
+  '</div>');
+  $('#shClose').addEventListener('click',closeSheet);
+  $('#newCancel').addEventListener('click',closeSheet);
+  $$('#newEmoPick .emo-opt').forEach(function(b){
+    b.addEventListener('click',function(){$$('#newEmoPick .emo-opt').forEach(function(x){x.classList.remove('on')});b.classList.add('on');newEmo=parseInt(b.getAttribute('data-e'),10)});
+  });
+  $('#newOk').addEventListener('click',function(){
+    var name=$('#newName').value.trim();
+    if(!name){showToast('先给计数起个名字');return}
+    var unit=$('#newUnit').value.trim();
+    cardSeq++;
+    cards.push({id:'n'+cardSeq,name:name,unit:unit||'',emoji:EMO_OPTS[newEmo],value:0,color:CARD_COLORS[cardSeq%CARD_COLORS.length],history:[]});
+    curIdx=cards.length-1;
+    closeSheet();renderCounter();
+    showToast('已新建「'+name+'」，两步开数');
+  });
+}
+/* ================= 历史 ================= */
+var pendingDel=null;
+function openHistory(){
+  var c=curCard();
+  if(!c.history.length){
+    openSheet(
+    '<div class="sh-grip"></div>'+
+    '<div class="sh-head"><span class="sh-title">历史时间戳</span><button class="sh-close" id="shClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
+    '<div class="sh-body"><div class="his-empty"><div class="he-emo">⏱️</div>还没有历史记录<br>点「标记历史」留下这一刻的时间和次数</div></div>');
+    $('#shClose').addEventListener('click',closeSheet);
+    return;
+  }
+  var dayMap={},items=[];
+  c.history.forEach(function(h,i){var d=h.t.slice(0,5);(dayMap[d]=dayMap[d]||[]).push(i)});
+  Object.keys(dayMap).reverse().forEach(function(d){
+    dayMap[d].slice().reverse().forEach(function(ri){items.push({realIdx:ri,d:d})});
+  });
+  var html='<div class="sh-grip"></div>'+
+  '<div class="sh-head"><span class="sh-title">历史时间戳 · '+c.name+'</span><button class="sh-close" id="shClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
+  '<div class="sh-body"><ul class="his-list">';
+  var lastDay=null;
+  items.forEach(function(it){
+    if(it.d!==lastDay){lastDay=it.d;html+='<li class="his-day">'+it.d+'</li>'}
+    var h=c.history[it.realIdx];
+    html+='<li class="his-item"><span class="hi-time">'+h.t.slice(5)+'</span><span class="hi-val num">'+h.v+' '+c.unit+'</span><button class="hi-del'+(pendingDel===it.realIdx?' warn':'')+'" data-hd="'+it.realIdx+'" aria-label="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"/></svg></button></li>';
+  });
+  html+='</ul><p style="font-size:11.5px;color:var(--ink3);margin-top:10px">历史存在手机本地，随账号同步。点删除键两次确认删除。</p></div>';
+  openSheet(html);
+  $('#shClose').addEventListener('click',closeSheet);
+  $$('[data-hd]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=parseInt(b.getAttribute('data-hd'),10);
+      if(pendingDel===i){c.history.splice(i,1);pendingDel=null;renderCounter();openHistory();showToast('已删除')}
+      else{pendingDel=i;openHistory()}
+    });
+  });
+}
+/* ================= 协作 ================= */
+function openCollab(idx){
+  var c=cards[idx]||curCard();
+  openSheet(
+  '<div class="sh-grip"></div>'+
+  '<div class="sh-head"><span class="sh-title">好友协作 · '+c.name+'</span><button class="sh-close" id="shClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'+
+  '<div class="sh-body">'+
+    '<div class="collab-card"><div class="cc-label">分享链接（复制发给好友）</div><div class="cc-link"><span>https://fun-toolbox/card/'+c.id+'</span><button class="tb-action" id="ccCopy" style="color:var(--accent-deep)">复制</button></div></div>'+
+    '<div class="collab-card"><div class="cc-label">4 位口令 · 好友凭此加入</div><div class="cc-pw">7K2P</div></div>'+
+    '<div class="collab-card"><div class="cc-label">成员贡献（'+c.value+' '+c.unit+' 由大家共同维护）</div>'+
+      '<div class="member-row"><span class="mr-emo">🙋</span><span class="mr-name">我</span><span class="mr-val num">+'+Math.max(1,Math.floor(c.value/2))+'</span><span class="mr-me">我</span></div>'+
+      '<div class="member-row"><span class="mr-emo">🐱</span><span class="mr-name">鱼丸</span><span class="mr-val num">+'+Math.max(1,Math.floor(c.value/3))+'</span></div>'+
+      '<div class="member-row"><span class="mr-emo">🐶</span><span class="mr-name">布丁</span><span class="mr-val num">+'+Math.max(1,c.value-Math.floor(c.value/2)-Math.floor(c.value/3))+'</span></div>'+
+    '</div>'+
+    '<div class="collab-card"><div class="cc-label">最近记录</div>'+
+      '<div class="member-row"><span class="mr-emo">🐱</span><span class="mr-name">鱼丸 加了 1 '+c.unit+'</span><span class="mr-val">刚刚</span></div>'+
+      '<div class="member-row"><span class="mr-emo">🙋</span><span class="mr-name">我 标记了历史</span><span class="mr-val">5 分钟前</span></div>'+
+    '</div>'+
+    '<p style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink3)"><span class="sync-tag"></span>已同步：改动实时合并</p>'+
+  '</div>');
+  $('#shClose').addEventListener('click',closeSheet);
+  $('#ccCopy').addEventListener('click',function(){showToast('链接已复制（原型演示）')});
+}
+/* ================= 设计系统 ================= */
+function renderDs(){
+  $('#dsWrap').innerHTML=
+  '<div class="ds">'+
+    '<div class="ds-sec"><p class="ds-sub" style="margin:0">方向「清新糖果」的落地规范：白底 + 低饱和暖彩，克制卡片与轻阴影，系统 sans 排版，动效全 ≤200ms。旧规范中的「毛玻璃卡片 / 背景渐变 / 厚投影 / 28-32px 圆角」全部废止。</p></div>'+
+
+    '<div class="ds-sec"><div class="ds-title"><span class="dt-no">01</span>色彩令牌</div>'+
+      '<div class="swatch-grid">'+
+        '<div class="sw"><div class="sw-main" style="background:#FFF9F2;border-bottom:1px solid var(--line)"><span class="sw-hex" style="color:#6B645C">#FFF9F2</span></div><div class="sw-info"><b>米白底 · 页面背景</b><span>全局底色，保留品牌暖意但不奶油</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#FFFFFF;border-bottom:1px solid var(--line)"><span class="sw-hex" style="color:#6B645C">#FFFFFF</span></div><div class="sw-info"><b>卡片白</b><span>卡片、浮层、输入框底色</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#2D2A26"><span class="sw-hex">#2D2A26</span></div><div class="sw-info"><b>主墨 · 文字与数字</b><span>标题、正文、大数字</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#6B645C"><span class="sw-hex">#6B645C</span></div><div class="sw-info"><b>次墨 · 说明</b><span>描述、时间、标签</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#E8795A"><span class="sw-hex">#E8795A</span></div><div class="sw-info"><b>陶土 · 唯一高饱和点</b><span>主按钮、+ 按钮、选中态；平涂不渐变</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#F2C4B8"><span class="sw-hex" style="color:#6B645C">#F2C4B8</span></div><div class="sw-info"><b>豆沙粉</b><span>场景色之一</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#B8C8D8"><span class="sw-hex" style="color:#6B645C">#B8C8D8</span></div><div class="sw-info"><b>雾霾蓝</b><span>场景色之一</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#C8D8C0"><span class="sw-hex" style="color:#6B645C">#C8D8C0</span></div><div class="sw-info"><b>鼠尾草绿</b><span>场景色之一</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#F2E4B8"><span class="sw-hex" style="color:#6B645C">#F2E4B8</span></div><div class="sw-info"><b>奶黄</b><span>场景色之一</span></div></div>'+
+        '<div class="sw"><div class="sw-main" style="background:#E8E0D4"><span class="sw-hex" style="color:#6B645C">#E8E0D4</span></div><div class="sw-info"><b>发丝线</b><span>1px 分隔，替代阴影做分隔</span></div></div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="ds-sec"><div class="ds-title"><span class="dt-no">02</span>字体阶梯（弃用圆体）</div>'+
+      '<p class="ds-sub">统一系统 sans（PingFang SC / Microsoft YaHei），层级靠字重与灰度；数字一律 tabular 等宽。</p>'+
+      '<div class="card" style="padding:6px 14px">'+
+        '<div class="ts-row"><span class="ts-demo" style="font-size:96px;font-weight:700;letter-spacing:1px;line-height:1.1">88</span><span class="ts-meta">96 / 700 · tabular</span><span class="ts-use">记分牌大数字</span></div>'+
+        '<div class="ts-row"><span class="ts-demo" style="font-size:24px;font-weight:700">24</span><span class="ts-meta">24 / 700 · tabular</span><span class="ts-use">小块数值</span></div>'+
+        '<div class="ts-row"><span class="ts-demo" style="font-size:18px;font-weight:800">页面标题</span><span class="ts-meta">18 / 800</span><span class="ts-use">顶栏、浮层标题</span></div>'+
+        '<div class="ts-row"><span class="ts-demo" style="font-size:16px;font-weight:800">场景名称</span><span class="ts-meta">16 / 800</span><span class="ts-use">场景盒、工具名</span></div>'+
+        '<div class="ts-row"><span class="ts-demo" style="font-size:15px;font-weight:600">卡片名称</span><span class="ts-meta">15 / 600</span><span class="ts-use">列表行、按钮</span></div>'+
+        '<div class="ts-row"><span class="ts-demo" style="font-size:13px;font-weight:400">正文说明</span><span class="ts-meta">13 / 400</span><span class="ts-use">描述、时间戳</span></div>'+
+        '<div class="ts-row"><span class="ts-demo" style="font-size:11px;font-weight:400;color:var(--ink3)">弱化信息</span><span class="ts-meta">11 / 400 灰</span><span class="ts-use">图例、辅助文字</span></div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="ds-sec"><div class="ds-title"><span class="dt-no">03</span>按钮</div>'+
+      '<div class="comp-block"><div class="cb-name">主按钮 <span class="cb-tag">仅一个高饱和点</span></div>'+
+        '<div class="comp-row"><button class="btn btn-primary" data-toast="组件示例：主按钮">完成 · 开数</button><button class="btn btn-primary" style="opacity:.92" data-toast="组件示例：按压态">按压态</button><span style="font-size:12px;color:var(--ink3)">陶土平涂 #E8795A，圆角 12，按下轻沉 1px，无投影位移</span></div></div>'+
+      '<div class="comp-block"><div class="cb-name">描边按钮 / 文字链 / 图标钮</div>'+
+        '<div class="comp-row"><button class="btn btn-ghost" data-toast="组件示例：描边按钮">取消</button><button class="mark-btn" data-toast="组件示例：标记历史">标记历史</button><button class="circle-btn cb-minus" style="min-width:48px;min-height:48px;font-size:20px" data-toast="组件示例：圆形钮">−</button><button class="icon-btn" data-toast="组件示例：图标钮"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg></button><span style="font-size:12px;color:var(--ink3)">热区 ≥44×44</span></div></div>'+
+    '</div>'+
+
+    '<div class="ds-sec"><div class="ds-title"><span class="dt-no">04</span>卡片与列表</div>'+
+      '<div class="comp-block"><div class="cb-name">工具行 <span class="cb-tag">大点击区</span></div>'+
+        '<button class="tool-row" style="margin-bottom:0" data-toast="组件示例：工具行"><span class="dot" style="background:#C9EEFC"></span><span class="tr-emo">🫧</span><span class="tr-main"><span class="tr-name">无限气泡纸</span><br><span class="tr-desc">把一整张捏个遍</span></span><svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>'+
+        '<p style="font-size:12px;color:var(--ink3);margin-top:8px">白卡 + 1px 发丝线 + 轻阴影（0 2px 6px / 5%），圆角 16；12px 色点做工具识别。</p></div>'+
+      '<div class="comp-block"><div class="cb-name">计数卡行 <span class="cb-tag">左 4px 色条 · 选中描边</span></div>'+
+        '<button class="card-row on" style="margin-bottom:0;--row-accent:#B8C8D8" data-toast="组件示例：计数卡行"><span class="cr-edge"></span><span class="cr-emo">💧</span><span class="cr-main"><span class="cr-name">喝水打卡</span></span><span class="cr-num num">8</span><span class="cr-share" style="cursor:default"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg></span></button>'+
+        '<p style="font-size:12px;color:var(--ink3);margin-top:8px">选中 = 同色描边 + 4px 色条；每卡右上独立分享按钮。</p></div>'+
+      '<div class="comp-block"><div class="cb-name">记分牌 <span class="cb-tag">配色随卡片</span></div>'+
+        '<div class="score" style="margin:0"><div class="sc-strip" style="background:#B8C8D8"></div><div class="score-in" style="padding:14px"><div class="sc-num-wrap" style="padding:6px 0 2px"><div class="sc-num" style="font-size:64px">8</div><div class="sc-unit">杯</div></div></div></div>'+
+        '<p style="font-size:12px;color:var(--ink3);margin-top:8px">白卡 + 顶部 6px 色带跟随卡片主题色；数字近黑 700 tabular，不再用渐变底 + 白字。</p></div>'+
+    '</div>'+
+
+    '<div class="ds-sec"><div class="ds-title"><span class="dt-no">05</span>浮层 sheet</div>'+
+      '<div class="comp-block"><div class="cb-name">底部浮层 <span class="cb-tag">新建 / 历史 / 协作</span></div>'+
+        '<p style="font-size:13px;color:var(--ink2);line-height:1.8">白底顶部圆角 24 + 6px 拖拽条；遮罩 40% 墨色；滑入 180ms ease-out，无弹性回弹；浮层内全部操作就地完成，不进二级页面。历史删除两步确认（先红后删）。</p></div>'+
+    '</div>'+
+
+    '<div class="ds-sec"><div class="ds-title"><span class="dt-no">06</span>动效时长（全部 ≤200ms）</div>'+
+      '<div class="card" style="padding:4px 14px">'+
+        '<div class="motion-row"><span class="mo-time">60ms</span><span class="mo-name">按钮按下</span><span class="mo-use">轻沉 1px + 背景变化，无投影位移</span></div>'+
+        '<div class="motion-row"><span class="mo-time">120ms</span><span class="mo-name">切换响应</span><span class="mo-use">大块切小块、列表选中、tab 切换</span></div>'+
+        '<div class="motion-row"><span class="mo-time">180ms</span><span class="mo-name">浮层滑入</span><span class="mo-use">sheet 上滑 + 遮罩淡入；数字 +1 轻弹</span></div>'+
+        '<div class="motion-row"><span class="mo-time">0ms</span><span class="mo-name">页面跳转</span><span class="mo-use">hash 直切无转场——进入感 = 即时出现</span></div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="ds-sec"><div class="ds-title"><span class="dt-no">07</span>圆角与阴影令牌</div>'+
+      '<div class="comp-block"><div class="cb-name">数值</div>'+
+        '<p style="font-size:13px;color:var(--ink2);line-height:1.9">卡片 16 / 按钮 12 / 输入框 12 / 图标钮 50% / 浮层顶 24 / 胶囊 999。<br>阴影仅一档：0 2px 6px rgba(45,42,38,.05)；按下态用「轻沉 + 背景变深」，不用投影位移模拟按压。</p></div>'+
+    '</div>'+
+  '</div>';
+}
+/* ================= 启动 ================= */
+window.addEventListener('hashchange',route);
+route();
+
+</script>
+</body>
+</html>

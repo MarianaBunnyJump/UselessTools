@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>趣工局 UI 设计方向调研</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAFAF8'/%3E%3Ccircle cx='14' cy='32' r='7' fill='%231F2328'/%3E%3Ccircle cx='30' cy='32' r='7' fill='%230E7C66'/%3E%3Ccircle cx='46' cy='32' r='7' fill='%231F2328'/%3E%3C/svg%3E">
+<style>
+/* ================= 令牌（清爽干脆基调） ================= */
+:root{
+  --bg:#FAFAF8;
+  --paper:#FFFFFF;
+  --paper2:#F4F4F1;
+  --ink:#1F2328;
+  --ink2:#5E6670;
+  --ink3:#8A9099;
+  --line:#E4E4DF;
+  --accent:#0E7C66;
+  --accent-soft:#E2EFEB;
+  --r:10px;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.6;font-size:15px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+img{display:block;max-width:100%}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ================= 顶栏 ================= */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(250,250,248,.96);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar .brand{font-weight:700;font-size:15px;letter-spacing:.2px}
+.topbar .brand em{font-style:normal;color:var(--ink2);font-weight:400}
+.topbar .status{font-size:12.5px;color:var(--ink2);background:var(--paper2);border:1px solid var(--line);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.topbar .status.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+
+/* ================= Cover ================= */
+.cover{padding:56px 0 40px}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:16px}
+.kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.cover h1{font-size:34px;line-height:1.18;font-weight:800;letter-spacing:-.5px}
+.cover .lead{margin-top:14px;font-size:15px;color:var(--ink2);max-width:38em}
+.cover .keywords{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.kw{font-size:12.5px;color:var(--ink2);border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 12px}
+.cover .hint{margin-top:14px;font-size:12.5px;color:var(--ink3)}
+
+/* 方向速览卡 */
+.quick-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:28px}
+.quick{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:14px;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease;min-height:76px}
+.quick:hover{border-color:#C9CCC7;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.quick.picked{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.q-swatch{width:14px;height:14px;border-radius:50%;flex:none;background:var(--sw,#ddd)}
+.q-body{flex:1;min-width:0}
+.q-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.q-badge{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 8px}
+.q-badge.alt{color:var(--ink2);background:var(--paper2)}
+.q-line{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.pick{flex:none;min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:13px;font-weight:600;color:var(--ink2);transition:all .15s ease;white-space:nowrap}
+.pick:hover{border-color:var(--accent);color:var(--accent)}
+.pick.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ================= 方向分区 ================= */
+.dir{padding:48px 0 56px;border-top:1px solid var(--line)}
+.dir:nth-child(odd){background:var(--paper)}
+.dir-head{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.dir-letter{font-size:40px;font-weight:800;line-height:1;letter-spacing:-1px;color:var(--ink);flex:none;width:56px;text-align:center;padding-top:2px}
+.dir-name{flex:1;min-width:240px}
+.dir-name h2{font-size:26px;font-weight:800;letter-spacing:-.4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dir-tagline{font-size:13.5px;color:var(--ink2);margin-top:6px;max-width:44em}
+.dir-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-size:11.5px;color:var(--ink2);border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:3px 9px}
+.dir-side{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.pick.pick-dir{border-color:var(--line)}
+.pick.pick-dir.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* 案例卡 */
+.cases{display:grid;grid-template-columns:1fr;gap:14px;margin-top:22px}
+.case{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.case-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.case-head h3{font-size:17px;font-weight:700}
+.case-src{font-size:12px;color:var(--accent);white-space:nowrap}
+.case-intro{font-size:13.5px;color:var(--ink2);margin-top:8px;line-height:1.7}
+.shots{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+.shots-3{grid-template-columns:1fr}
+.shots-2{grid-template-columns:1fr}
+.shot-tall,.shot-wide{background:var(--paper2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.shot-tall{aspect-ratio:3/5}
+.shot-wide{aspect-ratio:16/10}
+.shot-tall img,.shot-wide img{width:100%;height:100%;object-fit:contain}
+.shot-note{font-size:11.5px;color:var(--ink3);margin-top:8px;line-height:1.6}
+
+/* 7 维拆解 */
+.feat-list{list-style:none;margin-top:14px;border-top:1px solid var(--line)}
+.feat{display:grid;grid-template-columns:84px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.feat:last-child{border-bottom:none}
+.feat .f-name{font-size:12px;font-weight:700;color:var(--ink2);line-height:1.5}
+.feat .f-body{font-size:13px;color:var(--ink);line-height:1.7}
+.feat .f-body b{color:var(--ink)}
+
+/* 适配建议 / 成本 / 风险 */
+.adapt{margin-top:18px;background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r);padding:16px}
+.adapt h4{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--ink)}
+.adapt-list{list-style:none;display:grid;grid-template-columns:1fr;gap:8px}
+.adapt-item{display:flex;gap:10px;font-size:13px;line-height:1.7;align-items:flex-start}
+.adapt-item .no{flex:none;width:22px;height:22px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-top:2px}
+.cost-risk{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+.cost,.risk{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;font-size:13px;line-height:1.7}
+.cost b,.risk b{font-size:12.5px;color:var(--ink2);display:block;margin-bottom:4px}
+.chip-level{display:inline-block;font-weight:700;font-size:12.5px;padding:2px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent);margin-right:6px}
+.chip-level.mid{background:#F0EFEA;color:var(--ink2)}
+
+/* ================= 对比表 ================= */
+.cmp-sec{padding:56px 0;border-top:1px solid var(--line);background:var(--bg)}
+.cmp-sec h2{font-size:24px;font-weight:800;letter-spacing:-.4px}
+.cmp-sec .sub{font-size:13px;color:var(--ink2);margin-top:6px}
+.cmp-wrap{overflow-x:auto;margin-top:20px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.cmp{table-layout:fixed;width:880px;border-collapse:collapse;min-width:880px}
+.cmp th,.cmp td{padding:12px 10px;font-size:12.5px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.cmp thead th{font-size:12px;font-weight:700;color:var(--ink2);background:var(--paper2);position:sticky;top:0}
+.cmp tbody tr:last-child td{border-bottom:none}
+.cmp .c-dir{font-weight:700;font-size:13px}
+.c-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.cmp td{color:var(--ink2)}
+.cmp td.cell-main{color:var(--ink)}
+@media (min-width:768px){.cmp{width:100%;min-width:0}}
+
+/* ================= 优先级 ================= */
+.prio{padding:48px 0;border-top:1px solid var(--line);background:var(--paper)}
+.prio h2{font-size:24px;font-weight:800;letter-spacing:-.4px}
+.prio .sub{font-size:13px;color:var(--ink2);margin-top:6px}
+.prio-list{display:grid;grid-template-columns:1fr;gap:12px;margin-top:20px}
+.prio-item{border:1px solid var(--line);border-radius:var(--r);padding:16px;background:var(--bg)}
+.prio-item.top{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.prio-item .p-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.prio-item .p-rank{font-size:12px;font-weight:700;color:#fff;background:var(--ink);border-radius:6px;padding:3px 10px}
+.prio-item.top .p-rank{background:var(--accent)}
+.prio-item .p-name{font-size:16px;font-weight:700}
+.prio-item .p-reason{font-size:13px;color:var(--ink2);margin-top:8px;line-height:1.8}
+
+/* ================= 页脚 ================= */
+.footer{border-top:1px solid var(--line);padding:32px 0 44px;background:var(--bg)}
+.footer p{font-size:12.5px;color:var(--ink3);line-height:1.8;max-width:52em}
+.footer .ft-title{font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+
+/* ================= Toast ================= */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;font-size:13px;padding:11px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;z-index:99;max-width:calc(100vw - 40px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ================= 响应式 ================= */
+@media (min-width:640px){
+  .quick-grid{grid-template-columns:repeat(2,1fr)}
+  .cases{grid-template-columns:repeat(3,1fr)}
+  .shots-3{grid-template-columns:repeat(3,1fr)}
+  .shots-2{grid-template-columns:1fr 1fr}
+  .adapt-list{grid-template-columns:1fr 1fr}
+  .cost-risk{grid-template-columns:1fr 1fr}
+  .prio-list{grid-template-columns:1fr 1fr}
+}
+@media (min-width:768px){
+  .cover{padding:72px 0 48px}
+  .cover h1{font-size:44px}
+  .quick-grid{grid-template-columns:repeat(5,1fr)}
+  .quick{flex-direction:column;align-items:flex-start;min-height:150px}
+  .pick{width:100%}
+  .cases{grid-template-columns:repeat(3,1fr)}
+  .dir-letter{font-size:52px}
+  .feat{grid-template-columns:96px 1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">趣工局 <em>UI 设计方向调研</em></div>
+    <span class="status" id="topStat">15 个真实案例 · 36 张官方截图 · 待你拍板</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= Cover ================= -->
+  <section class="cover">
+    <span class="kicker">调研结论</span>
+    <h1>给趣工局换一身<br>清爽干脆的皮</h1>
+    <p class="lead">现有 V6 的"油乎乎"来自四件套：毛玻璃、重渐变、厚阴影、28px+ 大圆角，再叠上全圆体排版。本次调研了 15 个真实产品案例，整理出 5 个候选方向——它们都能去掉油腻，区别只在"可爱"与"干脆"的配比。选定一个，我们就按它出优化设计稿。</p>
+    <div class="keywords">
+      <span class="kw">去毛玻璃</span><span class="kw">去渐变</span><span class="kw">去厚影</span>
+      <span class="kw">圆角收紧</span><span class="kw">字体重排</span><span class="kw">动效提速</span>
+    </div>
+    <p class="hint">点卡片可跳到对应分区；点「我选这个方向」即标记你的选择。</p>
+
+    <div class="quick-grid">
+      <div class="quick" data-dir="C">
+        <span class="q-swatch" style="--sw:#E89B82"></span>
+        <div class="q-body">
+          <span class="q-name">方向C · 清新糖果<span class="q-badge">首选</span></span>
+          <p class="q-line">色彩退到一条色条，可爱交给 emoji</p>
+        </div>
+        <button class="pick" data-dir="C" aria-pressed="false">我选这个方向</button>
+      </div>
+      <div class="quick" data-dir="B">
+        <span class="q-swatch" style="--sw:#5E6AD2"></span>
+        <div class="q-body">
+          <span class="q-name">方向B · 效率利落<span class="q-badge">次选</span></span>
+          <p class="q-line">所有点击 ≤150ms，浮层改页内展开</p>
+        </div>
+        <button class="pick" data-dir="B" aria-pressed="false">我选这个方向</button>
+      </div>
+      <div class="quick" data-dir="A">
+        <span class="q-swatch" style="--sw:#0A84FF"></span>
+        <div class="q-body">
+          <span class="q-name">方向A · 纯白呼吸<span class="q-badge alt">备选</span></span>
+          <p class="q-line">白底发丝线，系统字体，数字最大</p>
+        </div>
+        <button class="pick" data-dir="A" aria-pressed="false">我选这个方向</button>
+      </div>
+      <div class="quick" data-dir="D">
+        <span class="q-swatch" style="--sw:#E8E0D4"></span>
+        <div class="q-body">
+          <span class="q-name">方向D · 纸感克制<span class="q-badge alt">特色</span></span>
+          <p class="q-line">纸色底 + 发丝分组，色彩即语义</p>
+        </div>
+        <button class="pick" data-dir="D" aria-pressed="false">我选这个方向</button>
+      </div>
+      <div class="quick" data-dir="E">
+        <span class="q-swatch" style="--sw:#1F2328"></span>
+        <div class="q-body">
+          <span class="q-name">方向E · 排版驱动<span class="q-badge alt">特色</span></span>
+          <p class="q-line">大数字 + eyebrow 标签，卡片退位</p>
+        </div>
+        <button class="pick" data-dir="E" aria-pressed="false">我选这个方向</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 方向分区 ================= -->
+  <section class="dirs">
+
+    <!-- ===== 方向C（首选）：清新糖果 · 可爱低饱和 ===== -->
+    <section class="dir" id="dir-C" data-dir="C">
+      <div class="wrap">
+        <div class="dir-head">
+          <div class="dir-letter">C</div>
+          <div class="dir-name">
+            <h2>清新糖果 · 可爱低饱和 <span class="q-badge">首选</span></h2>
+            <p class="dir-tagline">用低饱和粉彩 + 圆润造型 + 少量插画或 emoji 讲可爱，把色彩从"铺满背景"退到"点状点缀"，工具底色保持干净。</p>
+            <div class="dir-tags"><span class="tag">pastel candy</span><span class="tag">圆滚滚但不腻</span><span class="tag">mascot 点到为止</span><span class="tag">留白充足</span><span class="tag">情绪友好</span></div>
+          </div>
+          <div class="dir-side">
+            <span class="q-swatch" style="--sw:#E89B82"></span>
+            <button class="pick pick-dir" data-dir="C" aria-pressed="false">我选这个方向</button>
+          </div>
+        </div>
+
+        <div class="cases">
+          <article class="case">
+            <div class="case-head"><h3>案例 1 · CARROT To-Do</h3><a class="case-src" href="https://apps.apple.com/us/app/carrot-to-do/id591840203" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">毒舌 to-do 工具，靠嘴贱文案和 ASCII 艺术胡萝卜机器人建立人格；UI 本身极度克制，是"可爱可以不油腻"的最硬证据。</p>
+            <div class="shots shots-3">
+              <figure class="shot-tall"><img src="assets/c-carrot-1.jpg" alt="CARROT To-Do 宣传图：白底网格 + 手机内趣味任务列表"></figure>
+              <figure class="shot-tall"><img src="assets/c-carrot-2.jpg" alt="CARROT To-Do 任务列表与对勾"></figure>
+              <figure class="shot-tall"><img src="assets/c-carrot-3.jpg" alt="CARROT To-Do ASCII 小猫彩蛋"></figure>
+            </div>
+            <p class="shot-note">截图来源：App Store 官方渠道（iTunes Lookup CDN），已本地验看 · 本地 assets/c-carrot-1~3.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">界面 95% 纯白，只用一种亮蓝（约 #00AEEF）做强调——顶部进度条、圆形主页按钮、解锁文案关键词；其余全是黑灰文字，没有第二种彩色。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">粗黑无衬线大标题 + 常规字重列表项，行高宽松；列表项之间无卡片，靠垂直留白分隔。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">完全不用卡片，任务直接排在白底上，每行一个黑色对勾或圆形箭头；信息密度低但呼吸感强。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">单屏即列表，点一下对勾直接出现，不进详情页；解锁内容（小猫、小游戏）是原地浮层而不是新页面，层级只有一层。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">完成任务只弹一下对勾 + 机器人台词刷新，没有页面转场；营销截图里刻意不展示花哨动效。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">可爱不靠颜色与渐变，靠嘴贱文案和 ASCII 线稿小猫；图形白底黑线，色彩投入近乎零。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">极高——证明人格化与趣味完全可以靠文案 + 极简图形实现；趣工局的 emoji 资产可以保留在白底上，不必给它配彩色渐变底。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 2 · 小睡眠</h3><a class="case-src" href="https://apps.apple.com/cn/app/id1194338569" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">国内 8000 万用户级的助眠、白噪音 app，按场景切换低饱和主题色；睡眠数据页用 pastel 阶段色条，大数字直接放白卡上。</p>
+            <div class="shots shots-3">
+              <figure class="shot-tall"><img src="assets/c-sleep-1.jpg" alt="小睡眠 淡蓝场景底 + 白色数据卡"></figure>
+              <figure class="shot-tall"><img src="assets/c-sleep-2.jpg" alt="小睡眠 薄荷绿白噪音页 + 圆形功能按钮"></figure>
+              <figure class="shot-tall"><img src="assets/c-sleep-3.jpg" alt="小睡眠 淡紫 AI 页 + 角落小白猫"></figure>
+            </div>
+            <p class="shot-note">截图来源：App Store 官方渠道，已本地验看 · 本地 assets/c-sleep-1~3.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">每个场景一个极低饱和主色（睡眠页淡蓝 #DCEEF7、白噪音页薄荷 #DFF0E4、AI 页淡紫 #E3E0F5），白色卡片浮在上面；数据阶段条饱和度全部压到 30-40%。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">中文粗黑体大标题，大数字（96 分、9 小时 15 分钟）用中等字重无衬线；标签小字中灰，数字与说明之间大留白。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">数据用 24-28px 大圆角白色卡浮在 pastel 底上，卡片不重叠；图标页是 4 列圆形彩色按钮，圆内是白色线稿图标。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">首页直接是场景 tab（睡眠、专注、冥想、呼吸），点一个大圆按钮即进入播放，无需选参数；历史数据平铺在首屏卡片里，不钻二级页。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">播放状态用底部漂浮胶囊条 + 小猫咪动画，不做整屏转场；场景切换是淡入。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">一只闭眼微笑的小白猫插画只出现在屏幕底部或角落，不占主内容区；彩色圆形图标是功能入口而不是装饰墙。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">高——证明糖果色可以是整屏 pastel 底而不是高饱和渐变，且大数字（96 分）放在白卡片上依然醒目。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 3 · 喵喵记账</h3><a class="case-src" href="https://apps.apple.com/cn/app/id1483024444" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">以收集猫咪为主题的萌宠记账 app，日式手账风：粗黑描边插画 + 圆形线稿分类图标；营销页高饱和，app 内反而克制。</p>
+            <div class="shots shots-3">
+              <figure class="shot-tall"><img src="assets/c-meow-1.jpg" alt="喵喵记账 芥末黄营销底 + 粗描边猫插画"></figure>
+              <figure class="shot-tall"><img src="assets/c-meow-2.jpg" alt="喵喵记账 白底记账键盘 + 圆形分类图标网格"></figure>
+              <figure class="shot-tall"><img src="assets/c-meow-3.jpg" alt="喵喵记账 卡通猫表情与分类圆环"></figure>
+            </div>
+            <p class="shot-note">截图来源：App Store 官方渠道，已本地验看 · 本地 assets/c-meow-1~3.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">营销页用一块暖芥末黄（约 #F5D547）铺底 + 同色系猫爪印暗纹；app 内界面反而是白底 + pastel 分类圆环（餐饮红、购物粉、日用蓝、交通蓝），色彩只出现在分类图标圆环上。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">营销标题用超粗圆体 + 黑色描边（手账贴纸感）；app 内数字用常规黑体；分类图标下方是 11-12px 居中小字标签。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">记账键盘是大圆角白底（约 20px 圆角），数字键白底灰字；分类用 4 列圆形图标网格，圆与圆间距大，不拥挤。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">打开即记账键盘（大数字输入框在顶部），选分类圆、输数字、点完成，全程不离开单屏；历史记录在同一屏下方列表。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">记账成功时猫会"变脸"（开心、委屈），是局部表情包切换，不是整屏动效。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">可爱全部由粗描边卡通猫插画承担（抱铅笔的猫、举喇叭的猫、穿兔子装的猫），UI 本身是干净白底 + 圆形线稿；不使用渐变、不使用毛玻璃。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">中高——营销黄底偏饱和，但 app 内界面反过来很克制；品牌色可集中用在某一个装饰元素（顶部一条色带或一只 mascot），其余界面回归白底。</p></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="adapt">
+          <h4>对计数器页面的适配建议</h4>
+          <ul class="adapt-list">
+            <li class="adapt-item"><span class="no">1</span><p>记分牌大数字：去掉陶土 #E8795A 渐变底，保留米白底 #FFF9F2；数字用近黑深棕 #2D2A26、700 字重（从 900 降），下方加一条 4px 高的低饱和陶土、粉橙条作为"色彩锚点"——色彩从一整块渐变退到一条线。</p></li>
+            <li class="adapt-item"><span class="no">2</span><p>小块列表：保留 5px 色条但饱和度从 80% 降到 45-50%（豆沙粉、雾霾蓝、鼠尾草绿、奶黄）；列表项之间用 12px 留白分隔而不是卡片背景；点击态用 4% 灰色压一下，不做高亮色块。</p></li>
+            <li class="adapt-item"><span class="no">3</span><p>标记历史按钮：硬投影按压按钮改成白色圆形描边按钮（2px 陶土描边、无投影）；按下时整体下沉 1px + 背景 8% 灰，不用渐变。</p></li>
+            <li class="adapt-item"><span class="no">4</span><p>历史抽屉：毛玻璃抽屉改成纯白底上滑抽屉，顶部 12px 浅灰拖拽条；时间戳文字用中灰 #999，不用半透模糊。</p></li>
+            <li class="adapt-item"><span class="no">5</span><p>新建浮层：从浮层卡片改成底部 action sheet，白色 24px 大圆角；内部是圆形彩色图标网格（参考小睡眠白噪音页 4 列圆按钮），emoji 直接放在圆里。</p></li>
+            <li class="adapt-item"><span class="no">6</span><p>动效时长：所有进入、退出动画压到 180-200ms（ease-out）；大块、小块切换不做缩放，做 120ms 透明度 + 8px 位移。</p></li>
+            <li class="adapt-item"><span class="no">7</span><p>字体阶梯：大数字 104px、700 字重（从 900 降），字间距 +1；卡名 15px 常规、小块数字 24px、600 字重；圆体 Yuanti SC 作为品牌字保留（可爱来源），但把字重降一档避免笨重。</p></li>
+            <li class="adapt-item"><span class="no">8</span><p>配色方案：主背景 #FFF9F2 保留，强调色从陶土渐变改为单色 #E8795A 平涂；辅助色板用豆沙粉 #F2C4B8、雾霾蓝 #B8C8D8、鼠尾草绿 #C8D8C0、奶黄 #F2E4B8。</p></li>
+          </ul>
+        </div>
+
+        <div class="cost-risk">
+          <div class="cost"><b>实现成本（Taro / 小程序）</b><span class="chip-level">低</span>去掉渐变和阴影只是改 CSS（background / box-shadow），圆按钮和圆形图标 grid 是基础组件，无需新依赖；动效用 CSS transition 即可。</div>
+          <div class="risk"><b>风险提示</b>过度降低饱和会让计数器"失去活力"，需保留一个高饱和点（比如 + 按钮或当前选中项的小圆点）作为视觉焦点，否则会显得寡淡。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 方向B（次选）：效率利落 · 工具质感 ===== -->
+    <section class="dir" id="dir-B" data-dir="B">
+      <div class="wrap">
+        <div class="dir-head">
+          <div class="dir-letter">B</div>
+          <div class="dir-name">
+            <h2>效率利落 · 工具质感 <span class="q-badge">次选</span></h2>
+            <p class="dir-tagline">像专业工具一样干脆：灰阶 + 单一强调色，分割线代替卡片，动效压到 150ms 以内，点击即反馈；emoji 只放在内容层，不进 UI 骨架。</p>
+            <div class="dir-tags"><span class="tag">灰阶+单一强调色</span><span class="tag">分割线列表</span><span class="tag">字重分层+负字距</span><span class="tag">命令面板思维</span><span class="tag">≤150ms 跟手</span></div>
+          </div>
+          <div class="dir-side">
+            <span class="q-swatch" style="--sw:#5E6AD2"></span>
+            <button class="pick pick-dir" data-dir="B" aria-pressed="false">我选这个方向</button>
+          </div>
+        </div>
+
+        <div class="cases">
+          <article class="case">
+            <div class="case-head"><h3>案例 1 · Linear</h3><a class="case-src" href="https://linear.app/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">面向产品与工程团队的 issue 跟踪工具，以"快"和设计质感著称。深色模式原生，用层级明度差代替阴影制造深度。</p>
+            <div class="shots shots-2">
+              <figure class="shot-wide"><img src="assets/b-linear-1.jpg" alt="Linear 深色 issue 列表页：侧边栏、状态色圆点与紧凑行高"></figure>
+              <figure class="shot-wide"><img src="assets/b-linear-2.jpg" alt="Linear 看板视图：深色细边框卡片与标签 pill"></figure>
+            </div>
+            <p class="shot-note">截图来源：Linear 官网与设计拆解博客，已本地验看 · 本地 assets/b-linear-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">深色原生——页面底 #08090a、面板 #0f1011，用背景明度阶梯代替阴影；几乎全灰阶，品牌靛蓝 #5e6ad2 只出现在 CTA 与选中态。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">全系统 Inter Variable，标志性字重 510 做 UI 强调；大字号负字距压缩（72px 标题 -1.584px），三级字重 400/510/590，不用 700 粗体。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">单 issue 行高 36-40px，一行塞下 ID、状态点、标题、标签、指派人；看板卡 8px 圆角 + 1px 细边、无投影，"浮起"靠边框不靠阴影。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">Cmd+K 命令面板是核心导航隐喻，选中 issue 是面板滑出而非新页面加载；hover 才浮现行内操作，默认状态干净。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">面板弹出约 120-150ms，hover 背景变化约 100ms；用背景不透明度代替位移，没有弹跳、没有缩放。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">不卖萌——无吉祥物、无装饰插画；趣味只藏在细节里（issue 描述里的 emoji、标签的彩色圆点）。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">高——骨架可直接借用：深色 + 灰阶 + 品牌点缀色能承载用户自己放进去的 emoji，UI 本身是"干净的容器"。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 2 · Raycast</h3><a class="case-src" href="https://www.raycast.com/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">Mac 端命令面板启动器，整个产品就是一个"快速呼出的列表"。深色/浅色双主题，紧凑行高，右侧类型标签 + 底部快捷键提示栏。</p>
+            <div class="shots shots-2">
+              <figure class="shot-wide"><img src="assets/b-raycast-1.jpg" alt="Raycast 深色命令面板：Results 列表与右侧类型标签"></figure>
+              <figure class="shot-wide"><img src="assets/b-raycast-2.jpg" alt="Raycast 浅色命令面板：分区标题与选中行灰底高亮"></figure>
+            </div>
+            <p class="shot-note">截图来源：Raycast 官网与手动文档，已本地验看 · 本地 assets/b-raycast-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">深色画布 #07080a，边框 rgba(255,255,255,0.06)；品牌红 #ff6363 与信息蓝 #56c2ff 极少用，只在关键交互点出现；文字三级白/灰。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">UI 全用 Inter 14-16px，500 做标签、400 做正文；一行内"左标题 + 中副标 + 右类型标签"三段式，密度极高；底部 Action Bar 用键帽样式提示下一步。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">没有卡片——整个面板是大列表容器，行间用 1px 半透明分割线或留白，选中行整行灰底高亮；分区标题是 12px 大写灰字，无背景块。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">一个快捷键呼出，所有操作在一个列表里完成——输入即过滤，回车即执行；无二级页面、无浮层层级，底部常驻提示可执行操作。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">面板呼出约 100-120ms 淡入 + 轻微缩放（0.98→1.0）；列表选中行背景即时切换，键盘上下键滑动高亮跟手。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">本体不卖萌，但扩展生态全是彩色 emoji 小图标——一排彩色小图标本身带趣味，不需要额外装饰。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">极高——"单面板 + 密集列表 + 右侧标签 + 底部操作提示"可直接迁移做小块列表：左 emoji、中名称、右数字、底部一行操作提示。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 3 · Notion</h3><a class="case-src" href="https://www.notion.com/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">块结构笔记/协作工具，以"克制的分区 + 块级自由"著称。浅色优先、暖灰中性色，超薄分割线，极少用色块，靠排版和留白做层级。</p>
+            <div class="shots shots-2">
+              <figure class="shot-wide"><img src="assets/b-notion-1.jpg" alt="Notion 移动端侧边栏：emoji 图标做每页标识，分割线极淡"></figure>
+              <figure class="shot-wide"><img src="assets/b-notion-2.jpg" alt="Notion 桌面端 Team Home：大留白页面头与 emoji 大图标"></figure>
+            </div>
+            <p class="shot-note">截图来源：Notion 官网与设计更新博客，已本地验看 · 本地 assets/b-notion-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">暖白页面底 #ffffff，交替区块用暖灰 #f6f5f4（带黄调，像"好纸"）；文字 rgba(0,0,0,0.95) 近黑，唯一品牌蓝 #0075de 只用于 CTA 与链接——emoji 自带颜色是界面里唯一的彩色。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">自定义 NotionInter，700 做标题、500 做导航、400 做正文；64px 大标题负字距 -2.125px；行高随字号收紧，字号越大越密。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">几乎不用实体卡片——块之间靠 1px 极淡分割线或留白区分；导航行约 36px，emoji + 名称 + 右箭头；卡片只在功能块出现且阴影 opacity ≤0.04。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">左侧常驻导航树，点击即进入；块内联编辑，hover 才浮现操作按钮，"进入"不是打开新页面而是原地开始编辑。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">块展开/折叠约 150ms 高度过渡，无缩放无弹跳；选中行即时浅灰底——Notion 的快不是动效快，而是没有多余动效。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">效率工具里最"可爱"的——每页一个大 emoji 当图标，侧边栏一行 emoji + 名称；emoji 是页面的"头像"，不是 UI 装饰。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">极高——暖灰白底 + 极淡分割线 + emoji 做图标，比 Linear 深色更接近趣工局米底现状，改造路径最短。</p></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="adapt">
+          <h4>对计数器页面的适配建议</h4>
+          <ul class="adapt-list">
+            <li class="adapt-item"><span class="no">1</span><p>小块列表改 Notion 式分割线列表：行高 48px，左 20px emoji、中 16px/500 名称、右 24px tabular 数字；行间 1px 淡分割线，去掉背景色块、色条与阴影；选中行整行 4% 浅灰高亮。</p></li>
+            <li class="adapt-item"><span class="no">2</span><p>记分牌大数字去渐变改"压缩数字"：纯白/米白底，大数字 96px、heavy 字重、负字距 -1.5px，近黑 #1a1a1a；−/+ 改 ghost 圆按钮（1px 边框、透明底），「标记历史」做 12px 胶囊文字按钮。</p></li>
+            <li class="adapt-item"><span class="no">3</span><p>历史抽屉改页内展开：记分牌下方就地展开历史时间线（高度 0→200px），不弹浮层、不遮罩；展开 120ms、收起 100ms，用户感觉"就在下面"。</p></li>
+            <li class="adapt-item"><span class="no">4</span><p>新建浮层改底部"命令条"：点 + 后页面底部滑出 56px 贴底输入条，无遮罩——左输入框、中 emoji 选择、右完成按钮；滑出 100ms，是"底部多了一行"而非"弹了一个窗"。</p></li>
+            <li class="adapt-item"><span class="no">5</span><p>动效全量压到 ≤150ms：行选中 80ms、面板展开 120ms、按钮按下 60ms；页面切换直接替换不滑动，去掉弹性回弹与 300ms+ 淡入淡出。</p></li>
+            <li class="adapt-item"><span class="no">6</span><p>字体与配色：弃圆体换系统无衬线，层级靠字重 + 灰度（大数字 800 / 名称 500 / 数字 600 tabular / 时间戳 12px 灰）；陶土 #E8795A 降级为唯一强调色（选中数字/主按钮），其余灰阶。</p></li>
+          </ul>
+        </div>
+
+        <div class="cost-risk">
+          <div class="cost"><b>实现成本（Taro / 小程序）</b><span class="chip-level mid">中</span>列表改造、字号字重调整、去毛玻璃和阴影是纯 CSS 改动；但历史抽屉改页内展开、新建改底部输入条涉及组件结构调整，约 1-2 天工作量，无需新依赖。</div>
+          <div class="risk"><b>风险提示</b>去掉卡片和浮层后"工具感"变强、趣味属性可能被削弱——需保证 emoji 图标系统足够醒目（20px、颜色够正），否则从"可爱工具箱"变成"普通效率工具"。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 方向A（备选）：纯白呼吸 · 系统级极简 ===== -->
+    <section class="dir" id="dir-A" data-dir="A">
+      <div class="wrap">
+        <div class="dir-head">
+          <div class="dir-letter">A</div>
+          <div class="dir-name">
+            <h2>纯白呼吸 · 系统级极简 <span class="q-badge alt">备选</span></h2>
+            <p class="dir-tagline">浅灰底上叠白色 inset 分组列表，系统字体 + tabular 大数字，发丝线分隔，零阴影零渐变——用留白和字重建立层级，而不是卡片。</p>
+            <div class="dir-tags"><span class="tag">纸白/浅灰底</span><span class="tag">inset grouped list</span><span class="tag">1px 发丝线</span><span class="tag">系统字体</span><span class="tag">tabular 大数字</span></div>
+          </div>
+          <div class="dir-side">
+            <span class="q-swatch" style="--sw:#0A84FF"></span>
+            <button class="pick pick-dir" data-dir="A" aria-pressed="false">我选这个方向</button>
+          </div>
+        </div>
+
+        <div class="cases">
+          <article class="case">
+            <div class="case-head"><h3>案例 1 · Apple HIG / iOS 设置</h3><a class="case-src" href="https://developer.apple.com/design/human-interface-guidelines/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">iOS 内置「设置」是系统级极简的原型：浅灰 #F2F2F7 底上叠白色 inset 分组列表，行高 44-56pt，发丝分隔线，全程无卡片阴影、无渐变、无大圆角。</p>
+            <div class="shots shots-2">
+              <figure class="shot-tall"><img src="assets/a-apple-1.jpg" alt="iOS 设置分组列表：浅灰底上的白色 inset 行与发丝分隔"></figure>
+              <figure class="shot-tall"><img src="assets/a-apple-2.jpg" alt="iOS 设置页：主标签黑字与右侧灰色值"></figure>
+            </div>
+            <p class="shot-note">截图来源：Apple Developer HIG / UITableView 文档，已本地验看 · 本地 assets/a-apple-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">页面底 #F2F2F7、单元格纯白，整屏只有两个中性色；彩色仅出现在 29pt 方形 app 图标里，功能色（开关蓝/警示红）面积极小。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">全用 SF Pro，主标签 17pt/regular、辅助值 17pt/60% 灰、大标题 34pt/heavy——靠字重和灰度而非字号堆砌层级。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">没有独立卡片，分组靠 20pt 上下留白 + 白色 inset 圆角容器区分；行密度高但不挤，每行只放「图标 + 主文 + 右值/箭头」。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">二级页用标准 push（250ms 横向滑入），点击单元格立即高亮，没有中间弹层；设置项一屏到底，减少"点进去再加载"的等待感。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">开关切换 200ms 弹性、push 250ms，除此没有任何装饰性动效；选中态用单元格灰底一闪。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">不靠装饰，靠系统图标本身的彩色与圆角传递亲和力；文字与布局保持严肃。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">高——证明工具可以完全靠排版和留白成立，emoji 和品牌色可以独立出来当唯一的"可爱出口"。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 2 · Bear（熊掌记）</h3><a class="case-src" href="https://bear.app/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">Shiny Frog 出品的 Markdown 笔记，Apple Design Award 得主。编辑器白底、自定义 Bear Sans 字体，单一点缀红 #e35d53，笔记列表是纯文字行而非卡片。</p>
+            <div class="shots shots-2">
+              <figure class="shot-tall"><img src="assets/a-bear-1.jpg" alt="Bear 品牌启动页：白色熊剪影与 Write naturally 字样"></figure>
+              <figure class="shot-tall"><img src="assets/a-bear-2.jpg" alt="Bear 白底编辑器：标签 pill、内联高亮与 checkbox"></figure>
+            </div>
+            <p class="shot-note">截图来源：Bear 官网 / App Store，已本地验看 · 本地 assets/a-bear-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">白底/近黑字，全产品只有一个糖果红做内联强调（链接、光标、标签）；暗色主题用深灰而非纯黑，不做渐变。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">自绘 Bear Sans，正文行高约 1.6 倍，标题靠字重区分；标签、代码、checklist 用同一套字体的不同字重与颜色。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">笔记列表无卡片——「标题 16pt semibold + 预览灰字 + 缩略图」的文字行，行间留白 16pt；编辑器内唯一的"块"是左侧 2px 色条引用框。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">点开即写，新建直接进空白编辑态并弹键盘，省掉"新建浮层 → 选模板 → 再输入"的层级；标签用 #tag 内联，不另开分类页。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">仅打字光标、Markdown 符号即时转排印（粗体标记当场变粗），没有页面转场；Focus Mode 用变暗遮罩而非动效。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">品牌是一只极简白色熊剪影，界面本体零装饰；可爱感集中在图标与空状态插画，不污染工作界面。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">很高——"排版本体 + 单点品牌符号"正是去毛玻璃后保留 emoji 的样板。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 3 · Streaks</h3><a class="case-src" href="https://streaks.app/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">Crunchy Bagel 出品的习惯打卡，Apple Design Award 得主。主界面每个任务是一个圆环 + 白色 glyph，统计页反转为白底大号 tabular 数字 + 粉色细线图表。</p>
+            <div class="shots shots-2">
+              <figure class="shot-tall"><img src="assets/a-streaks-1.jpg" alt="Streaks 主界面：整屏高饱和底色上的圆环任务格"></figure>
+              <figure class="shot-tall"><img src="assets/a-streaks-2.jpg" alt="Streaks 统计页：白底大号 tabular 数字与粉色发丝图表"></figure>
+            </div>
+            <p class="shot-note">截图来源：Streaks 官网 / App Store，已本地验看 · 本地 assets/a-streaks-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">主界面整屏一个高饱和色（每任务可换色），文字图标反白；统计页立刻切回白底 + 单一品牌粉红 #fb0d52 做图表，不堆色。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">任务标签全大写粗体无衬线、字距收紧；统计页三个核心数字用超大 tabular 等宽数字，下方配 11pt 大写灰标签。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">主界面不用卡片，圆环即任务单元，2×3 网格撑满整屏；统计页用 1px 粉色发丝线分节，图表直接压在白底上。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">打卡 = 点圆环当场填满 + 数字 +1，零跳转零弹层；统计是同屏横向滑动的一页，不新开页面。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">圆环填充用约 300ms 描边动画，仅此一个；没有按钮按压缩放、没有阴影过渡。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">可爱来自圆环里的白色象形 glyph（跑步/胡萝卜/小狗），不是装饰；底色饱和但材质平，没有渐变反光。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">极高——和计数器几乎同构（大数字 + 打卡 + 历史统计），证明"大数字 tabular + 单点动作 + 无卡片"能同时做到清爽和有个性。</p></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="adapt">
+          <h4>对计数器页面的适配建议</h4>
+          <ul class="adapt-list">
+            <li class="adapt-item"><span class="no">1</span><p>记分牌大数字：去掉陶土渐变底和硬投影，改纯白/#F6F6F8 底上的近黑大号 tabular 数字（系统字体，约 96px）——数字本身就是焦点，不再需要底色块撑场。</p></li>
+            <li class="adapt-item"><span class="no">2</span><p>−/+/标记历史：发丝线圆按钮或纯文字按钮，按下只做透明度 1→0.4（约 150ms）；「标记历史」做紧跟数字右侧的 13px 文字链。</p></li>
+            <li class="adapt-item"><span class="no">3</span><p>小块列表：放弃大圆角卡片 + 重阴影，改 iOS inset grouped list——#F5F5F7 底上的白色行（行高约 56）+ 1px 发丝分隔左缩进；5px 色条收成 4px 左竖条，选中态用文字加深而非整卡变色。</p></li>
+            <li class="adapt-item"><span class="no">4</span><p>历史抽屉：毛玻璃 backdrop 换纯白底 + 顶部 1px 线，时间戳 12px/60% 灰，历史条目不卡片化，直接文字行排列。</p></li>
+            <li class="adapt-item"><span class="no">5</span><p>新建浮层：底部弹层去毛玻璃，白底圆角收到 16px，入场 180ms ease-out，去掉 32px 超大圆角和弹性回弹。</p></li>
+            <li class="adapt-item"><span class="no">6</span><p>字体与配色：弃圆体 Yuanti SC 统一系统无衬线；米底改 #FFFFFF/#F6F6F8，陶土 #E8795A 从"底色"降级为唯一强调色（选中态/进度），不做大面积底。</p></li>
+          </ul>
+        </div>
+
+        <div class="cost-risk">
+          <div class="cost"><b>实现成本（Taro / 小程序）</b><span class="chip-level mid">低-中</span>inset list、发丝线、tabular-nums、去阴影/渐变/圆角都是纯 CSS 减法，几乎无新依赖；主要工作量在字体重排（去圆体换系统字）和数字 tabular 对齐调试。</div>
+          <div class="risk"><b>风险提示</b>全白 + 阴影退去后 emoji 是唯一可爱出口，留白过大易显"太素"——需靠 emoji 本身和明确的陶土单点强调把品牌感拉回来。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 方向D（特色）：纸感克制 · 温暖扁平 ===== -->
+    <section class="dir" id="dir-D" data-dir="D">
+      <div class="wrap">
+        <div class="dir-head">
+          <div class="dir-letter">D</div>
+          <div class="dir-name">
+            <h2>纸感克制 · 温暖扁平 <span class="q-badge alt">特色</span></h2>
+            <p class="dir-tagline">把界面当成一张暖白纸——底色是纸色，信息靠发丝描边和字重分层，颜色只用来"标注含义"而不是装饰界面。</p>
+            <div class="dir-tags"><span class="tag">paper white</span><span class="tag">发丝分组</span><span class="tag">色彩即语义</span><span class="tag">小圆点标签</span><span class="tag">工具感极致</span></div>
+          </div>
+          <div class="dir-side">
+            <span class="q-swatch" style="--sw:#E8E0D4"></span>
+            <button class="pick pick-dir" data-dir="D" aria-pressed="false">我选这个方向</button>
+          </div>
+        </div>
+
+        <div class="cases">
+          <article class="case">
+            <div class="case-head"><h3>案例 1 · Things 3</h3><a class="case-src" href="https://culturedcode.com/things/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">Cultured Code 出品、两次 Apple Design Award 得主，被公认为"纸感 UI"教科书。暖白底 + 彩色语义小图标 + 发丝分隔，任务列表无卡片。</p>
+            <div class="shots shots-3">
+              <figure class="shot-tall"><img src="assets/d-things-1.jpg" alt="Things 3 纯白任务列表：彩色语义图标与发丝分隔线"></figure>
+              <figure class="shot-tall"><img src="assets/d-things-2.jpg" alt="Things 3 日历视图：淡灰块包裹的日历事件"></figure>
+              <figure class="shot-tall"><img src="assets/d-things-3.jpg" alt="Things 3 侧边栏：Inbox 蓝、Today 黄星等语义小图标"></figure>
+            </div>
+            <p class="shot-note">截图来源：Cultured Code 官网 / App Store，已本地验看 · 本地 assets/d-things-1~3.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">界面 95% 暖白 #FAFAFA 与浅灰发丝线 #E5E5E5；彩色只用于语义图标（Inbox 蓝、Today 黄星、Upcoming 红日历、Logbook 绿对勾）和事件时间戳。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">SF Pro 多字重阶梯——大标题 28pt Semibold、任务名 17pt Regular、所属项目 13pt 次灰 #8E8E93；日期大数字 32pt 轻字重配旁注小字。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">几乎不用卡片——任务直接排白底上，靠 1px 发丝线分组；唯一"卡片"是日历事件块，浅灰 #F2F2F7 填充、无圆角无阴影。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">侧边栏一屏装下所有列表，Today 页打开即是当日任务；点任务不进新页，原地展开输入框（Magic Plus）；拖拽时整行变浅蓝。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">展开/收起约 300ms spring 非常轻；没有页面转场，列表项直接插入/删除；拖拽高亮即时变色。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">零插画、零 emoji、零 mascot——可爱靠黄色小星星 Today 图标和珊瑚红小旗这种语义化彩色小元素承担，工具感极强但不冷漠。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">极高——纸感、发丝线、色彩即语义是"工具基因"的极致；直接对标"列表无卡片 + 发丝分组"，把小块列表从卡片退化为白底行。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 2 · 滴答清单</h3><a class="case-src" href="https://www.dida365.com/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">国内头部跨平台待办 app，现代风格以白色列表 + 低饱和彩色标签为主；收集箱任务是白底行，日历视图用 pastel 色胶囊标签。</p>
+            <div class="shots shots-3">
+              <figure class="shot-tall"><img src="assets/d-dida-1.jpg" alt="滴答清单 浅蓝紫营销底与白色收集箱卡片"></figure>
+              <figure class="shot-tall"><img src="assets/d-dida-2.jpg" alt="滴答清单 日历视图：pastel 色任务标签"></figure>
+              <figure class="shot-tall"><img src="assets/d-dida-3.jpg" alt="滴答清单 AI 结果：白色圆角卡片堆叠"></figure>
+            </div>
+            <p class="shot-note">截图来源：滴答清单官网 / App Store，已本地验看 · 本地 assets/d-dida-1~3.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">app 内主底近白 #FFFFFF/#F7F8FA；任务标签用低饱和彩色小徽章（晨跑粉、面试蓝、瑜伽粉紫），每枚 8-10px 圆角、饱和度约 40%；时间数字用品牌蓝 #4A90E2。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">标题 20px 粗黑，任务名 16px 常规，时间 14px 蓝色右对齐，所属清单名 12px 浅灰右对齐。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">收集箱里任务是白底行不画卡片；日历视图里任务是彩色小胶囊标签；AI 语音结果用 16px 白色大圆角卡片堆叠，卡片间 8px。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">首页直接是"今天"清单，右下角大 + 弹出快速添加栏（不是全屏新页）；AI 语音说完立即在下方生成结果卡片；日历/清单切换用顶部 tab。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">底部 + 按钮展开 200ms 上滑，任务勾选对勾动画 150ms；没有整屏渐变动画。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">几乎零可爱元素——靠低饱和彩色标签和圆角保持温和，不做 mascot，是国内工具 app"克制但不冷"的样本。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">高——证明国内用户接受"白底列表 + 彩色小标签"；小块列表的 5px 色条可改成左侧 12px 直径小圆点（dida 风），更轻。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 3 · 潮汐</h3><a class="case-src" href="https://tide.fm/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">睡眠/专注/白噪音 app，App Store 多次推荐；以大幅留白 + 自然摄影著称，场景色底上控件退居二线。</p>
+            <div class="shots shots-3">
+              <figure class="shot-tall"><img src="assets/d-tide-1.jpg" alt="潮汐 粉米首页与雪山大图"></figure>
+              <figure class="shot-tall"><img src="assets/d-tide-2.jpg" alt="潮汐 深蓝数据页：大号白色数字与白色数据卡"></figure>
+              <figure class="shot-tall"><img src="assets/d-tide-3.jpg" alt="潮汐 薄荷绿声音场景页：胶囊形摄影图"></figure>
+            </div>
+            <p class="shot-note">截图来源：潮汐官网 / App Store，已本地验看 · 本地 assets/d-tide-1~3.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">不是纯白底而是"场景色底"——首页粉米 #E8D8D0、睡眠页深蓝 #3A4A6B、声音页薄荷绿 #DDE8D8；控件用半透明白或深灰不抢背景图。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">大数字（87%）极粗无衬线白色 80px；场景名 24px 粗，标签 12px 灰白；字距宽松，数字与说明之间大留白。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">数据页白色 20px 大圆角卡片浮在深蓝底上，轻微错位堆叠但不做厚阴影；声音场景页用超长圆角胶囊摄影图 3 列横排，无文字卡片包裹。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">首页三个大入口就是场景本身，点一下直接开始计时/播放不选参数；历史数据直接堆叠在当前页，不进二级页。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">场景切换 400ms 缓慢淡入（配合冥想氛围），但工具操作（开始/暂停）即时响应；不做弹跳。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">零 mascot，温柔完全靠自然摄影 + 大留白 + 缓慢淡入实现；情绪由图片承担，UI 退居二线。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">中高——"一块纯色底 + 一张摄影/插画主视觉"比"渐变 + 毛玻璃"更安静；记分牌背景可改平涂米白（不要渐变），上放一只大 emoji mascot 承担氛围。</p></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="adapt">
+          <h4>对计数器页面的适配建议</h4>
+          <ul class="adapt-list">
+            <li class="adapt-item"><span class="no">1</span><p>记分牌大数字：去掉陶土渐变改平涂米白底 #FFF9F2；数字近黑 #2D2A26，900 字重保留但 letter-spacing 2px；数字下方一条 1px 发丝线 #E8E0D4 分隔小块列表，不再卡片包裹。</p></li>
+            <li class="adapt-item"><span class="no">2</span><p>小块列表：彻底去卡片背景和阴影，变白底行——左 12px 小圆点（dida 风）、中卡名 15px、右 24px 数字；行高 56px，行之间靠留白；选中行 4% 陶土色压背景。</p></li>
+            <li class="adapt-item"><span class="no">3</span><p>标记历史按钮：+/−/标记历史改白色圆形描边按钮（44×44，2px 描边）无投影；+ 按钮用陶土填充（唯一高饱和点），− 和标记历史用描边。</p></li>
+            <li class="adapt-item"><span class="no">4</span><p>历史抽屉：毛玻璃改底部 sheet 白底，顶部 12px 浅灰拖拽条；时间戳中灰 #999，历史记录之间用 1px 发丝线分组（参考 Things 3 的 "This Evening" 分隔）。</p></li>
+            <li class="adapt-item"><span class="no">5</span><p>新建浮层：底部 action sheet，白色 24px 大圆角顶部，内部一行圆形 emoji 快捷选择（参考潮汐胶囊形）+ 输入框，不做毛玻璃。</p></li>
+            <li class="adapt-item"><span class="no">6</span><p>字体与配色：大数字 104px/700（从 900 降）、卡名 15px/500、数字 24px/600；纸感风建议圆体换系统无衬线（圆体是可爱主要来源，要去它就别留）；主背景 #FFF9F2、发丝线 #E8E0D4、强调色平涂 #E8795A。</p></li>
+          </ul>
+        </div>
+
+        <div class="cost-risk">
+          <div class="cost"><b>实现成本（Taro / 小程序）</b><span class="chip-level mid">低-中</span>去渐变阴影是纯 CSS，发丝线 1px border，圆按钮和 emoji 选择器是基础组件；但需重新设计列表行高和字体阶梯，属组件层重构而非仅改样式。</div>
+          <div class="risk"><b>风险提示</b>纸感风在微信小程序里容易显"素"——用户已习惯 V6 厚重感，改版后可能反馈"太简单/没质感"，需保留一个高饱和点（+ 按钮）和一点温度（米底色），不能直接照搬 Things 3 的冷白。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 方向E（特色）：排版驱动 · 编辑部风 ===== -->
+    <section class="dir" id="dir-E" data-dir="E">
+      <div class="wrap">
+        <div class="dir-head">
+          <div class="dir-letter">E</div>
+          <div class="dir-name">
+            <h2>排版驱动 · 编辑部风 <span class="q-badge alt">特色</span></h2>
+            <p class="dir-tagline">用字级差、字重、tabular 数字建立秩序——大数字 + eyebrow 小标签 + 报纸条目行，卡片退位，纸感排印。</p>
+            <div class="dir-tags"><span class="tag">纸白/暖米底</span><span class="tag">衬线/粗圆 display</span><span class="tag">eyebrow 小标签</span><span class="tag">报纸条目行</span><span class="tag">tabular 右对齐</span></div>
+          </div>
+          <div class="dir-side">
+            <span class="q-swatch" style="--sw:#1F2328"></span>
+            <button class="pick pick-dir" data-dir="E" aria-pressed="false">我选这个方向</button>
+          </div>
+        </div>
+
+        <div class="cases">
+          <article class="case">
+            <div class="case-head"><h3>案例 1 · Anytype</h3><a class="case-src" href="https://anytype.io/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">本地优先（local-first）的"everything app"，块编辑器 + 对象系统。默认近黑界面，对象用圆角胶囊 + 单色小图标，营销页大衬线标题，刻意去掉卡片阴影与彩色渐变。</p>
+            <div class="shots shots-2">
+              <figure class="shot-tall"><img src="assets/e-anytype-1.jpg" alt="Anytype 黑底营销页：大衬线标题与灰色小标签"></figure>
+              <figure class="shot-tall"><img src="assets/e-anytype-2.jpg" alt="Anytype 深色对象菜单：Chats/Notes/Bookmarks 圆角胶囊"></figure>
+            </div>
+            <p class="shot-note">截图来源：Anytype 官网 / App Store，已本地验看 · 本地 assets/e-anytype-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">默认近黑底 + 白字，功能色只出现在每个对象左侧的小图标上（黄笔记/橙书签/绿任务），大面积无渐变无彩色。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">界面用无衬线系统字，营销/空状态用大衬线标题建立"刊物感"；对象名一行字重 600，辅助说明一行 60% 灰。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">列表里没有带阴影的卡片，对象靠"圆角胶囊 + 留白"分组；编辑器里内容即块，块与块靠间距分隔。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">本地优先 = 点开对象零加载、无转圈；新建用中央"+"就地插入不跳新建页；靠离线同步保证"点了就有"。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">仅块的增删有淡入淡出，没有弹层缩放和转场；空状态用一句衬线文案占满屏。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">单色象形小图标（聊天气泡/书签/对勾）承担趣味，每个对象只给一个色点，不堆砌。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">中高——示范了"单色色点 + 大留白"的克制趣味；但默认深色调性与计数器浅底需做适配。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 2 · Arc Search / Arc</h3><a class="case-src" href="https://arc.net/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">The Browser Company 的浏览器，移动端为 Arc Search。暖纸感米白底 + 定制粗圆 display 字 + 蓝色衬线标题，"Browse for Me"答案页像杂志条目。</p>
+            <div class="shots shots-2">
+              <figure class="shot-tall"><img src="assets/e-arc-1.jpg" alt="Arc 营销页：紫粉渐变底上的粗白标题与斜体强调"></figure>
+              <figure class="shot-tall"><img src="assets/e-arc-2.jpg" alt="Arc 答案卡：米色底上的蓝色衬线大标题与标签行"></figure>
+            </div>
+            <p class="shot-note">截图来源：Arc 官网 / App Store，已本地验看 · 本地 assets/e-arc-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">营销页允许大渐变紫粉，但产品界面是暖奶油底 #fff8f0 + 墨水蓝标题 #2b3ef0 + 近黑正文——渐变只出现在品牌 hero，不进功能界面。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">三级排印最明确——超大粗圆 display 标题、衬线斜体做强调、12pt 等宽大写 eyebrow 小标签在条目前面；正文 16pt/1.6 行高。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">答案页不是一堆卡片，而是"小图标 + 粗体小标签 + 一段说明"的条目列表，条目之间留白而非描边卡片。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">"Browse for Me"把搜索→打开多标签→总结压成一次生成，用户感知上减少"点链接-等加载-再点"的层级；结果就地呈现不跳走。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">标题和卡片用轻微淡入/上移（约 200ms），无弹性、无阴影跟随。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">趣味来自粗圆字体的圆润字怀和斜体衬线的"杂志腔"，不靠图标堆砌。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">中——排印层级（大标题/小标签/正文）非常值得借；但奶油底 + 蓝色墨水与趣工局陶土暖色系需重新映射。</p></li>
+            </ul>
+          </article>
+
+          <article class="case">
+            <div class="case-head"><h3>案例 3 · Instapaper</h3><a class="case-src" href="https://www.instapaper.com/" target="_blank" rel="noopener">来源链接</a></div>
+            <p class="case-intro">老牌稍后读，默认衬线字体 Lyon；文章列表就是"粗衬线标题 + 灰色域名/阅读时长 meta + 右侧缩略图"的纯文字行，白底/羊皮纸主题，全程无卡片。</p>
+            <div class="shots shots-2">
+              <figure class="shot-tall"><img src="assets/e-instapaper-1.jpg" alt="Instapaper 白底文章列表：衬线大标题与灰色 meta"></figure>
+              <figure class="shot-tall"><img src="assets/e-instapaper-2.jpg" alt="Instapaper 阅读页：巨大衬线 I logo 与底部操作行"></figure>
+            </div>
+            <p class="shot-note">截图来源：Instapaper 官网 / App Store，已本地验看 · 本地 assets/e-instapaper-1~2.jpg</p>
+            <ul class="feat-list">
+              <li class="feat"><span class="f-name">色彩策略</span><p class="f-body">四套主题（light/sepia/gray/dark），功能界面只有白底 + 黑字 + 灰 meta，唯一强调是链接的细下划线，不用色块。</p></li>
+              <li class="feat"><span class="f-name">字体与排版</span><p class="f-body">核心是衬线（默认 Lyon），标题靠字号和字重，meta 用 13.5pt 灰；条目左对齐标题、右对齐缩略图，形成报纸式左右栏。</p></li>
+              <li class="feat"><span class="f-name">卡片与密度</span><p class="f-body">没有卡片，条目靠 1px 发丝线分隔，标题 17pt/600，预览文 14pt/60% 灰，行间距宽松。</p></li>
+              <li class="feat"><span class="f-name">层级与进入速度</span><p class="f-body">点开文章直接进 Text 视图（已预下载纯文本），零网页加载等待；收藏 = 后台抓取，阅读时不转圈。</p></li>
+              <li class="feat"><span class="f-name">动效克制</span><p class="f-body">仅字号调节、明暗主题切换有 200ms 交叉淡入，无其他动效。</p></li>
+              <li class="feat"><span class="f-name">可爱度处理</span><p class="f-body">几乎无装饰，趣味完全来自排印本身和那个巨大的衬线"I"logo。</p></li>
+              <li class="feat"><span class="f-name">工具基因契合</span><p class="f-body">高——证明"右对齐 tabular 数字 + 粗标题 + 灰 meta"的列表可以非常有质感，且完全不需要卡片。</p></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="adapt">
+          <h4>对计数器页面的适配建议</h4>
+          <ul class="adapt-list">
+            <li class="adapt-item"><span class="no">1</span><p>记分牌大数字：走编辑部排印——大数字 tabular 等宽（约 96px/字重 500），上方加一行 11px 大写字距 1px 的 eyebrow 标签（当前工具名），去掉陶土渐变底色，"大数字 + 小标签"构成刊物式头条。</p></li>
+            <li class="adapt-item"><span class="no">2</span><p>小块列表：卡片退位改报纸条目行——左侧粗体工具名（17px/600），右侧 tabular 数字（24px 严格右对齐成同一列），行之间 1px 发丝线；取消 5px 色条，用数字右对齐秩序做扫描线。</p></li>
+            <li class="adapt-item"><span class="no">3</span><p>标记历史/−/+：改成 editorial 动作链——13px 大写等宽小标签（如 - 1 / + 1 / LOG），点击后数字就地刷新不弹层，减少"按钮 → 弹层 → 再确认"的层级。</p></li>
+            <li class="adapt-item"><span class="no">4</span><p>历史抽屉：改"时间栏"双栏排印——左日期（13px 灰）右数值（tabular 右对齐），大留白和细字重，不要卡片和阴影；空状态用一句衬线文案占满。</p></li>
+            <li class="adapt-item"><span class="no">5</span><p>新建浮层：极简成一行输入——一行标题输入 + 一个"保存"文字按钮，无多余表单。</p></li>
+            <li class="adapt-item"><span class="no">6</span><p>字体阶梯与动效：建立四级字阶——display(大数字) / headline(工具名 600) / body / caption(11px 大写灰)；纸感米白 #FAF8F4 可保留但去陶土渐变，正文近黑 #1A1A1A，陶土只作链接/选中强调；切换和弹层 200ms 内以淡入为主。</p></li>
+          </ul>
+        </div>
+
+        <div class="cost-risk">
+          <div class="cost"><b>实现成本（Taro / 小程序）</b><span class="chip-level mid">中</span>tabular-nums、发丝线、左右对齐网格是纯 CSS 易做；真正成本在"编辑部衬线感"——小程序默认无衬线系统字，衬线需引入 Noto Serif 类字体（包体/加载）并在小屏数字上做清晰度回归测试。</div>
+          <div class="risk"><b>风险提示</b>衬线在小字号和数字上易显模糊、会削弱"工具干脆感"；emoji 可爱度与衬线调性需磨合——建议先在记分牌大数字和历史栏试点，不要全页换衬线。</div>
+        </div>
+      </div>
+    </section>
+
+  </section>
+
+  <!-- ================= 对比表 ================= -->
+  <section class="cmp-sec">
+    <div class="wrap">
+      <h2>五个方向 · 横向对比</h2>
+      <p class="sub">七个维度逐项对照，表格内容来自上方各分区；实现成本按 Taro 小程序视角评估。</p>
+      <div class="cmp-wrap">
+        <table class="cmp">
+          <colgroup>
+            <col style="width:13%"><col style="width:12.43%"><col style="width:12.43%"><col style="width:12.43%">
+            <col style="width:12.43%"><col style="width:12.43%"><col style="width:12.43%"><col style="width:12.42%">
+          </colgroup>
+          <thead>
+            <tr><th>方向</th><th>色彩策略</th><th>字体与排版</th><th>卡片与密度</th><th>层级与进入速度</th><th>动效克制</th><th>工具基因契合</th><th>实现成本</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="c-dot" style="--sw:#E89B82"></span><span class="c-dir">C 清新糖果</span></td>
+              <td>米白底+低饱和粉彩，陶土只做平涂单点</td>
+              <td>圆体降字重，数字 700 等宽</td>
+              <td>白卡大圆角+12px 留白，少卡片</td>
+              <td>一屏+底部 action sheet，180-200ms</td>
+              <td>位移淡入为主，无弹跳</td>
+              <td class="cell-main">极高：可爱与 emoji 全保留</td>
+              <td>低</td>
+            </tr>
+            <tr>
+              <td><span class="c-dot" style="--sw:#5E6AD2"></span><span class="c-dir">B 效率利落</span></td>
+              <td>灰阶+单一强调色，暖白/深色双主题</td>
+              <td>系统字+字重分层+负字距</td>
+              <td>分割线列表，不用卡片</td>
+              <td>浮层改页内展开，≤150ms</td>
+              <td>最短最跟手，即时反馈</td>
+              <td class="cell-main">高：emoji 进内容层</td>
+              <td>中</td>
+            </tr>
+            <tr>
+              <td><span class="c-dot" style="--sw:#0A84FF"></span><span class="c-dir">A 纯白呼吸</span></td>
+              <td>浅灰底+白色 inset 行，彩色只在图标</td>
+              <td>系统字体+tabular 大数字</td>
+              <td>inset 分组列表+发丝线</td>
+              <td>系统 push 250ms，无弹层</td>
+              <td>仅交互反馈，零装饰</td>
+              <td class="cell-main">高：emoji 唯一可爱出口</td>
+              <td>低-中</td>
+            </tr>
+            <tr>
+              <td><span class="c-dot" style="--sw:#E8E0D4"></span><span class="c-dir">D 纸感克制</span></td>
+              <td>纸色底+色彩即语义</td>
+              <td>系统无衬线+发丝分组</td>
+              <td>白底行+12px 圆点，无卡片</td>
+              <td>一屏+底部 sheet，200ms</td>
+              <td>轻 spring，无页面转场</td>
+              <td class="cell-main">高：工具感极致</td>
+              <td>低-中</td>
+            </tr>
+            <tr>
+              <td><span class="c-dot" style="--sw:#1F2328"></span><span class="c-dir">E 排版驱动</span></td>
+              <td>纸白/暖米底+单点品牌色</td>
+              <td>衬线/粗圆 display+eyebrow 小标签</td>
+              <td>报纸条目行，卡片退位</td>
+              <td>结果就地生成，200ms 淡入</td>
+              <td>以淡入为主，无位移弹跳</td>
+              <td class="cell-main">中高：个性强需磨合</td>
+              <td>中</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 优先级 ================= -->
+  <section class="prio">
+    <div class="wrap">
+      <h2>推荐优先级</h2>
+      <p class="sub">三层推荐 + 两个特色选项，理由对应你的三条诉求：去油腻、进入更快、文字好看。</p>
+      <div class="prio-list">
+        <div class="prio-item top">
+          <div class="p-head"><span class="p-rank">首选</span><span class="p-name">方向C · 清新糖果 · 可爱低饱和</span></div>
+          <p class="p-reason">三条诉求同时解决——低饱和/平涂/色条锚点直接去"油"，180-200ms 动效 + action sheet 替代毛玻璃浮层缓解"卡"，圆体降字重 + 数字 700 缓解文字疲劳；最贴"可爱但有质感"的品牌基因，emoji/圆体资产全保留，改动成本最低（纯 CSS）。</p>
+        </div>
+        <div class="prio-item">
+          <div class="p-head"><span class="p-rank">次选</span><span class="p-name">方向B · 效率利落 · 工具质感</span></div>
+          <p class="p-reason">"点击进入更快"解决得最彻底（动效 ≤150ms、历史改页内展开、新建改底部输入条）；Notion 暖白变体与现状最近，emoji 以内容层保留；字重分层 + 负字距是文字换血最系统的方案。</p>
+        </div>
+        <div class="prio-item">
+          <div class="p-head"><span class="p-rank">备选</span><span class="p-name">方向A · 纯白呼吸 · 系统级极简</span></div>
+          <p class="p-reason">字体与视觉换血最彻底、最素净（系统字体 + tabular 大数字 + inset 分组列表）；风险是易显素，品牌感靠 emoji 单点与陶土强调色拉回。</p>
+        </div>
+        <div class="prio-item">
+          <div class="p-head"><span class="p-rank">特色</span><span class="p-name">方向D · 纸感克制 · 温暖扁平</span></div>
+          <p class="p-reason">想保留暖纸温度、色彩即语义（Things 3 发丝分组 + dida 小圆点）的选它；风险与 A 相同，需保留一个高饱和点（如 + 按钮）。</p>
+        </div>
+        <div class="prio-item">
+          <div class="p-head"><span class="p-rank">特色</span><span class="p-name">方向E · 排版驱动 · 编辑部风</span></div>
+          <p class="p-reason">想要更强排印个性（衬线标题 / eyebrow 标签 / 报纸条目行）的选它；成本中（需引入衬线字体），建议先在记分牌大数字与历史栏试点。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="ft-title">调研范围说明</p>
+    <p>15 个案例均来自官网与 App Store 官方渠道，36 张截图已逐张本地验看（内容对版、清晰、无水印）。本页为方向调研产物，视觉基调即"清爽干脆"示范；选定方向后，下一步按所选方向出趣工局计数器页的优化设计稿。</p>
+    <p style="margin-top:8px">趣工局 UI 设计方向调研 · 2026-11-04 · 截图素材在 Docs/assets/ 目录</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+  var picked = null;
+  var DIR_NAMES = {C:'清新糖果',B:'效率利落',A:'纯白呼吸',D:'纸感克制',E:'排版驱动'};
+  var toastEl = document.getElementById('toast');
+  var topStat = document.getElementById('topStat');
+  var toastTimer = null;
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if(toastTimer){ clearTimeout(toastTimer); }
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2400);
+  }
+
+  function pick(dir){
+    picked = dir;
+    document.querySelectorAll('[data-dir]').forEach(function(el){
+      var on = el.getAttribute('data-dir') === dir;
+      el.classList.toggle('picked', on);
+    });
+    document.querySelectorAll('.pick[data-dir]').forEach(function(btn){
+      var on = btn.getAttribute('data-dir') === dir;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? '已选这个方向' : '我选这个方向';
+    });
+    topStat.textContent = '已选：方向' + dir + '「' + DIR_NAMES[dir] + '」';
+    topStat.classList.add('on');
+    showToast('已选中 方向' + dir + '「' + DIR_NAMES[dir] + '」——下一步按它出优化设计稿');
+  }
+
+  // 速览卡点击 → 滚动到对应分区；卡片上的按钮 → 仅标记选择
+  document.querySelectorAll('.quick').forEach(function(card){
+    card.addEventListener('click', function(e){
+      var target = e.target.closest('.pick');
+      if(target){ return; }
+      var sec = document.getElementById('dir-' + card.getAttribute('data-dir'));
+      if(sec){ sec.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  });
+
+  document.querySelectorAll('.pick[data-dir]').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      pick(btn.getAttribute('data-dir'));
+    });
+  });
+})();
+</script>
+</body>
+</html>

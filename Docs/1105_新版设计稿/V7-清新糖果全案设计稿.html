@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>趣工局 · V7 清新糖果全案设计稿</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23F6F9F6'/%3E%3Ccircle cx='20' cy='26' r='9' fill='%232EC08D'/%3E%3Ccircle cx='40' cy='22' r='7' fill='%23FF8FA7'/%3E%3Ccircle cx='34' cy='42' r='10' fill='%23FFC53D'/%3E%3C/svg%3E">
+<style>
+/* ================= 文档基底（薄荷纸白） ================= */
+:root{
+  --paper:#F6F9F6; --card:#FFFFFF; --ink:#22302B; --ink2:#5C6B64; --ink3:#8FA099;
+  --line:#E3EBE6; --line2:#D5E0D9;
+  --mint:#2EC08D; --mint-deep:#12845F; --mint-wash:#E3F6EE;
+  --soda:#4DA8F0; --soda-deep:#1E6FB8; --soda-wash:#E4F1FC;
+  --lemon:#FFC53D; --lemon-deep:#8A6A14; --lemon-wash:#FFF4DA;
+  --berry:#FF8FA7; --berry-deep:#C24E6B; --berry-wash:#FFE9EF;
+  --grape:#9D8DF4; --grape-deep:#6C5BC4; --grape-wash:#EEECFC;
+  --r-card:20px; --r-row:14px;
+  --font:-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --num:'DIN Alternate','Bahnschrift','Segoe UI',-apple-system,'PingFang SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.6;font-size:15px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+:focus-visible{outline:2px solid var(--mint-deep);outline-offset:2px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums;letter-spacing:.2px}
+b{font-weight:600}
+
+/* ================= 顶栏 ================= */
+.top{position:sticky;top:0;z-index:60;background:rgba(246,249,246,.94);border-bottom:1px solid var(--line)}
+.top-in{max-width:1200px;margin:0 auto;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px}
+.top .brand i{width:20px;height:20px;border-radius:7px;background:linear-gradient(135deg,var(--mint) 0 33%,var(--lemon) 33% 66%,var(--berry) 66%);display:inline-block}
+.top .brand em{font-style:normal;color:var(--ink2);font-weight:400}
+.nav{display:flex;gap:2px;flex-wrap:wrap}
+.nav a{font-size:12.5px;color:var(--ink2);padding:5px 10px;border-radius:999px;white-space:nowrap}
+.nav a:hover{background:var(--mint-wash);color:var(--mint-deep)}
+.statuschip{font-size:12px;color:var(--mint-deep);background:var(--mint-wash);border:1px solid #CDEBDD;padding:4px 11px;border-radius:999px;white-space:nowrap}
+
+/* ================= 封面 ================= */
+.hero{padding:60px 0 46px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-140px;right:-80px;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(46,192,141,.14),transparent 60%),radial-gradient(circle at 70% 60%,rgba(255,197,61,.14),transparent 55%)}
+.hero-in{position:relative;max-width:820px}
+.hero h1{font-size:42px;line-height:1.2;font-weight:800;letter-spacing:-.5px}
+.hero .lead{margin-top:16px;font-size:15.5px;color:var(--ink2);max-width:40em;line-height:1.8}
+.hero .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chip{font-size:12.5px;color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px}
+.chip.hot{color:var(--mint-deep);border-color:#CDEBDD;background:var(--mint-wash)}
+.hero .how{margin-top:22px;font-size:12.5px;color:var(--ink3)}
+.candy-strip{display:flex;height:14px;border-radius:999px;overflow:hidden;max-width:420px;margin-top:26px;border:1px solid var(--line)}
+.candy-strip i{flex:1}
+
+/* ================= 章节骨架 ================= */
+.sec{padding:52px 0 60px;border-top:1px solid var(--line2)}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.sec-no{font-family:var(--num);font-size:15px;font-weight:700;color:var(--mint-deep);letter-spacing:1px}
+.sec-head h2{font-size:27px;font-weight:800;letter-spacing:-.3px}
+.sec-sub{font-size:13.5px;color:var(--ink2);max-width:56em;line-height:1.8;margin-top:4px}
+.cols{display:grid;grid-template-columns:1fr;gap:28px;margin-top:26px;align-items:start}
+@media(min-width:960px){.cols{grid-template-columns:1fr 1fr}.cols.rev{grid-template-columns:1.1fr .9fr}}
+.spec{min-width:0}
+.phones{display:flex;flex-wrap:wrap;gap:26px;justify-content:center;min-width:0}
+@media(min-width:960px){.phones{position:sticky;top:66px}}
+
+/* ================= 通用排版件 ================= */
+.tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:var(--r-row);overflow:hidden;font-size:13px}
+.tbl th,.tbl td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.6}
+.tbl thead th{font-size:12px;color:var(--ink2);background:#FAFCFA;font-weight:600}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.strong{color:var(--ink);font-weight:600}
+.tbl .old{color:var(--ink3);text-decoration:line-through;text-decoration-color:#C99}
+.note{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--mint);border-radius:var(--r-row);padding:13px 16px;font-size:13px;color:var(--ink2);line-height:1.8;margin-top:14px}
+.note.warn{border-left-color:var(--lemon)}
+.note b{color:var(--ink)}
+h3.blk{font-size:16px;font-weight:700;margin:26px 0 10px}
+h3.blk small{font-size:12px;color:var(--ink3);font-weight:400;margin-left:8px}
+ul.tight{list-style:none;font-size:13px;color:var(--ink2);line-height:1.9}
+ul.tight li{padding:7px 0 7px 18px;border-bottom:1px dashed var(--line);position:relative}
+ul.tight li:last-child{border-bottom:none}
+ul.tight li::before{content:"";position:absolute;left:2px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--mint);opacity:.55}
+ul.tight li b{color:var(--ink)}
+.rule-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:16px 18px;margin-top:14px}
+.rule-card h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.rule-card p{font-size:13px;color:var(--ink2);line-height:1.8}
+.sw-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.sw{background:var(--card);border:1px solid var(--line);border-radius:var(--r-row);padding:10px 12px;min-width:118px}
+.sw i{display:block;height:34px;border-radius:9px;margin-bottom:7px}
+.sw b{font-size:12.5px;display:block}
+.sw span{font-size:11.5px;color:var(--ink3);font-family:var(--num)}
+
+/* ================= 手机框架 ================= */
+.phone{width:330px;flex:none;background:#18231E;border-radius:52px;padding:11px;box-shadow:0 24px 48px -20px rgba(34,48,43,.35)}
+.screen{background:var(--paper);border-radius:42px;overflow:hidden;position:relative;height:640px;display:flex;flex-direction:column}
+.notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:108px;height:24px;background:#18231E;border-radius:0 0 14px 14px;z-index:40}
+.sbar{display:flex;justify-content:space-between;align-items:center;padding:13px 24px 4px;font-size:12px;font-weight:700;color:var(--ink);z-index:30}
+.sbar .sig{display:flex;gap:4px;align-items:center;letter-spacing:1px}
+.hbar{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:104px;height:4px;border-radius:4px;background:#22302B;opacity:.22;z-index:40}
+.a-body{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;overflow:hidden}
+
+/* ================= 应用内组件（手机稿内部） ================= */
+.a-head{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 4px}
+.a-head .t{font-size:19px;font-weight:800;letter-spacing:-.2px}
+.a-head .t small{font-size:11px;color:var(--ink3);font-weight:400;margin-left:6px;font-family:var(--num)}
+.a-date{font-size:11.5px;color:var(--ink3);margin-top:1px}
+.a-check{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--lemon-wash);border:1px solid #F2DFAC;color:var(--lemon-deep)}
+.a-check.off{background:var(--card);border-color:var(--line);color:var(--ink3);font-weight:400}
+.a-seg{display:flex;margin:10px 16px 0;background:#EAF1EC;border-radius:999px;padding:3px}
+.a-seg span{flex:1;text-align:center;font-size:12.5px;font-weight:600;color:var(--ink2);padding:6px 0;border-radius:999px}
+.a-seg .on{background:var(--card);color:var(--ink);border:1px solid var(--line);font-weight:700}
+.g-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px 0}
+.g-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:12px;position:relative;min-height:92px}
+.g-card .ic{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:23px;margin-bottom:8px}
+.g-card .nm{font-size:14px;font-weight:700;line-height:1.3}
+.g-card .ds{font-size:11px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-card .del{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;border:2px solid var(--paper)}
+.g-add{border:1.5px dashed var(--line2);border-radius:var(--r-card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink3);font-size:11.5px;min-height:92px;background:rgba(255,255,255,.5)}
+.g-add i{width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--line2);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:15px;color:var(--ink3)}
+.g-card.drag{border-color:var(--mint);background:var(--mint-wash);transform:translateY(6px) rotate(1.5deg)}
+.a-lv{display:flex;align-items:center;gap:8px;margin:10px 16px 0;font-size:11.5px;color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.a-lv .bar{flex:1;height:5px;border-radius:999px;background:#EAF1EC;overflow:hidden}
+.a-lv .bar i{display:block;height:100%;width:62%;background:var(--mint);border-radius:999px}
+.a-lv .fold{color:var(--ink3);font-size:10px}
+
+/* 全量版行列表 */
+.cat-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px}
+.cat-h b{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+.cat-h b i{font-style:normal;width:20px;height:20px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.cat-h span{font-size:11px;color:var(--ink3);font-family:var(--num)}
+.t-row{display:flex;align-items:center;gap:12px;padding:9px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+.t-row .ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
+.t-row .nm{font-size:13.5px;font-weight:600}
+.t-row .ds{font-size:11px;color:var(--ink3);margin-top:1px}
+.t-row .arr{margin-left:auto;color:var(--line2);font-size:13px}
+.a-index{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:3px;font-size:9.5px;color:var(--ink3);z-index:20}
+.a-index span{width:16px;height:16px;border-radius:6px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--line)}
+.a-index .on{background:var(--mint-deep);color:#fff;border-color:var(--mint-deep)}
+
+/* 底部标签栏 */
+.a-tab{margin-top:auto;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:7px 10px 20px;display:flex;align-items:flex-end;position:relative;z-index:30}
+.a-tab .ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--ink3)}
+.a-tab .ti i{font-style:normal;font-size:19px;line-height:1.2}
+.a-tab .ti.on{color:var(--mint-deep);font-weight:700}
+.a-tab .grip{position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:34px;height:14px;border-radius:0 0 8px 8px;background:#EAF1EC;color:var(--ink3);font-size:9px;display:flex;align-items:flex-end;justify-content:center;line-height:1}
+.a-fab{position:absolute;right:12px;bottom:14px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:0 4px 12px rgba(34,48,43,.10);display:flex;align-items:center;justify-content:center;color:var(--ink2);font-size:14px;z-index:30}
+
+/* 我的页 */
+.me-hero{margin:10px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:16px;display:flex;align-items:center;gap:13px}
+.ava{width:52px;height:52px;border-radius:50%;background:var(--mint-wash);display:flex;align-items:center;justify-content:center;font-size:26px;border:1px solid #CDEBDD;flex:none}
+.me-hero .nm{font-size:16px;font-weight:800}
+.me-hero .id{font-size:11px;color:var(--ink3);font-family:var(--num);margin-top:1px}
+.stamp{margin-left:auto;width:44px;height:44px;border-radius:12px;background:var(--lemon-wash);border:1px dashed #E3C87E;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px}
+.stamp span{font-size:8px;color:var(--lemon-deep);font-weight:700}
+.a-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 16px 0}
+.a-stats .st{background:var(--card);border:1px solid var(--line);border-radius:var(--r-row);padding:10px 6px;text-align:center}
+.a-stats .st b{font-size:17px;font-family:var(--num);font-variant-numeric:tabular-nums;display:block}
+.a-stats .st span{font-size:10px;color:var(--ink3)}
+.a-cell{display:flex;align-items:center;gap:11px;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--line);font-size:13.5px;font-weight:600}
+.a-cell .ic{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+.a-cell .arr{margin-left:auto;color:var(--line2);font-size:13px;font-weight:400}
+.a-cell small{font-size:11px;color:var(--ink3);font-weight:400;margin-left:auto}
+.a-cell small.plus{color:var(--mint-deep);font-weight:600}
+
+/* 签到页 */
+.cal{margin:10px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px}
+.cal .cm{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:700;margin-bottom:10px}
+.cal .cm span{font-family:var(--num)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-grid .d{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink2);font-family:var(--num);position:relative}
+.cal-grid .d.done{background:var(--lemon-wash);color:var(--lemon-deep);font-weight:700}
+.cal-grid .d.today{border:1.5px solid var(--mint);color:var(--mint-deep);font-weight:800;background:var(--mint-wash)}
+.cal-grid .d.fut{color:var(--line2)}
+.cal-grid .candy{position:absolute;top:-5px;right:-3px;font-size:10px}
+.big-cta{margin:12px 16px 0;background:var(--mint-deep);color:#fff;border-radius:999px;padding:13px 0;text-align:center;font-size:15px;font-weight:800;letter-spacing:1px}
+.big-cta.off{background:#EAF1EC;color:var(--ink3)}
+.streak-note{margin:9px 16px 0;text-align:center;font-size:11px;color:var(--ink3)}
+.streak-note b{color:var(--lemon-deep)}
+
+/* 糖果铺 */
+.bal{display:flex;align-items:center;gap:8px;margin:10px 16px 0;background:var(--lemon-wash);border:1px solid #F2DFAC;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--lemon-deep)}
+.bal .n{margin-left:auto;font-family:var(--num);font-size:16px}
+.shop-card{margin:10px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px;display:flex;gap:12px;align-items:center}
+.shop-card .ic{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
+.shop-card .nm{font-size:14px;font-weight:700}
+.shop-card .ds{font-size:11px;color:var(--ink3);margin-top:1px}
+.pbar{margin-top:7px;height:6px;border-radius:999px;background:#EAF1EC;overflow:hidden;max-width:150px}
+.pbar i{display:block;height:100%;background:var(--lemon);border-radius:999px}
+.pbar i.full{background:var(--mint)}
+.prc{margin-left:auto;text-align:right;flex:none}
+.prc b{font-family:var(--num);font-size:15px;display:block}
+.prc span{font-size:10px;color:var(--ink3)}
+.buy{margin-left:auto;flex:none;font-size:12px;font-weight:700;color:var(--mint-deep);background:var(--mint-wash);border:1px solid #CDEBDD;border-radius:999px;padding:7px 14px}
+.buy.done{background:#EAF1EC;color:var(--ink3);border-color:var(--line)}
+.tag30{font-size:9.5px;color:var(--mint-deep);background:var(--mint-wash);border-radius:5px;padding:2px 6px;margin-left:6px;font-weight:600}
+
+/* 弹层/遮罩 */
+.dim{position:absolute;inset:0;background:rgba(34,48,43,.36);z-index:45}
+.m-sheet{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:22px 22px 0 0;padding:14px 16px 24px;z-index:46}
+.m-sheet .grip2{width:36px;height:4px;border-radius:4px;background:var(--line2);margin:0 auto 12px}
+.m-sheet h4{font-size:15px;font-weight:800;margin-bottom:4px}
+.m-sheet p{font-size:11.5px;color:var(--ink3)}
+.pick-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
+.pick-row .ic{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.pick-row .ck{margin-left:auto;font-size:12px;color:var(--ink3)}
+.pick-row.dis{opacity:.42}
+
+/* 工具页模板 */
+.u-head{display:flex;align-items:center;padding:8px 14px 4px;gap:8px}
+.u-head .bk{width:30px;height:30px;border-radius:10px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink2)}
+.u-head .t{font-size:15px;font-weight:700}
+.u-head .sub{margin-left:auto;font-size:11px;color:var(--ink3)}
+.score{margin:12px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:18px;text-align:center}
+.score .lb{font-size:11px;color:var(--ink3);letter-spacing:.5px}
+.score .v{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:84px;font-weight:700;line-height:1.05;letter-spacing:-2px;color:var(--ink)}
+.score .anchor{height:5px;width:64px;border-radius:999px;background:var(--mint);margin:10px auto 0}
+.score .ops{display:flex;justify-content:center;gap:14px;margin-top:16px}
+.rbtn{width:44px;height:44px;border-radius:50%;background:var(--card);border:1.5px solid var(--line2);font-size:18px;color:var(--ink);display:flex;align-items:center;justify-content:center}
+.rbtn.fill{background:var(--mint-deep);border-color:var(--mint-deep);color:#fff}
+.cnt-list{margin:12px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:4px 14px}
+.cnt-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
+.cnt-row:last-child{border-bottom:none}
+.cnt-row .dot{width:9px;height:9px;border-radius:50%;flex:none}
+.cnt-row .n{font-family:var(--num);margin-left:auto;font-size:17px;font-weight:700}
+.expand-hint{margin:9px 16px 0;text-align:center;font-size:11px;color:var(--ink3)}
+.calc-row{display:flex;align-items:center;justify-content:space-between;margin:10px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-row);padding:12px 14px;font-size:13px}
+.calc-row .lb{color:var(--ink2);font-weight:600;font-size:12.5px}
+.calc-row .vl{font-family:var(--num);font-size:15px;font-weight:600}
+.calc-res{margin:12px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:16px;text-align:center}
+.calc-res .v{font-family:var(--num);font-size:40px;font-weight:700;letter-spacing:-1px}
+.calc-res .lb{font-size:11px;color:var(--ink3);margin-top:2px}
+.calc-res .quip{margin-top:9px;font-size:12px;color:var(--ink2);background:var(--mint-wash);border-radius:10px;padding:8px 10px;line-height:1.6}
+.muyu{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding-bottom:60px}
+.muyu .fish{width:150px;height:150px;border-radius:50%;background:#EFE7D8;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:64px}
+.muyu .gong{font-family:var(--num);font-size:15px;color:var(--ink3);letter-spacing:2px}
+.muyu .gong b{font-size:44px;color:var(--ink);display:block;letter-spacing:0}
+
+/* 后端架构图 */
+.arch{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:18px;font-family:var(--num);font-size:12px;color:var(--ink2);overflow-x:auto}
+.arch .layer{display:flex;gap:8px;align-items:stretch;margin-bottom:8px;flex-wrap:wrap}
+.arch .node{border:1px solid var(--line2);border-radius:10px;padding:8px 12px;background:#FAFCFA;min-width:110px;text-align:center}
+.arch .node b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:2px;font-family:var(--font)}
+.arch .node.core{border-color:var(--mint);background:var(--mint-wash)}
+.arch .arrow{align-self:center;color:var(--ink3);font-size:14px;padding:0 2px}
+.arch .lbl{font-size:10.5px;color:var(--ink3);text-align:center;margin:-3px 0 8px;font-family:var(--font)}
+
+/* 页脚 */
+.footer{border-top:1px solid var(--line2);padding:34px 0 48px;background:#FDFEFD}
+.footer p{font-size:12.5px;color:var(--ink3);line-height:1.9;max-width:56em}
+.footer .ft-t{font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:6px}
+@media(max-width:700px){
+  .hero h1{font-size:32px}
+  .phones{position:static}
+  .nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><i></i>趣工局 <em>· V7 清新糖果全案设计稿</em></div>
+    <nav class="nav" aria-label="章节导航">
+      <a href="#s1">诊断</a><a href="#s2">设计语言</a><a href="#s3">组件</a><a href="#s4">首页双版式</a>
+      <a href="#s5">底部标签栏</a><a href="#s6">我的</a><a href="#s7">签到与糖果铺</a><a href="#s8">工具页模板</a>
+      <a href="#s9">后端</a><a href="#s10">排期与审核</a>
+    </nav>
+    <span class="statuschip">设计稿 · 未动代码 · 2026-11-05</span>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= 封面 ================= -->
+<section class="hero">
+  <div class="hero-in">
+    <h1>把油请出去，<br>换一身薄荷糖</h1>
+    <p class="lead">上一版「油乎乎」来自四件套：毛玻璃、重渐变、厚硬阴影、暖褐配色配全圆体。本稿按你拍板的<b>清新糖果</b>方向，给全部页面换皮：冷调薄荷纸白打底，糖果色退成「糖点」只出现在图标与细边上；字体退役圆体改系统无衬线 + DIN 数字；动效全部压进 180ms。同时落你点名的四件新事——<b>精选/全量双版式首页、每日签到领糖票、糖果铺免费解锁工具、我的页与可隐藏底部标签栏</b>，并给出用户数据接后端的完整方案。</p>
+    <div class="chips">
+      <span class="chip hot">去毛玻璃</span><span class="chip hot">去渐变</span><span class="chip hot">去厚影</span>
+      <span class="chip">圆角三档</span><span class="chip">系统字体</span><span class="chip">≤180ms</span>
+      <span class="chip">一步进入</span><span class="chip">签到领糖</span><span class="chip">匿名云同步</span>
+    </div>
+    <div class="candy-strip" aria-hidden="true">
+      <i style="background:#2EC08D"></i><i style="background:#4DA8F0"></i><i style="background:#FFC53D"></i>
+      <i style="background:#FF8FA7"></i><i style="background:#9D8DF4"></i><i style="background:#F6F9F6"></i>
+    </div>
+    <p class="how">审稿方式：每节左侧是规格与决策，右侧是 375×812 真机比例手机稿；文末「排期与审核」有逐项审核清单，直接回复「通过 / 改 / 砍」即可。</p>
+  </div>
+</section>
+
+<!-- ================= S1 诊断 ================= -->
+<section class="sec" id="s1">
+  <div class="sec-head"><span class="sec-no">01</span><h2>诊断：油腻在哪，卡在哪</h2></div>
+  <p class="sec-sub">四件套换血 + 层级提速，逐项对账。左边是现状（V6 及全局样式），右边是本稿方案。</p>
+  <div class="cols rev">
+    <div class="spec">
+      <table class="tbl">
+        <thead><tr><th style="width:110px">病灶</th><th>现状</th><th>本稿</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">毛玻璃</td><td class="old">backdrop-filter 模糊浮层、抽屉、顶栏</td><td><b>全量移除</b>——所有浮层改纯白实底，模糊是最主要的掉帧源</td></tr>
+          <tr><td class="strong">渐变与硬影</td><td class="old">陶土渐变按钮 + <span class="num">0 6px 0</span> 硬投影 + 卡片层层厚影</td><td><b>平涂 + 无影</b>——卡片靠 1px 发丝线立在纸面上，只有浮层保留一层轻影</td></tr>
+          <tr><td class="strong">暖油底色</td><td class="old">全局暖奶油 #FFF9F2 + 墨褐文字 #4A3B32</td><td><b>薄荷纸白 #F6F9F6 + 冷墨 #22302B</b>——油感一半来自这层暖底</td></tr>
+          <tr><td class="strong">大圆角铺色</td><td class="old">28px+ 圆角 + 大面积色块铺底</td><td><b>圆角三档 20/14/999</b>，色退成糖点，只上 chip、细边、图标</td></tr>
+          <tr><td class="strong">全圆体</td><td class="old">Yuanti SC 全局铺，字重 900 堆笨重</td><td><b>系统无衬线 + DIN 数字</b>，字重 400~700 分层；圆体降级为设置页可选项</td></tr>
+          <tr><td class="strong">点着卡</td><td class="old">300ms+ 转场、弹性回弹、浮层逐级弹</td><td><b>≤180ms 直给</b>——页面切换即达，浮层 140ms 上滑，无回弹</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><b>进入速度的账：</b>工具点击到可用只有一步（现状已对），慢在「进去之后」——浮层逐级弹、毛玻璃实时模糊、皮肤粒子循环抢主线程。本稿三管齐下：浮层一律 140ms 页内 sheet、首页 idle 预载精选工具所在分包、简洁底材下粒子只在皮肤模式出现且遵循既有限帧方案。</div>
+    </div>
+    <div class="phones">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head">
+            <div><div class="t">趣工局</div><div class="a-date">11月5日 周四 · 宜拆快递</div></div>
+            <span class="a-check">🍬 领糖</span>
+          </div>
+          <div class="a-seg"><span class="on">精选</span><span>全量</span></div>
+          <div class="a-lv"><span>🏅 Lv.3 快乐工友</span><span class="bar"><i></i></span><span class="num">还差180</span><span class="fold">收起</span></div>
+          <div class="g-grid">
+            <div class="g-card"><div class="ic" style="background:#FFD3C8">🗑️</div><div class="nm">情绪粉碎机</div><div class="ds">把烦心事撕个粉碎</div></div>
+            <div class="g-card"><div class="ic" style="background:#FFE5C4">🪵</div><div class="nm">电子木鱼</div><div class="ds">功德+1</div></div>
+            <div class="g-card"><div class="ic" style="background:#FFE0CB">🎡</div><div class="nm">转盘选择器</div><div class="ds">让转盘替你做决定</div></div>
+            <div class="g-card"><div class="ic" style="background:#C5EBCF">🎵</div><div class="nm">白噪音混音台</div><div class="ds">自己调一杯安静</div></div>
+            <div class="g-card"><div class="ic" style="background:#D7E8D4">🧮</div><div class="nm">生活计算器</div><div class="ds">房贷个税 单位健康</div></div>
+            <div class="g-card"><div class="ic" style="background:#DCE9DF">🔢</div><div class="nm">一起数数</div><div class="ds">一屏到底 数到尽头</div></div>
+          </div>
+          <div class="a-tab">
+            <span class="grip">⌄</span>
+            <div class="ti on"><i>🏠</i>首页</div>
+            <div class="ti"><i>🍬</i>福利</div>
+            <div class="ti"><i>👤</i>我的</div>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+<!-- ================= S2 设计语言 ================= -->
+<section class="sec" id="s2">
+  <div class="sec-head"><span class="sec-no">02</span><h2>设计语言 · 薄荷纸白 + 糖果点彩</h2></div>
+  <p class="sec-sub">一句话：界面是一张干净的薄荷纸，21 件工具是纸上的糖点。全部页面（首页、福利、我的、设置、21 个工具页、所有弹层）共用这一套令牌，不再各玩各的。</p>
+  <div class="cols">
+    <div class="spec">
+      <h3 class="blk">色板 <small>基底 6 色 + 糖果 5 色，不新增第 12 个颜色</small></h3>
+      <div class="sw-row">
+        <div class="sw"><i style="background:#F6F9F6;border:1px solid var(--line)"></i><b>薄荷纸白 · 页面底</b><span>#F6F9F6</span></div>
+        <div class="sw"><i style="background:#FFFFFF;border:1px solid var(--line)"></i><b>纯白 · 卡片</b><span>#FFFFFF</span></div>
+        <div class="sw"><i style="background:#22302B"></i><b>冷墨 · 正文</b><span>#22302B</span></div>
+        <div class="sw"><i style="background:#5C6B64"></i><b>灰墨 · 次级</b><span>#5C6B64</span></div>
+        <div class="sw"><i style="background:#8FA099"></i><b>浅墨 · 辅助</b><span>#8FA099</span></div>
+        <div class="sw"><i style="background:#E3EBE6"></i><b>发丝线</b><span>#E3EBE6</span></div>
+      </div>
+      <div class="sw-row">
+        <div class="sw"><i style="background:linear-gradient(90deg,#2EC08D 50%,#E3F6EE 50%)"></i><b>薄荷 · 主交互</b><span>#2EC08D / 深字 #12845F</span></div>
+        <div class="sw"><i style="background:linear-gradient(90deg,#4DA8F0 50%,#E4F1FC 50%)"></i><b>苏打 · 学习校园</b><span>#4DA8F0 / 深字 #1E6FB8</span></div>
+        <div class="sw"><i style="background:linear-gradient(90deg,#FFC53D 50%,#FFF4DA 50%)"></i><b>柠檬 · 糖票/福利</b><span>#FFC53D / 深字 #8A6A14</span></div>
+        <div class="sw"><i style="background:linear-gradient(90deg,#FF8FA7 50%,#FFE9EF 50%)"></i><b>草莓 · 趣味解压</b><span>#FF8FA7 / 深字 #C24E6B</span></div>
+        <div class="sw"><i style="background:linear-gradient(90deg,#9D8DF4 50%,#EEECFC 50%)"></i><b>葡萄 · 创作图片</b><span>#9D8DF4 / 深字 #6C5BC4</span></div>
+      </div>
+      <div class="note"><b>糖点三铁律：</b>① 糖果色<b>永不铺底</b>——只出现在 ≤48px 的图标 chip、2px 细边、进度条上，页面 90% 保持纸白；② 每屏<b>最多出现 3 种糖色</b>，多出的自动降为灰墨；③ 旧陶土 #E8795A 降级为「电子木鱼」专属 chip 色，不再出现在框架层。</div>
+      <h3 class="blk">字体 <small>系统无衬线，圆体全局退役</small></h3>
+      <table class="tbl">
+        <thead><tr><th>层级</th><th style="width:150px">规格</th><th>用在哪</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">Display 数字</td><td class="num">44~84px · DIN Alternate · tabular</td><td>计数器大数字、糖票余额、工分</td></tr>
+          <tr><td class="strong">页标题 H1</td><td>20px · 700 · -0.2px</td><td>「我的」「福利」页首行</td></tr>
+          <tr><td class="strong">分组标题 H2</td><td>16px · 600</td><td>卡片标题、分组头</td></tr>
+          <tr><td class="strong">正文</td><td>14px · 400 · 1.55</td><td>列表、说明文字</td></tr>
+          <tr><td class="strong">注释</td><td>12px · 400 · 灰墨</td><td>时间戳、规则小字</td></tr>
+          <tr><td class="strong">眉标</td><td>11px · 600 · 灰墨 · +0.5px</td><td>「本月糖票」「职级」等小节标签</td></tr>
+        </tbody>
+      </table>
+      <div class="note">数字一律 <b>DIN Alternate（iOS）/ Bahnschrift（安卓）→ 系统字</b> 兜底并加 <span class="num">tabular-nums</span>，余额、计数、日期全部右对齐成列——秩序感靠数字排出来，不靠色块。圆体不再做全局默认；设置页保留「圆润显示」开关（默认关）给喜欢旧味的用户。</div>
+    </div>
+    <div class="spec">
+      <h3 class="blk">几何与材质</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:120px">令牌</th><th>值</th><th>语义</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">圆角</td><td class="num">20 / 14 / 999</td><td>20=卡片与弹层；14=行、输入框；999=胶囊按钮与徽标。禁止第四档</td></tr>
+          <tr><td class="strong">间距</td><td class="num">4 的倍数</td><td>页边距 16，卡内 12~14，卡间 10~12，分组间 20</td></tr>
+          <tr><td class="strong">阴影</td><td>无</td><td>卡片、按钮一律无影，靠 1px 发丝线；仅浮层（sheet/浮钮）用 <span class="num">0 8px 24px rgba(34,48,43,.10)</span></td></tr>
+          <tr><td class="strong">描边</td><td class="num">1px #E3EBE6</td><td>卡片、行的唯一边界；糖色细边 1.5px 仅用于选中态</td></tr>
+          <tr><td class="strong">模糊</td><td>禁</td><td>backdrop-filter 全量下线</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">动效与速度 <small>全表只有 4 个时长</small></h3>
+      <table class="tbl">
+        <thead><tr><th style="width:120px">时长</th><th>用于</th><th>规则</th></tr></thead>
+        <tbody>
+          <tr><td class="num strong">80ms</td><td>按压反馈</td><td>按下变 4% 灰或透明度 0.6，只此一种，不做缩放</td></tr>
+          <tr><td class="num strong">140ms</td><td>浮层</td><td>底部 sheet / 确认层上滑，ease-out，无回弹</td></tr>
+          <tr><td class="num strong">180ms</td><td>页内变化</td><td>页内展开、列表插入、切换淡入 + 8px 位移</td></tr>
+          <tr><td class="num strong">400ms</td><td>数字滚动</td><td>仅进页一次（余额/工分），不轮询不循环</td></tr>
+        </tbody>
+      </table>
+      <ul class="tight">
+        <li><b>曲线唯一</b>：<span class="num">cubic-bezier(.2,.7,.3,1)</span>，全产品不复用第二种曲线</li>
+        <li><b>页面切换</b>：保留系统 push（微信原生），其余转场全免；tab 之间即时替换无动画</li>
+        <li><b>动效禁区</b>：无礼花、无金币雨、无循环粒子、无视差；唯一的仪式动效是签到「贴糖纸」（§7）</li>
+        <li><b>提速三件套</b>：首页 idle 预载精选工具所在分包（<span class="num">preloadRule</span>：calc/fun 全网络预载）；工具页重资源 mount 后再拉；骨架屏 ≤200ms 且只骨架一次</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S3 全局组件 ================= -->
+<section class="sec" id="s3">
+  <div class="sec-head"><span class="sec-no">03</span><h2>全局组件 · 一套积木拼完所有页</h2></div>
+  <p class="sec-sub">全项目只保留这 7 件积木。所有页面禁止私造第四种卡片、第五种按钮——组件收敛是「干脆」的另一半。</p>
+  <div class="cols">
+    <div class="spec">
+      <h3 class="blk">按钮 · 三种</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:96px">类型</th><th>规格</th><th>用在哪</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">主按钮</td><td>薄荷深 #12845F 填充 · 白字 15px/700 · 圆角 999 · 高 44</td><td>每屏最多一个：领糖、解锁、保存</td></tr>
+          <tr><td class="strong">次按钮</td><td>白底 · 1px 发丝线 · 墨字 14px/600</td><td>取消、次要操作</td></tr>
+          <tr><td class="strong">糖点按钮</td><td>糖色 wash 底 + 深糖色字 · 12px/600 胶囊</td><td>顶栏入口、状态徽标（如「领糖」）</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">卡片与行 · 两种</h3>
+      <ul class="tight">
+        <li><b>糖卡（20px 圆角）</b>：白底 + 发丝线，内部 = 46px 糖 chip + 名称 14/700 + 一句话 11 灰。用于精选宫格、商城、我的页头部。卡上<b>无投影、无渐变</b>。</li>
+        <li><b>行（14px 圆角分组或全宽行）</b>：高 56~64，左 38px chip + 名称 13.5/600 + 描述 11 灰 + 右值/箭头，行间 1px 发丝线。用于全量目录、设置、我的页 cell。</li>
+      </ul>
+      <h3 class="blk">浮层 · 只剩一种</h3>
+      <ul class="tight">
+        <li><b>底部 sheet</b>：白底、顶部 22px 圆角、拖拽条、140ms 上滑。新建、选择、确认、解锁全部走它，<b>不再有全屏二级页弹窗</b>；历史/统计类内容改「页内展开」不弹层。</li>
+        <li><b>Toast</b>：墨底白字 13px，底部居中 2s，一次一条。</li>
+        <li><b>空状态</b>：一句白话 + 一个行动按钮。例：糖果铺空——「糖票还不够？去签到领一颗」→[去签到]。</li>
+      </ul>
+    </div>
+    <div class="spec">
+      <h3 class="blk">积木实拍 <small>真实尺寸，非示意</small></h3>
+      <div class="rule-card">
+        <h4>按钮</h4>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span style="background:var(--mint-deep);color:#fff;border-radius:999px;padding:10px 22px;font-size:14px;font-weight:700">领糖 +20</span>
+          <span style="background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 20px;font-size:13.5px;font-weight:600">先不了</span>
+          <span class="a-check">🍬 领糖</span>
+          <span style="font-size:12px;font-weight:600;color:var(--mint-deep);background:var(--mint-wash);border:1px solid #CDEBDD;border-radius:999px;padding:6px 13px">已解锁</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <h4>糖卡（精选宫格用）</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:320px">
+          <div class="g-card" style="padding:12px"><div class="ic" style="background:#FFD3C8">🗑️</div><div class="nm">情绪粉碎机</div><div class="ds">把烦心事撕个粉碎</div></div>
+          <div class="g-card" style="padding:12px"><div class="ic" style="background:#D7E8D4">🧮</div><div class="nm">生活计算器</div><div class="ds">房贷个税 单位健康</div></div>
+        </div>
+      </div>
+      <div class="rule-card">
+        <h4>行（目录/设置用）</h4>
+        <div style="max-width:320px;border-radius:14px;overflow:hidden;border:1px solid var(--line)">
+          <div class="t-row"><div class="ic" style="background:#C9EEFC">🫧</div><div><div class="nm">无限气泡纸</div><div class="ds">把一整张捏个遍</div></div><span class="arr">›</span></div>
+          <div class="t-row"><div class="ic" style="background:#FFF3C4">🌈</div><div><div class="nm">彩虹屁夸夸机</div><div class="ds">把人夸得明明白白</div></div><span class="arr">›</span></div>
+        </div>
+      </div>
+      <div class="rule-card">
+        <h4>底部 sheet · 解锁确认</h4>
+        <div style="max-width:320px;position:relative;height:150px;border-radius:14px;background:#E7EEE9;overflow:hidden">
+          <div class="m-sheet" style="position:absolute">
+            <div class="grip2"></div>
+            <h4>解锁「一起数数」？</h4>
+            <p>花 300 糖票，解锁后永久免费使用</p>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <span style="flex:1;text-align:center;background:#EAF1EC;border-radius:999px;padding:10px 0;font-size:13px;font-weight:600;color:var(--ink2)">再攒攒</span>
+              <span style="flex:1.4;text-align:center;background:var(--mint-deep);border-radius:999px;padding:10px 0;font-size:13px;font-weight:700;color:#fff">解锁 · 🍬 -300</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= S4 首页双版式 ================= -->
+<section class="sec" id="s4">
+  <div class="sec-head"><span class="sec-no">04</span><h2>首页双版式 · 精选 / 全量</h2></div>
+  <p class="sec-sub">原「礼盒 / 简洁」双模式退役（皮肤与景深降级为「我的 → 装扮」可选项），由更简单的双版式接棒：<b>精选版</b>是你自己的常用货架（1~10 件，初始有默认清单），<b>全量版</b>是分类目录负责检索。两版共用一个首页，右上角胶囊一键切换。</p>
+  <div class="cols rev">
+    <div class="spec">
+      <h3 class="blk">两版分工</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:76px"></th><th>精选版（默认）</th><th>全量版</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">形态</td><td>2 列糖卡宫格，≤10 件</td><td>分类分组行列表 + 右侧索引条（趣/学/创/生）</td></tr>
+          <tr><td class="strong">回答</td><td class="strong">「我每天用的」</td><td>「全部有哪些」</td></tr>
+          <tr><td class="strong">上限</td><td class="num strong">1 ~ 10 件</td><td>22 件全展示</td></tr>
+          <tr><td class="strong">进入</td><td>1 步直达工具页</td><td>1 步直达工具页</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">默认精选清单 <small>首次打开即有，随时可改</small></h3>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>工具</th><th>入选理由</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>🗑️ 情绪粉碎机</td><td>招牌解压，传播第一</td></tr>
+          <tr><td class="num">2</td><td>🪵 电子木鱼</td><td>停留最久的人气件</td></tr>
+          <tr><td class="num">3</td><td>🎡 转盘选择器</td><td>高频决策场景</td></tr>
+          <tr><td class="num">4</td><td>🎵 白噪音混音台</td><td>学习/睡眠入口</td></tr>
+          <tr><td class="num">5</td><td>🧮 生活计算器</td><td>实用担当，拉回访</td></tr>
+          <tr><td class="num">6</td><td>🔢 一起数数</td><td>最新旗舰，首推曝光位</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">自定义规则</h3>
+      <ul class="tight">
+        <li><b>入口</b>：长按任意卡片直接进编辑态（无菜单弹窗）；或点顶栏「整理」。</li>
+        <li><b>添加</b>：点虚线「添加」卡 → 底部 sheet 列全量工具（已选置灰），点选即回填。</li>
+        <li><b>上限 10</b>：满 10 件时添加卡变为提示「货架满了，先移走一件」；<b>下限 1</b>：移除最后一件时 Toast「至少留一件常驻」。</li>
+        <li><b>拖动手感</b>（沿用既有偏好）：抓起<b>零反馈</b>不抬卡，落位瞬间 <span class="num">180ms</span> 回弹 + 一次轻震——爽感在落地；整卡拖动可随时关闭（编辑态内「关闭拖动」）。</li>
+        <li><b>排序持久化</b>：<span class="num">home_pinned</span>（本机），接后端后随 <span class="num">profile.home_config</span> 云同步（§9）。</li>
+      </ul>
+      <div class="note"><b>首页不回归的旧件：</b>无「最近使用」行（历史实验已否决）；等级条保留但<b>可一键收起</b>，收起后只剩一枚 Lv 徽标；签到入口固定在顶栏右侧胶囊，不进宫格。</div>
+    </div>
+    <div class="phones">
+      <!-- P2 编辑态 -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head">
+            <div><div class="t">整理货架</div><div class="a-date">拖动排序 · 点 − 移除 · 完成即生效</div></div>
+            <span class="a-check" style="background:var(--mint-wash);border-color:#CDEBDD;color:var(--mint-deep)">完成</span>
+          </div>
+          <div class="g-grid" style="margin-top:8px">
+            <div class="g-card"><span class="del">−</span><div class="ic" style="background:#FFD3C8">🗑️</div><div class="nm">情绪粉碎机</div><div class="ds">把烦心事撕个粉碎</div></div>
+            <div class="g-card drag"><div class="ic" style="background:#FFE5C4">🪵</div><div class="nm">电子木鱼</div><div class="ds">松手就落在这儿</div></div>
+            <div class="g-card"><span class="del">−</span><div class="ic" style="background:#FFE0CB">🎡</div><div class="nm">转盘选择器</div><div class="ds">让转盘替你做决定</div></div>
+            <div class="g-card"><span class="del">−</span><div class="ic" style="background:#C5EBCF">🎵</div><div class="nm">白噪音混音台</div><div class="ds">自己调一杯安静</div></div>
+            <div class="g-card"><span class="del">−</span><div class="ic" style="background:#D7E8D4">🧮</div><div class="nm">生活计算器</div><div class="ds">房贷个税 单位健康</div></div>
+            <div class="g-card"><span class="del">−</span><div class="ic" style="background:#DCE9DF">🔢</div><div class="nm">一起数数</div><div class="ds">一屏到底 数到尽头</div></div>
+            <div class="g-add"><i>＋</i>添加工具<br>还能放 4 件</div>
+          </div>
+          <div style="margin:12px 16px 0;text-align:center;font-size:11px;color:var(--ink3)">拖动可关 · 本机记忆 · 云同步见 §9</div>
+          <div class="a-tab">
+            <span class="grip">⌄</span>
+            <div class="ti on"><i>🏠</i>首页</div>
+            <div class="ti"><i>🍬</i>福利</div>
+            <div class="ti"><i>👤</i>我的</div>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+      <!-- P3 全量版 -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head">
+            <div><div class="t">趣工局</div><div class="a-date">全部 22 件 · 分类即所见</div></div>
+            <span class="a-check off">✓ 已领糖</span>
+          </div>
+          <div class="a-seg"><span>精选</span><span class="on">全量</span></div>
+          <div style="position:relative;flex:1;min-height:0">
+            <div class="cat-h"><b><i style="background:var(--berry-wash);color:var(--berry-deep)">趣</i>趣味解压</b><span>11</span></div>
+            <div class="t-row"><div class="ic" style="background:#FFD3C8">🗑️</div><div><div class="nm">情绪粉碎机</div><div class="ds">把烦心事撕个粉碎</div></div><span class="arr">›</span></div>
+            <div class="t-row"><div class="ic" style="background:#DCCEF0">⏳</div><div><div class="nm">人生倒计时</div><div class="ds">看看还剩多少个周日</div></div><span class="arr">›</span></div>
+            <div class="t-row"><div class="ic" style="background:#FFE5C4">🪵</div><div><div class="nm">电子木鱼</div><div class="ds">功德+1</div></div><span class="arr">›</span></div>
+            <div class="t-row"><div class="ic" style="background:#FFD6E0">💬</div><div><div class="nm">借口生成器</div><div class="ds">帮你说出那个不字</div></div><span class="arr">›</span></div>
+            <div class="t-row"><div class="ic" style="background:#FFE0CB">🎡</div><div><div class="nm">转盘选择器</div><div class="ds">让转盘替你做决定</div></div><span class="arr">›</span></div>
+            <div class="cat-h" style="border-top:6px solid var(--paper)"><b><i style="background:var(--soda-wash);color:var(--soda-deep)">学</i>学习校园</b><span>5</span></div>
+            <div class="t-row"><div class="ic" style="background:#FFF3C4">📖</div><div><div class="nm">文言文陪读</div><div class="ds">逐句拼音 跟读背诵</div></div><span class="arr">›</span></div>
+            <div class="t-row"><div class="ic" style="background:#FFE8D6">✍️</div><div><div class="nm">汉字练字卡</div><div class="ds">查字 · 田字格描红</div></div><span class="arr">›</span></div>
+            <div style="text-align:center;font-size:11px;color:var(--ink3);padding:10px 0">创作图片 5 件 · 生活计算 1 件 ↓</div>
+            <div class="a-index"><span class="on">趣</span><span>学</span><span>创</span><span>生</span></div>
+          </div>
+          <div class="a-tab">
+            <span class="grip">⌄</span>
+            <div class="ti on"><i>🏠</i>首页</div>
+            <div class="ti"><i>🍬</i>福利</div>
+            <div class="ti"><i>👤</i>我的</div>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S5 底部标签栏 ================= -->
+<section class="sec" id="s5">
+  <div class="sec-head"><span class="sec-no">05</span><h2>底部标签栏 · 三页签，可整体收起</h2></div>
+  <p class="sec-sub">自定义 tabBar（<span class="num">custom-tab-bar</span>），只在 首页 / 福利 / 我的 三个页签出现，进入任何工具页自动隐藏。担心挡内容可以整体收起。</p>
+  <div class="cols">
+    <div class="spec">
+      <h3 class="blk">规格</h3>
+      <ul class="tight">
+        <li><b>三个页签</b>：🏠 首页 / 🍬 福利 / 👤 我的。白底 + 顶部 1px 发丝线，无选中滑块，选中色薄荷深 + 字重 700。</li>
+        <li><b>收起把手</b>：顶边中央 34×14「⌄」把手，点按或<b>上滑收起</b>；收起后右下角浮出 38px「⌃」圆钮（唯一的轻影允许位），点按或下滑恢复。</li>
+        <li><b>设置开关</b>：我的 → 设置 →「底部标签栏」默认开；关掉 = 常驻收起，仅剩浮钮。</li>
+        <li><b>手势</b>：页面上滑浏览到第二屏时自动收起，回到顶部自动展开；跟手阈值 24px，无动画拖拽。</li>
+        <li><b>不弹跳</b>：收起/展开 <span class="num">140ms</span> ease-out 位移，无回弹。</li>
+      </ul>
+      <div class="note warn"><b>兼容注意：</b>custom-tab-bar 在微信里是每 tab 页一份实例，切页签时同步选中态用 <span class="num">getTabBar()</span>；收起状态存全局 <span class="num">tabbar_collapsed</span>，与工具页互不影响。</div>
+    </div>
+    <div class="phones">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head"><div><div class="t">我的</div></div><span class="a-check off">⌄ 收起</span></div>
+          <div style="margin:10px 16px 0;font-size:12px;color:var(--ink3);border:1.5px dashed var(--line2);border-radius:var(--r-card);padding:18px;text-align:center">内容区上移 56px<br>底部多出一屏可用</div>
+          <div class="a-fab">⌃</div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:26px;background:var(--paper);border-top:1px solid transparent"></div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+      <div style="max-width:300px;align-self:center;font-size:12.5px;color:var(--ink2);line-height:1.8">
+        <b style="font-size:14px">收起态 ↑</b><br>仅剩右下浮钮；页签内容底对齐，长列表多读一行。<br><br>
+        <b style="font-size:14px">状态机</b><br>展开 ⇄ 收起：把手点按 · 内容区上滑/下滑 · 设置开关；工具页内恒隐藏。<br><br>
+        <b style="font-size:14px">徽标</b><br>今天未领糖时，🍬 福利图标右上角一枚 6px 柠檬点；领完即灭，不显示数字。
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= S6 我的页 ================= -->
+<section class="sec" id="s6">
+  <div class="sec-head"><span class="sec-no">06</span><h2>我的页 · 常规骨架，糖果皮</h2></div>
+  <p class="sec-sub">按常见小程序「我的」走：身份卡 → 三格数据 → 签到条 → 单元格列表。不发明新结构，只把皮换干净。<b>继续无登录</b>——匿名即用，头像昵称走微信原生授权按钮，云同步是可选开关（§9）。</p>
+  <div class="cols rev">
+    <div class="spec">
+      <h3 class="blk">结构与文案</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:130px">区块</th><th>规格</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">身份卡</td><td>头像 52px（默认 👷，点击唤起微信原生头像/昵称授权）+ 称号「快乐工友」+ 工号 <span class="num">20260901</span>；右侧黄铜工牌小章（沿用 V3 工牌资产，葡萄色虚线框）</td></tr>
+          <tr><td class="strong">三格数据</td><td>工分（DIN 数字 17px）· 🍬 糖票余额 · 连签天数；点糖票格跳糖果铺</td></tr>
+          <tr><td class="strong">签到条</td><td>今日未领：薄荷主按钮「去领糖 +20」；已领：灰底「✓ 今天已领 · 明天再来」</td></tr>
+          <tr><td class="strong">单元格</td><td>🍬 糖果铺（右侧件数）/ 🎨 我的装扮 / 🏅 等级与工牌 / 📊 使用统计 / ⚙️ 设置 / ℹ️ 关于趣工局（署名 Mariana）</td></tr>
+          <tr><td class="strong">设置内新增</td><td>「底部标签栏」开关（§5）· 「云同步」开关与恢复码（§9）· 「圆润显示」字体开关（默认关）</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><b>层级减法：</b>原独立「等级页」「用户页」入口收编进本页与「福利」页；任何信息最多两跳可达——我的页一级 cell 即达，不再有三级套娃。</div>
+    </div>
+    <div class="phones">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head"><div><div class="t">我的</div></div><span class="a-check off">⚙️</span></div>
+          <div class="me-hero">
+            <div class="ava">👷</div>
+            <div><div class="nm">快乐工友</div><div class="id">工号 20260901 · 326 天</div></div>
+            <div class="stamp">🏅<span>Lv.3</span></div>
+          </div>
+          <div class="a-stats">
+            <div class="st"><b class="num">1,240</b><span>工分</span></div>
+            <div class="st"><b class="num">🍬 120</b><span>糖票</span></div>
+            <div class="st"><b class="num">4 天</b><span>连签</span></div>
+          </div>
+          <div style="margin:10px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-row);padding:12px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">🍬</span>
+            <div style="font-size:13px;font-weight:700">今日糖还没领<div style="font-size:11px;color:var(--ink3);font-weight:400">连签第 5 天，第 7 天有宝箱</div></div>
+            <span style="margin-left:auto;background:var(--mint-deep);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:8px 14px">去领糖 +20</span>
+          </div>
+          <div style="margin-top:10px;background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+            <div class="a-cell"><span class="ic" style="background:var(--lemon-wash)">🍬</span>糖果铺<small class="plus">2 件新品</small><span class="arr">›</span></div>
+            <div class="a-cell"><span class="ic" style="background:var(--grape-wash)">🎨</span>我的装扮<small>2 件已拥有</small><span class="arr">›</span></div>
+            <div class="a-cell"><span class="ic" style="background:var(--mint-wash)">🏅</span>等级与工牌<small>Lv.3 快乐工友</small><span class="arr">›</span></div>
+          </div>
+          <div style="margin-top:10px;background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+            <div class="a-cell"><span class="ic" style="background:var(--soda-wash)">📊</span>使用统计<span class="arr">›</span></div>
+            <div class="a-cell"><span class="ic" style="background:#F1F4F2">⚙️</span>设置<span class="arr">›</span></div>
+            <div class="a-cell"><span class="ic" style="background:#F1F4F2">ℹ️</span>关于趣工局<span class="arr">›</span></div>
+          </div>
+          <div class="a-tab">
+            <span class="grip">⌄</span>
+            <div class="ti"><i>🏠</i>首页</div>
+            <div class="ti"><i>🍬</i>福利</div>
+            <div class="ti on"><i>👤</i>我的</div>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S7 签到与糖果铺 ================= -->
+<section class="sec" id="s7">
+  <div class="sec-head"><span class="sec-no">07</span><h2>福利页 · 每日领糖 + 糖果铺</h2></div>
+  <p class="sec-sub">签到拿的积分叫<b>糖票</b>（显示为 🍬 + 数字，单位「颗」）。糖票只做一件事：<b>在糖果铺免费兑换工具与装扮</b>——全程无任何付费入口。</p>
+  <div class="cols rev">
+    <div class="spec">
+      <h3 class="blk">糖票从哪来 <small>被动为主，无任务清单</small></h3>
+      <table class="tbl">
+        <thead><tr><th>来源</th><th style="width:96px">数额</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">每日签到</td><td class="num strong">+20 / 天</td><td>服务器日期为准（UTC+8），需联网；断签无惩罚</td></tr>
+          <tr><td class="strong">连击奖励</td><td class="num strong">第 3 天 +10 · 第 7 天 +50</td><td>7 天一轮循环；断签清连击不清余额</td></tr>
+          <tr><td class="strong">工具首用</td><td class="num strong">+5 / 件 · 每日 3 件封顶</td><td>被动记录，不出现「任务列表」形态</td></tr>
+          <tr><td class="strong">每日上限</td><td class="num strong">100 颗</td><td>防刷顶；工分（经验）不受此限</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">与工分的关系 <small>两种货币各管一件事</small></h3>
+      <table class="tbl">
+        <thead><tr><th style="width:96px"></th><th>工分（工龄）</th><th>糖票（糖果）</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">涨法</td><td>被动：打开工具、核心动作、成就（V3 方案）</td><td>签到 + 使用 + 连击</td></tr>
+          <tr><td class="strong">能花吗</td><td class="strong">永不消费</td><td>只在糖果铺消费</td></tr>
+          <tr><td class="strong">换来什么</td><td>称号、工牌、边框（身份，不锁功能）</td><td>解锁新工具、装扮（资产）</td></tr>
+        </tbody>
+      </table>
+      <div class="note warn"><b>与 V3 原则的冲突说明：</b>V3 曾定「无签到、无任务」守住工具定位。本次按你的新决策改为「<b>有签到、无任务清单</b>」——签到是唯一主动动作，其余全部被动记录；福利页不出现「去做任务赚积分」清单，避免工具箱变任务墙。</div>
+      <h3 class="blk">糖果铺定价</h3>
+      <table class="tbl">
+        <thead><tr><th>货架</th><th style="width:110px">定价</th><th>条款</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">新品工具</td><td class="num strong">300 颗</td><td>约 2 周签到可白嫖；<b>上线满 30 天自动转免费</b>（良心条款，不造永久墙）</td></tr>
+          <tr><td class="strong">装扮·印花包</td><td class="num strong">100 颗</td><td>季节限定，往期印花不返场不涨价</td></tr>
+          <tr><td class="strong">装扮·简版皮肤</td><td class="num strong">200 颗</td><td>原付费皮肤改为糖票兑换，无现金入口</td></tr>
+        </tbody>
+      </table>
+      <ul class="tight">
+        <li><b>存量 22 件工具全部保持免费</b>——糖果铺只上新，不回收存量承诺。</li>
+        <li><b>领糖瞬间</b>：月历当日格贴上一张糖纸贴纸（<span class="num">180ms</span> scale 1.3→1 + 轻转 −6°→0 + 一次轻震）——全产品唯一仪式动效，替代 V3 的钢印方案。</li>
+        <li><b>余额不足</b>：确认层显示「还差 n 颗」，只给「去签到 / 攒够再来」两个出口，不弹付费。</li>
+      </ul>
+    </div>
+    <div class="phones">
+      <!-- P5 签到 -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head"><div><div class="t">福利</div><div class="a-date">签到领糖 · 免费兑换工具</div></div><span class="a-check off">🍬 120</span></div>
+          <div class="cal">
+            <div class="cm"><span>2026年11月</span><b>连签 4 天</b></div>
+            <div class="cal-grid">
+              <div class="d done">1<span class="candy">🍬</span></div><div class="d done">2<span class="candy">🍬</span></div>
+              <div class="d done">3<span class="candy">🍬</span></div><div class="d done">4<span class="candy">🍬</span></div>
+              <div class="d today">5</div><div class="d fut">6</div><div class="d fut">7</div>
+              <div class="d fut">8</div><div class="d fut">9</div><div class="d fut">10</div><div class="d fut">11</div>
+              <div class="d fut">12</div><div class="d fut">13</div><div class="d fut">14</div>
+            </div>
+          </div>
+          <div class="big-cta">领糖 +20</div>
+          <div class="streak-note">今天第 5 天 · 再连 2 天开<b>宝箱 +50</b> 🎁</div>
+          <div style="margin:12px 16px 0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-row);padding:11px 14px;display:flex;align-items:center;gap:9px">
+            <span style="font-size:15px">🛒</span>
+            <div style="font-size:12.5px;font-weight:700">糖果铺<div style="font-size:10.5px;color:var(--ink3);font-weight:400">2 件新品可换</div></div>
+            <span style="margin-left:auto;color:var(--line2)">›</span>
+          </div>
+          <div style="margin:9px 16px 0;text-align:center;font-size:10.5px;color:var(--ink3)">用工具也悄悄涨糖：每天前 3 件各 +5</div>
+          <div class="a-tab">
+            <span class="grip">⌄</span>
+            <div class="ti"><i>🏠</i>首页</div>
+            <div class="ti on"><i>🍬</i>福利</div>
+            <div class="ti"><i>👤</i>我的</div>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+      <!-- P6 糖果铺 -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head"><div><div class="t">糖果铺</div><div class="a-date">糖票只在这花 · 无任何付费</div></div><span class="a-check off">✓ 已领糖</span></div>
+          <div class="bal">🍬 我的糖票<span class="n">120</span></div>
+          <div class="cat-h"><b><i style="background:var(--lemon-wash);color:var(--lemon-deep)">新</i>新品抢先</b><span>解锁后永久免费</span></div>
+          <div class="shop-card">
+            <div class="ic" style="background:#E4F1FC">✅</div>
+            <div style="min-width:0">
+              <div class="nm">习惯打卡<span class="tag30">满30天转免费</span></div>
+              <div class="ds">每日习惯 一眼看尽</div>
+              <div class="pbar"><i style="width:40%"></i></div>
+            </div>
+            <div class="prc"><b>300</b><span>颗 · 还差180</span></div>
+          </div>
+          <div class="cat-h"><b><i style="background:var(--grape-wash);color:var(--grape-deep)">装</i>装扮</b><span>永久拥有</span></div>
+          <div class="shop-card">
+            <div class="ic" style="background:#EEECFC">🎨</div>
+            <div style="min-width:0"><div class="nm">印花包 · 糖果季</div><div class="ds">6 枚限定印花</div></div>
+            <span class="buy">100 颗</span>
+          </div>
+          <div class="shop-card">
+            <div class="ic" style="background:#E3F6EE">🖼️</div>
+            <div style="min-width:0"><div class="nm">简版皮肤 · 薄荷晨雾</div><div class="ds">几何远山 + 雪点</div></div>
+            <span class="buy">200 颗</span>
+          </div>
+          <div style="margin:12px 16px 0;text-align:center;font-size:10.5px;color:var(--ink3)">已拥有装扮 2 件 · 已解锁新品 0 件<br>往期印花不返场 · 不涨价 · 无现金入口</div>
+          <div class="a-tab">
+            <span class="grip">⌄</span>
+            <div class="ti"><i>🏠</i>首页</div>
+            <div class="ti on"><i>🍬</i>福利</div>
+            <div class="ti"><i>👤</i>我的</div>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+      <!-- P7 解锁确认（余额不足态） -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="a-head"><div><div class="t">糖果铺</div></div><span></span></div>
+          <div style="height:180px"></div>
+          <div class="dim"></div>
+          <div class="m-sheet">
+            <div class="grip2"></div>
+            <h4>解锁「习惯打卡」？</h4>
+            <p>花 300 颗糖票，解锁后永久免费 · 可在「我的装扮」查看已解锁件</p>
+            <div style="display:flex;gap:10px;margin-top:14px;background:#FAFCFA;border:1px solid var(--line);border-radius:var(--r-row);padding:10px 14px;font-size:13px;align-items:center">
+              <span style="color:var(--ink3)">糖票余额</span><b class="num" style="margin-left:auto">🍬 120</b>
+              <span style="color:var(--ink3)">→</span><b class="num" style="color:var(--berry-deep)">还差 180</b>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <span style="flex:1;text-align:center;background:#EAF1EC;border-radius:999px;padding:10px 0;font-size:13px;font-weight:600;color:var(--ink2)">攒够再来</span>
+              <span style="flex:1.4;text-align:center;background:var(--mint-deep);border-radius:999px;padding:10px 0;font-size:13px;font-weight:700;color:#fff">去签到领糖</span>
+            </div>
+          </div>
+          <div class="hbar"></div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</section>
+<!-- ================= S8 工具页模板 ================= -->
+<section class="sec" id="s8">
+  <div class="sec-head"><span class="sec-no">08</span><h2>工具页 · 三个模板管住 22 件</h2></div>
+  <p class="sec-sub">22 件工具按性格归进三个模板，各配一段规格；任何工具页不再自定义转场与阴影，只用全局令牌。工具页内<b>没有底部标签栏</b>、没有二级套娃——需要选择就弹 140ms sheet，需要历史就页内展开。</p>
+  <div class="cols">
+    <div class="spec">
+      <h3 class="blk">模板定义</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:96px">模板</th><th>性格与规格要点</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">A · 台面型</td><td>一块主内容台面（大数字/主输出）+ 下方行列表。大数字用 DIN tabular + 一条 5px 糖色锚点条；历史改<b>页内展开</b>；新建改<b>底部命令条</b>。主色锚点取本工具糖色。</td></tr>
+          <tr><td class="strong">B · 表单型</td><td>输入行（14px 圆角）+ 结果卡。结果卡内必配一句<b>「局长的碎碎念」</b>人话解读（糖色 wash 底），把数字变谈资。</td></tr>
+          <tr><td class="strong">C · 沉浸型</td><td>全屏留白只留主角（木鱼/气泡纸/来电）。零框架 chrome，进度与计数小字放边角；敲击反馈即时（80ms），无任何浮层。</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">通用壳规格 <small>所有模板共用</small></h3>
+      <ul class="tight">
+        <li><b>页头</b>：返回钮（38px 白底描边圆角方块）+ 工具名 15/700 + 右上<b>唯一</b>动作（历史/设置/更多）。</li>
+        <li><b>进入速度</b>：骨架 ≤200ms 只出现一次；语料、字库、图表等重资源 mount 后再拉；点进即能点。</li>
+        <li><b>返回手势</b>：系统侧滑 + 页头返回钮，无自定义转场。</li>
+        <li><b>空状态</b>：一句白话 + 行动按钮（如转盘历史空：「还没转过，转一把？」）。</li>
+      </ul>
+    </div>
+    <div class="phones">
+      <!-- P8 计数器 · 模板A -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="u-head"><span class="bk">‹</span><span class="t">一起数数</span><span class="sub">牛奶篇 · 周四</span></div>
+          <div class="score">
+            <div class="lb">今天 · 已数</div>
+            <div class="v num">128</div>
+            <div class="anchor"></div>
+            <div class="ops">
+              <span class="rbtn">−</span>
+              <span class="rbtn fill">＋</span>
+              <span class="rbtn" style="width:auto;padding:0 14px;font-size:12px;font-weight:600">记历史</span>
+            </div>
+          </div>
+          <div class="cnt-list">
+            <div class="cnt-row"><span class="dot" style="background:#2EC08D"></span>牛奶<b class="n num">96</b></div>
+            <div class="cnt-row"><span class="dot" style="background:#4DA8F0"></span>饼干<b class="n num">21</b></div>
+            <div class="cnt-row"><span class="dot" style="background:#FFC53D"></span>喝水<b class="n num">11</b></div>
+          </div>
+          <div class="expand-hint">▾ 展开历史时间线（页内，不弹层）</div>
+          <div style="margin:auto 16px 14px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:11px 16px;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink3)">
+            <span>＋ 新建小块</span><span style="margin-left:auto;color:var(--ink2);font-weight:600">完成 ⏎</span>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+      <!-- P9 计算器 · 模板B -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="u-head"><span class="bk">‹</span><span class="t">生活计算器</span><span class="sub">房贷 · 等额本息</span></div>
+          <div class="calc-row"><span class="lb">贷款总额</span><span class="vl num">1,000,000 元</span></div>
+          <div class="calc-row"><span class="lb">年利率</span><span class="vl num">3.1 %</span></div>
+          <div class="calc-row"><span class="lb">年限</span><span class="vl num">30 年</span></div>
+          <div class="calc-res">
+            <div class="v num">¥4,271</div>
+            <div class="lb">每月月供 · 总利息 ¥537,470</div>
+            <div class="quip">局长的碎碎念：月供别超过到手的一半，剩下的工资用来快乐。</div>
+          </div>
+          <div style="margin:12px 16px 0;display:flex;gap:10px">
+            <span style="flex:1;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:10px 0;font-size:13px;font-weight:600">换个算法</span>
+            <span style="flex:1;text-align:center;background:var(--mint-deep);border-radius:999px;padding:10px 0;font-size:13px;font-weight:700;color:#fff">保存这单</span>
+          </div>
+          <div style="margin:auto 16px 14px;text-align:center;font-size:10.5px;color:var(--ink3)">8 个计算器同壳换芯 · 碎碎念可配置</div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+      <!-- P10 木鱼 · 模板C -->
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="sbar"><span class="num">9:41</span><span class="sig">▮▮▮ ⏻</span></div>
+        <div class="a-body">
+          <div class="u-head"><span class="bk">‹</span><span class="t">电子木鱼</span><span class="sub">今日功德 320</span></div>
+          <div class="muyu">
+            <div class="fish">🪵</div>
+            <div class="gong">功德<b class="num">+1</b></div>
+            <div style="font-size:11px;color:var(--ink3)">轻点即敲 · 无浮层 · 无广告 · 心诚则灵</div>
+          </div>
+        </div>
+        <div class="hbar"></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="spec" style="margin-top:26px">
+    <h3 class="blk">22 件工具 · 模板与糖色分配表</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:120px">分类</th><th>工具 → 模板</th><th style="width:190px">chip 糖色（沿用现有粉彩）</th></tr></thead>
+      <tbody>
+        <tr><td class="strong">趣味解压</td><td>情绪粉碎机→A · 人生倒计时→C · 白噪音混音台→A · 电子木鱼→C · 借口生成器→A · 转盘选择器→A · 无限气泡纸→C · 彩虹屁夸夸机→A · 假装来电→B(配置)/C(来电) · 趣味选择器→A · 一起数数→A</td><td>草莓系：#FFD3C8 / #FFD6E0 / #FFE0CB 等</td></tr>
+        <tr><td class="strong">学习校园</td><td>文言文陪读→B(书架)/C(阅读) · 汉字练字卡→A · 字帖生成器→B · 拼音注音器→A · 简繁互转→A</td><td>苏打系：#C9EEFC / #FFE8D6 / #DCCEF0 等</td></tr>
+        <tr><td class="strong">创作图片</td><td>拼豆图纸生成→A · 手持弹幕→B(编辑)/C(播放) · 文字转图片→B · 图片小工具箱→B · 文本批量替换→A</td><td>葡萄系：#DCCEF0 / #37474F(弹幕深色特例) 等</td></tr>
+        <tr><td class="strong">生活计算</td><td>生活计算器→B（8 个子计算器同壳换芯）</td><td>薄荷系：#D7E8D4</td></tr>
+      </tbody>
+    </table>
+    <div class="note">手持弹幕与假装来电的「播放/来电」页保留深色全屏（功能性深底是内容不是油），其余 chrome 全部按本稿令牌换装。</div>
+  </div>
+</section>
+<!-- ================= S9 后端 ================= -->
+<section class="sec" id="s9">
+  <div class="sec-head"><span class="sec-no">09</span><h2>用户数据上云 · 接在现有 server 上</h2></div>
+  <p class="sec-sub">复用「一起数数」后端（零依赖 Node + SQLite，server/index.mjs）的工程底子，新增 <span class="num">user.db</span> 与一组 <span class="num">/api/u/*</span> 接口。<b>本机优先不变</b>：所有工具离线可用，云端只做「签到防伪 + 糖票账本 + 配置备份」三件事。</p>
+  <div class="cols">
+    <div class="spec">
+      <h3 class="blk">架构与信任边界</h3>
+      <div class="arch">
+        <div class="layer">
+          <div class="node"><b>微信小程序</b>本机优先 · 离线可用</div>
+          <span class="arrow">→</span>
+          <div class="node"><b>匿名设备令牌</b>随机 32B · 只存 SHA-256</div>
+          <span class="arrow">→</span>
+          <div class="node core"><b>server/index.mjs</b>+ /api/u/* 新路由</div>
+          <span class="arrow">→</span>
+          <div class="node core"><b>user.db</b>SQLite · WAL</div>
+        </div>
+        <div class="lbl">上行：签到 / 使用事件 / 配置备份 —— 下行：糖票余额 / 已解锁件 / 配置恢复</div>
+        <div class="layer">
+          <div class="node"><b>谁说了算</b></div>
+          <div class="node"><b>本机</b>：工具数据 · 精选货架 · 装扮展示</div>
+          <div class="node"><b>服务器</b>：签到日期 · 糖票账本 · 解锁记录</div>
+        </div>
+      </div>
+      <h3 class="blk">表结构 <small>user.db · 全参数化查询</small></h3>
+      <table class="tbl">
+        <thead><tr><th style="width:120px">表</th><th>字段与说明</th></tr></thead>
+        <tbody>
+          <tr><td class="num strong">users</td><td>id · token_hash(唯一) · openid_hash(预留,可空) · created_at · nickname(可空) · avatar(可空)</td></tr>
+          <tr><td class="num strong">checkins</td><td>user_id(主) · last_date · streak · total_cycles —— 签到状态一行一人</td></tr>
+          <tr><td class="num strong">points_ledger</td><td>id · user_id · delta · reason(checkin/streak/usage/unlock) · ref · created_at —— <b>只增不改</b>的流水，余额由流水实时求和</td></tr>
+          <tr><td class="num strong">unlockeds</td><td>user_id · item_id · unlocked_at —— 永久拥有，删号前不清</td></tr>
+          <tr><td class="num strong">usage_daily</td><td>user_id · day · tool_id · first_used —— 每工具每天一行，幂等记账</td></tr>
+          <tr><td class="num strong">profiles</td><td>user_id(主) · home_config(JSON: 精选清单/排序/版式/设置开关) · updated_at —— 最后写入胜出</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">接口 <small>全部 POST + X-Device-Token 头 · 白名单校验沿用现网关风格</small></h3>
+      <table class="tbl">
+        <thead><tr><th style="width:180px">接口</th><th>入参 → 出参</th></tr></thead>
+        <tbody>
+          <tr><td class="num strong">/api/u/register</td><td>— → {token}（本机生成随机令牌，服务端存哈希）</td></tr>
+          <tr><td class="num strong">/api/u/me</td><td>— → {balance, checkin:{today,streak}, unlocked[], profile?}</td></tr>
+          <tr><td class="num strong">/api/u/checkin</td><td>— → {delta, streak, balance}（服务端判日期与连击，重复签到返回幂等结果）</td></tr>
+          <tr><td class="num strong">/api/u/usage</td><td>{tool_id} → {delta?, balance}（当日该工具首行已存在则 +0，幂等）</td></tr>
+          <tr><td class="num strong">/api/u/unlock</td><td>{item_id} → {balance}（事务：余额够才落 unlockeds + 负数流水）</td></tr>
+          <tr><td class="num strong">/api/u/profile</td><td>{home_config, updated_at} → {ok}（updated_at 更新者胜）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="spec">
+      <h3 class="blk">同步与兜底策略</h3>
+      <ul class="tight">
+        <li><b>签到</b>：唯一必须联网的动作；离线时按钮灰态「联网后可领」。服务端日期为准，客户端时间不参与判定。</li>
+        <li><b>糖票余额</b>：本机缓存展示，以服务端 <span class="num">/api/u/me</span> 为准；每次进「福利/糖果铺」静默对账一次，差值以流水重放解释。</li>
+        <li><b>断网优雅降级</b>：糖果铺可浏览可收藏，兑换时提示「联网后生效」；工具功能零影响。</li>
+        <li><b>换机/清缓存</b>：「我的 → 云同步」出示<b>恢复码</b>（= 注册时令牌的分组展示），新设备输入即接管账号；旧设备不踢出（个人工具场景，信任为先）。</li>
+        <li><b>冲突</b>：home_config 用 updated_at 最后写入胜；流水只增，永不覆盖合并。</li>
+      </ul>
+      <h3 class="blk">防刷与安全</h3>
+      <table class="tbl">
+        <thead><tr><th>风险</th><th>对策</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">重放签到</td><td>服务端按 UTC+8 日期 + last_date 判定，重复请求幂等返回</td></tr>
+          <tr><td class="strong">伪造使用</td><td>usage_daily 幂等 + 单 IP/令牌频控（沿用现有频控器）+ 每日 100 颗硬顶</td></tr>
+          <tr><td class="strong">多开刷糖</td><td>令牌随机生成可多开——接受（无真金利益，防刷成本不值当）；openid 绑定字段已预留，未来需要再升级</td></tr>
+          <tr><td class="strong">注入/枚举</td><td>全参数化 SQL · 输入长度与白名单校验 · 令牌只存 SHA-256（沿用一起数数既有声明）</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">合规与部署</h3>
+      <ul class="tight">
+        <li><b>隐私指引</b>：需在 MP 后台更新——新增收集「设备标识符（自生成匿名令牌）用于数据同步」；不取 openid/手机号/位置，头像昵称走微信原生授权不落服务器（默认）。</li>
+        <li><b>部署</b>：与一起数数同进程同机部署（新增路由），或独立 <span class="num">user.mjs</span> 分进程；备份沿用「停服拷贝 / sqlite3 .backup」。</li>
+        <li><b>成本</b>：现 1C1G 即可承载；个人工具量级下 QPS 极低，无扩容需求。</li>
+        <li><b>本机数据不作云端凭据</b>原则延续：云端只同步糖票/解锁/配置备份，工具内容与使用历史不出本机。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S10 排期与审核 ================= -->
+<section class="sec" id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>排期、验收与审核清单</h2></div>
+  <p class="sec-sub">本稿只做设计未动代码。你逐项回「通过 / 改：意见 / 砍」后，按下面批次开工；每批完成即更新《V4-开发计划表》。</p>
+  <div class="cols">
+    <div class="spec">
+      <h3 class="blk">建议批次</h3>
+      <table class="tbl">
+        <thead><tr><th style="width:110px">批次</th><th>内容</th><th style="width:110px">依赖</th></tr></thead>
+        <tbody>
+          <tr><td class="strong">M1 换皮</td><td>全局令牌替换（纸白/冷墨/圆角三档/无影/系统字体）+ 圆体退役开关 + 动效时长统一</td><td>审核通过</td></tr>
+          <tr><td class="strong">M2 骨架</td><td>首页精选/全量双版式 + 编辑态 + custom-tab-bar（含收起）+ 礼盒模式降级为装扮</td><td>M1</td></tr>
+          <tr><td class="strong">M3 福利</td><td>福利页（签到+贴糖纸动效）+ 糖果铺 + 我的页 + 设置新增开关</td><td>M2，后端可先本机假账本</td></tr>
+          <tr><td class="strong">M4 上云</td><td>server 新路由 + user.db + 注册/恢复码 + 隐私指引更新 + 提审</td><td>M3</td></tr>
+          <tr><td class="strong">M5 全工具</td><td>22 件按三模板逐件换装（每件验收：无渐变无毛玻璃无厚影 + 动效达标）</td><td>M1，可与 M2~M4 并行</td></tr>
+        </tbody>
+      </table>
+      <h3 class="blk">验收底线 <small>每页都要过</small></h3>
+      <ul class="tight">
+        <li>零 <span class="num">backdrop-filter</span>、零渐变背景、卡片零阴影（浮层轻影白名单除外）</li>
+        <li>圆角只用 20/14/999；糖果色不上大面积底；每屏糖色 ≤3 种</li>
+        <li>动效只用 80/140/180/400 四档；数字 tabular 右对齐</li>
+        <li>首页到任何工具 ≤1 步；任何浮层 ≤140ms；真机滑动无掉帧</li>
+        <li>主包体积增量 ≤ 40KB（M1~M3 合计）</li>
+      </ul>
+    </div>
+    <div class="spec">
+      <h3 class="blk">审核清单 <small>请逐项回复：通过 / 改：意见 / 砍</small></h3>
+      <table class="tbl">
+        <thead><tr><th style="width:46px">#</th><th>决策项</th><th style="width:96px">我的倾向</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>薄荷纸白 #F6F9F6 替换暖奶油 #FFF9F2 为全局底色</td><td>通过</td></tr>
+          <tr><td class="num">2</td><td>圆体全局退役，改系统无衬线 + DIN 数字；设置留「圆润显示」开关</td><td>通过</td></tr>
+          <tr><td class="num">3</td><td>礼盒/简洁双模式退役 → 精选/全量双版式；皮肤降级为装扮资产</td><td>通过</td></tr>
+          <tr><td class="num">4</td><td>默认精选 6 件清单（§4 表）</td><td>通过</td></tr>
+          <tr><td class="num">5</td><td>三页签底栏：首页/福利/我的，含收起把手与自动收起</td><td>通过</td></tr>
+          <tr><td class="num">6</td><td>糖票体系数值：+20/天 · 连击 3/7 天 · 使用 +5×3 · 日上限 100</td><td>通过</td></tr>
+          <tr><td class="num">7</td><td>糖果铺定价：新品 300 颗 + 满 30 天转免费；存量 22 件永免</td><td>通过</td></tr>
+          <tr><td class="num">8</td><td>匿名令牌上云（不开登录，恢复码接管换机）</td><td>通过</td></tr>
+          <tr><td class="num">9</td><td>贴糖纸为全产品唯一仪式动效（替代 V3 钢印方案）</td><td>通过</td></tr>
+          <tr><td class="num">10</td><td>工具页三模板划分与 22 件分配表（§8）</td><td>通过</td></tr>
+        </tbody>
+      </table>
+      <div class="note warn"><b>两个提醒：</b>① M2 会下线礼盒首页骨架，皮肤资产（圣诞树等）转入「装扮」后仅在全量版分区装饰块出现——如果你舍不得礼盒，改第 3 项为「保留礼盒为第三版式」即可，排期不变；② 隐私指引更新需在 M4 提审前完成，否则签到功能过不了审。</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="ft-t">稿面说明</p>
+    <p>本稿为 V7 全案设计稿（清新糖果方向，承接 2026-11-04《趣工局UI设计方向调研》方向C），覆盖：全局设计语言与组件、首页双版式、可隐藏底部标签栏、我的页、每日签到与糖票、糖果铺、22 件工具三模板、用户数据上云方案与排期审核清单。手机稿为 375×812 真机比例 HTML 可视稿，如需 Figma 版可按本稿令牌导出 SVG。</p>
+    <p style="margin-top:8px">趣工局 · V7 清新糖果全案设计稿 · 2026-11-05 · 未改动任何代码 · 待你审核</p>
+  </div>
+</footer>
+
+</body>
+</html>

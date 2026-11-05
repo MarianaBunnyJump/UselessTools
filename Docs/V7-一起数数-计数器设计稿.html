@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一起数数 · 趣工局计数器设计稿 V7（日历重构版）</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='8' width='56' height='48' rx='14' fill='%232F4B43'/%3E%3Ctext x='32' y='44' font-size='28' font-weight='800' fill='%23FFF9F2' text-anchor='middle' font-family='sans-serif'%3E%E6%97%A5%3C/text%3E%3C/svg%3E">
+<style>
+/* ===================== 设计令牌（沿用 V5/V6 视觉宪法） ===================== */
+:root{
+  --bg:#FFF9F2;
+  --bg-soft:#FBF1E4;
+  --ink:#4A3B32;
+  --ink-sub:#8D7B70;
+  --ink-light:#B8A99E;
+  --brand:#E8795A;
+  --brand-deep:#CE5B3F;
+  --brand-wash:#FFE9E0;
+  --board:#2F4B43;
+  --board-deep:#223931;
+  --paper:#FDF6E9;
+  --card:rgba(255,255,255,.86);
+  --line:rgba(74,59,50,.08);
+  --danger:#EF5350;
+  --success:#66BB6A;
+  --honey:#FFB74D;
+  --radius-card:28px;
+  --radius-btn:32px;
+  --shadow-card:0 10px 30px -12px rgba(74,59,50,.18);
+  --shadow-btn:0 6px 0 rgba(190,78,51,.85),0 16px 30px -14px rgba(74,59,50,.42);
+  --font-round:'Yuanti SC','YouYuan','幼圆',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-round);-webkit-font-smoothing:antialiased;line-height:1.6}
+::selection{background:var(--brand-wash);color:var(--brand-deep)}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ===================== 页头 ===================== */
+.site-head{position:sticky;top:0;z-index:50;background:rgba(255,249,242,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.site-head-in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px}
+.brand-mark svg{width:26px;height:26px}
+.head-tag{font-size:12px;color:var(--ink-sub);background:var(--paper);border:1px solid var(--line);padding:4px 12px;border-radius:999px}
+
+/* ===================== Hero ===================== */
+.hero{position:relative;overflow:hidden;padding:64px 0 72px}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(720px 420px at 78% -8%,rgba(232,121,90,.12),transparent 62%),radial-gradient(520px 320px at 6% 110%,rgba(47,75,67,.08),transparent 60%);pointer-events:none}
+.hero-in{position:relative;display:grid;grid-template-columns:1fr;gap:44px;align-items:center}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--brand-deep);background:var(--brand-wash);border-radius:999px;padding:6px 14px;margin-bottom:18px}
+.hero-kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);display:inline-block}
+.hero h1{font-size:44px;line-height:1.15;font-weight:900;letter-spacing:1px}
+.hero-sub{margin-top:14px;font-size:16px;color:var(--ink-sub);max-width:36em}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;box-shadow:var(--shadow-card)}
+.chip svg{width:15px;height:15px;color:var(--brand-deep)}
+.hero-note{margin-top:22px;font-size:12.5px;color:var(--ink-light);display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap;max-width:40em}
+.hero-note b{color:var(--ink-sub);font-weight:700;flex:none}
+
+/* Hero 签名：日历大卡 */
+.tagcard{position:relative;max-width:430px;margin:0 auto;padding:8px}
+.tagcard::before{content:"";position:absolute;inset:-14px;background:radial-gradient(60% 60% at 50% 40%,rgba(232,121,90,.14),transparent 70%);pointer-events:none}
+.tc-frame{position:relative;background:linear-gradient(180deg,#E8795A,#CE5B3F);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:22px 22px 18px;box-shadow:0 30px 60px -24px rgba(206,91,63,.5)}
+.tc-top{display:flex;justify-content:space-between;align-items:center;color:rgba(255,249,242,.72);font-size:12.5px;gap:8px;flex-wrap:wrap}
+.tc-label{font-weight:800;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.tc-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,249,242,.12);border-radius:999px;padding:4px 10px;font-size:11.5px;color:#FFE3B8;font-weight:700}
+.tc-pill .star{color:#FFE3B8}
+.tc-num-wrap{text-align:center;padding:14px 0 6px}
+.tc-num{font-size:88px;line-height:1;font-weight:900;color:#FFF9F2;font-variant-numeric:tabular-nums;letter-spacing:2px;text-shadow:0 4px 0 rgba(0,0,0,.18)}
+.tc-unit{color:rgba(255,249,242,.65);font-size:13.5px;letter-spacing:1px;margin-top:4px}
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:16px}
+.ws-cell{border-radius:13px;padding:7px 0 6px;text-align:center;background:rgba(255,249,242,.1);cursor:pointer;transition:background .15s ease;border:1.5px solid transparent}
+.ws-cell:hover{background:rgba(255,249,242,.2)}
+.ws-cell .w{font-size:9.5px;color:rgba(255,249,242,.6);font-weight:800;display:block;line-height:1.3}
+.ws-cell .n{font-size:9.5px;color:rgba(255,249,242,.45);font-weight:700;display:block;line-height:1.4}
+.ws-cell .v{font-size:14.5px;font-weight:900;color:#FFF9F2;font-variant-numeric:tabular-nums;min-height:19px;display:block;line-height:1.35}
+.ws-cell .v.dim{color:rgba(255,249,242,.35)}
+.ws-cell.on{background:rgba(255,249,242,.94);border-color:rgba(255,255,255,.6)}
+.ws-cell.on .w{color:var(--brand-deep)}
+.ws-cell.on .n{color:var(--brand-deep)}
+.ws-cell.on .v{color:var(--brand-deep)}
+.tc-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;color:rgba(255,249,242,.55);font-size:11.5px;min-height:18px;flex-wrap:wrap}
+
+/* ===================== 核心演示区 ===================== */
+.demo{padding:8px 0 72px}
+.demo-head{text-align:center;margin-bottom:34px}
+.demo-head .eyebrow{display:inline-block;font-size:12px;font-weight:800;color:var(--brand-deep);letter-spacing:3px;margin-bottom:10px}
+.demo-head h2{font-size:30px;font-weight:900}
+.demo-head p{color:var(--ink-sub);font-size:14.5px;margin-top:8px}
+.demo-grid{display:grid;grid-template-columns:1fr;gap:34px;align-items:start}
+.demo-side{order:2}
+.demo-phone{order:1;display:flex;justify-content:center}
+
+.state-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.state-tab{flex:1;min-width:118px;border-radius:18px;padding:12px 10px;text-align:center;background:var(--card);border:1.5px solid transparent;box-shadow:var(--shadow-card);transition:all .18s ease}
+.state-tab b{display:block;font-size:14px;font-weight:800}
+.state-tab span{font-size:11.5px;color:var(--ink-sub)}
+.state-tab.on{border-color:var(--brand);background:#fff;transform:translateY(-2px)}
+.state-tab.on b{color:var(--brand-deep)}
+.state-desc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:26px;margin-bottom:18px;min-height:210px}
+.state-desc h3{font-size:19px;font-weight:900;display:flex;align-items:center;gap:10px}
+.state-desc h3 .no{width:30px;height:30px;border-radius:10px;background:var(--board);color:#FFF9F2;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex:none}
+.state-desc .lead{font-size:14px;color:var(--ink-sub);margin-top:10px;line-height:1.8}
+.state-points{margin-top:14px;display:grid;grid-template-columns:1fr;gap:8px}
+.sp-item{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink)}
+.sp-item svg{width:15px;height:15px;color:var(--brand-deep);flex:none;margin-top:3px}
+
+/* ===================== 手机 mockup ===================== */
+.phone{width:380px;flex:none;background:#101010;border-radius:56px;padding:12px;box-shadow:0 40px 80px -28px rgba(74,59,50,.5),0 0 0 2px #3a3a3a;position:relative}
+.phone-screen{background:var(--bg);border-radius:45px;overflow:hidden;position:relative;height:740px;display:flex;flex-direction:column}
+.phone-notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:118px;height:26px;background:#101010;border-radius:0 0 16px 16px;z-index:30}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 8px;font-size:12.5px;font-weight:700;position:relative;z-index:20;color:var(--ink)}
+.phone-status .icons{display:flex;gap:5px;align-items:center}
+.phone-status svg{width:15px;height:15px}
+.phone-home{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:118px;height:4px;border-radius:4px;background:var(--ink-light);z-index:30;opacity:.8}
+.app{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.app-body{flex:1;overflow-y:auto;padding:4px 16px 24px;scrollbar-width:none;min-height:0}
+.app-body::-webkit-scrollbar{display:none}
+
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:10px 2px 8px;position:relative;z-index:20}
+.navbar .nav-title{font-size:16.5px;font-weight:900;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.navbar .nav-title svg{width:18px;height:18px}
+.navbar .nav-actions{display:flex;gap:8px}
+.navbar .nav-btn{width:36px;height:36px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-card)}
+.navbar .nav-btn svg{width:17px;height:17px;color:var(--ink-sub)}
+
+/* ---------- 标签切换行 ---------- */
+.tag-row{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.tag-row::-webkit-scrollbar{display:none}
+.tag-chip{display:inline-flex;align-items:center;gap:6px;flex:none;font-size:12.5px;font-weight:800;color:var(--ink-sub);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:7px 12px;transition:all .15s ease;box-shadow:var(--shadow-card)}
+.tag-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--c,#E8795A);flex:none}
+.tag-chip.on{color:var(--ink);background:#fff;border-color:var(--c,#E8795A)}
+.tag-chip.add{color:var(--brand-deep);background:var(--paper);border:1.5px dashed rgba(232,121,90,.45);box-shadow:none}
+
+/* ---------- 一级页：顶部大卡片 ---------- */
+.main-block{position:relative;background:linear-gradient(180deg,#36564B,#243A33);border-radius:30px;padding:18px 18px 16px;margin-bottom:14px;box-shadow:0 18px 38px -16px rgba(34,57,49,.5);overflow:hidden}
+.mb-top{display:flex;justify-content:space-between;align-items:center;color:rgba(255,249,242,.75);font-size:12px;gap:8px}
+.mb-title{font-weight:800;letter-spacing:.5px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.mb-pills{display:flex;gap:6px;align-items:center;flex:none}
+.mb-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(255,249,242,.12);border-radius:999px;padding:4px 9px;font-size:10.5px;color:rgba(255,249,242,.85)}
+.mb-pill svg{width:11px;height:11px}
+.mb-pill .m-members{display:inline-flex;align-items:center;margin-right:2px}
+.mb-pill .m-members span{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:800;border:1.5px solid rgba(255,255,255,.5);margin-left:-5px}
+.mb-pill .m-members span:first-child{margin-left:0}
+.mb-num{text-align:center;padding:10px 0 2px}
+.mb-num .lbl{font-size:11px;color:rgba(255,249,242,.6);letter-spacing:2px;font-weight:700}
+.mb-num .val{font-size:76px;line-height:1.1;font-weight:900;color:#FFF9F2;font-variant-numeric:tabular-nums;letter-spacing:2px;text-shadow:0 4px 0 rgba(0,0,0,.16);display:inline-block;transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.mb-num .val.pop{transform:scale(1.12)}
+.mb-num .unit{color:rgba(255,249,242,.6);font-size:13px;margin-top:0}
+.mb-line{display:flex;justify-content:center;gap:6px;margin-top:12px;color:rgba(255,249,242,.72);font-size:11.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mb-line .sep{opacity:.45}
+.mb-goal{margin-top:12px}
+.g-bar{height:8px;border-radius:8px;background:rgba(255,249,242,.18);overflow:hidden}
+.g-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#FFE3B8,#FFB74D);transition:width .4s cubic-bezier(.34,1.2,.64,1)}
+.g-txt{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-top:7px;color:rgba(255,249,242,.85);font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.g-txt b{font-size:13px;font-weight:900;color:#FFF9F2}
+.g-txt .rate{color:rgba(255,249,242,.55);font-weight:700}
+.g-txt .done{color:#FFE3B8;font-weight:900}
+.mb-actions2{display:flex;gap:10px;margin-top:14px}
+.mb-add{flex:1.5;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,249,242,.96);color:var(--brand-deep);font-weight:900;font-size:14.5px;border-radius:999px;padding:13px 0;box-shadow:0 4px 0 rgba(0,0,0,.24);transition:transform .12s ease,box-shadow .12s ease}
+.mb-add:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.24)}
+.mb-add svg{width:16px;height:16px}
+.mb-ann{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(180deg,#FFC984,#FFB74D);color:#4A3B32;font-size:13.5px;font-weight:800;border-radius:999px;padding:13px 0;box-shadow:0 4px 0 rgba(0,0,0,.22);transition:transform .12s ease,box-shadow .12s ease}
+.mb-ann:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.22)}
+.mb-ann .star{font-size:12px}
+.mb-stamp{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;color:rgba(255,249,242,.55);font-size:11px;min-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- 月历 ---------- */
+.cal{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:12px 10px 12px;box-shadow:var(--shadow-card);margin-bottom:14px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px}
+.cal-head b{font-size:14.5px;font-weight:900}
+.cal-head .hint{font-size:10px;color:var(--ink-light);font-weight:400;margin-left:8px}
+.cal-nav{display:flex;gap:6px}
+.cal-nav button{width:28px;height:28px;border-radius:9px;background:var(--bg-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-sub)}
+.cal-nav button svg{width:13px;height:13px}
+.cal-weekrow{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:10px;color:var(--ink-light);font-weight:800;padding-bottom:6px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-cell{aspect-ratio:1/1.04;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;position:relative;transition:background .15s ease,transform .12s ease;cursor:pointer;border:1.5px solid transparent;background:transparent}
+.cal-cell:active{transform:scale(.94)}
+.cal-cell .d{font-size:12.5px;font-weight:800;color:var(--ink);line-height:1.2}
+.cal-cell .s{font-size:8.5px;font-weight:800;color:var(--ink-light);line-height:1.3;font-variant-numeric:tabular-nums;min-height:11px}
+.cal-cell .s.has{color:var(--ink-sub)}
+.cal-cell .star{position:absolute;top:1px;right:3px;font-size:8px;color:#EFA531;line-height:1}
+.cal-cell.today{border-color:var(--brand)}
+.cal-cell.sel .d{color:#fff}
+.cal-cell.sel .s{color:rgba(255,255,255,.85)}
+.cal-cell.sel .s.has{color:rgba(255,255,255,.9)}
+.cal-cell.blank{visibility:hidden;pointer-events:none}
+.cal-cell.eta{border:1.5px dashed #EFA531}
+
+/* ---------- 当日明细 ---------- */
+.day-block{animation:stampIn .22s ease}
+@keyframes stampIn{0%{opacity:0;transform:translateY(5px)}100%{opacity:1;transform:translateY(0)}}
+.day-sep{height:1px;background:var(--line);margin:12px 2px 8px}
+.day-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 2px}
+.day-head b{font-size:14.5px;font-weight:900}
+.day-head .day-sum{font-size:11.5px;color:var(--ink-sub);font-weight:700}
+.day-head .day-sum b{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
+.entry-list{display:grid}
+.entry{display:flex;align-items:center;gap:9px;padding:7px 4px;border-bottom:1px dashed var(--line);cursor:pointer;border-radius:10px;transition:background .12s ease}
+.entry:last-child{border-bottom:none}
+.entry:hover{background:rgba(232,121,90,.06)}
+.entry:active{transform:scale(.995)}
+.entry .e-time{font-size:11px;font-weight:800;color:var(--ink-sub);font-variant-numeric:tabular-nums;width:36px;flex:none}
+.entry .e-main{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
+.entry .e-amt{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;flex:none;min-width:30px}
+.entry .e-amt.neg{color:var(--danger)}
+.entry .e-note{font-size:11px;color:var(--ink-light);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry .e-by{width:18px;height:18px;border-radius:50%;font-size:8.5px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.entry .e-chev{width:13px;height:13px;color:var(--ink-light);flex:none}
+.day-empty{text-align:center;padding:18px 10px;margin-top:6px;color:var(--ink-sub);font-size:12.5px;line-height:1.9;background:var(--paper);border:1.5px dashed rgba(74,59,50,.14);border-radius:14px}
+.day-empty b{color:var(--brand-deep)}
+.add-card{display:flex;align-items:center;gap:7px;background:var(--brand-wash);border-radius:14px;padding:9px 0;color:var(--brand-deep);font-weight:800;font-size:12.5px;width:100%;justify-content:center;margin-top:10px;transition:transform .12s ease}
+.add-card:active{transform:scale(.98)}
+.add-card svg{width:14px;height:14px}
+
+/* ---------- 浮层通用 ---------- */
+.sheet{position:absolute;inset:0;z-index:45;background:rgba(74,59,50,.35);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.sheet.open{opacity:1;pointer-events:auto}
+.sheet-inner{background:var(--bg);border-radius:30px 30px 0 0;padding:18px 20px 26px;width:100%;max-height:calc(100% - 54px);overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.3,.64,1);scrollbar-width:none}
+.sheet-inner::-webkit-scrollbar{display:none}
+.sheet.open .sheet-inner{transform:translateY(0)}
+.sheet-grab{width:44px;height:5px;border-radius:5px;background:var(--line);margin:0 auto 16px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet-head b{font-size:17px;font-weight:900}
+.sheet-x{width:32px;height:32px;border-radius:11px;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;color:var(--ink-sub);flex:none}
+.sheet-x svg{width:14px;height:14px}
+.form-label{font-size:12px;font-weight:800;color:var(--ink-sub);margin:0 0 8px;letter-spacing:1px}
+.form-input{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;font-size:15px;font-family:inherit;color:var(--ink);outline:none;transition:border-color .16s ease}
+.form-input:focus{border-color:var(--brand)}
+textarea.form-input{resize:none;line-height:1.7;font-size:12.5px;font-family:Consolas,'JetBrains Mono',monospace}
+.form-field{margin-bottom:16px}
+.add-actions{display:flex;gap:10px}
+.add-cancel{flex:1;padding:13px;border-radius:var(--radius-btn);background:var(--bg-soft);color:var(--ink-sub);font-weight:800;font-size:15px}
+.add-ok{flex:1;padding:13px;border-radius:var(--radius-btn);background:linear-gradient(180deg,#F08A6D,#E8795A);color:#fff;font-weight:800;font-size:15px;box-shadow:var(--shadow-btn);transition:transform .12s ease}
+.add-ok:active{transform:translateY(2px)}
+.del-btn{width:100%;padding:12px;border-radius:var(--radius-btn);background:none;border:1.5px dashed rgba(239,83,80,.5);color:var(--danger);font-weight:800;font-size:13.5px;margin-top:12px;transition:all .15s ease}
+.del-btn.confirm{background:var(--danger);border-color:var(--danger);color:#fff}
+
+/* 时间与数量 */
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.qchip{font-size:11.5px;font-weight:800;color:var(--ink-sub);background:var(--bg-soft);border:1px solid var(--line);border-radius:999px;padding:6px 12px;transition:all .14s ease}
+.qchip.on{color:#fff;background:var(--brand);border-color:var(--brand)}
+.tm-row{display:flex;gap:8px;align-items:stretch}
+.tm-colon{display:flex;align-items:center;font-size:20px;font-weight:900;color:var(--ink-light)}
+.tm-box{flex:1;display:flex;align-items:center;justify-content:space-between;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:8px 10px}
+.tm-box .v{font-size:20px;font-weight:900;font-variant-numeric:tabular-nums;min-width:34px;text-align:center}
+.tm-btn{width:30px;height:30px;border-radius:9px;background:var(--bg-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-sub);flex:none;transition:transform .1s ease,background .12s ease}
+.tm-btn:active{transform:scale(.86);background:var(--brand-wash)}
+.tm-btn svg{width:13px;height:13px}
+.tm-hint{font-size:10.5px;color:var(--ink-light);margin-top:6px}
+.num-row{display:flex;align-items:center;gap:12px}
+.num-btn{width:40px;height:40px;border-radius:12px;background:var(--bg-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-sub);transition:transform .1s ease,background .12s ease}
+.num-btn:active{transform:scale(.88);background:var(--brand-wash)}
+.num-btn svg{width:15px;height:15px}
+.num-val{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;min-width:56px;text-align:center;position:relative;cursor:text}
+.num-val.neg{color:var(--danger)}
+@keyframes valPop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+.vpop{animation:valPop .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes amtFloat{0%{opacity:0;transform:translate(-50%,6px) scale(.7)}30%{opacity:1;transform:translate(-50%,-2px) scale(1.05)}100%{opacity:0;transform:translate(-50%,-20px) scale(1)}}
+.amt-float{position:absolute;left:50%;top:-4px;font-size:12.5px;font-weight:900;color:var(--brand-deep);pointer-events:none;opacity:0}
+.amt-float.neg{color:var(--danger)}
+.inline-edit{width:64px;border:none;border-bottom:2px solid var(--brand);background:var(--brand-wash);border-radius:8px;font-family:inherit;font-size:22px;font-weight:900;color:var(--ink);text-align:center;outline:none;padding:2px 4px;-moz-appearance:textfield;appearance:textfield}
+.inline-edit::-webkit-outer-spin-button,.inline-edit::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.tm-box .v{cursor:text}
+
+/* 纪念日 */
+.ann-lead{font-size:13px;color:var(--ink-sub);line-height:1.8;margin-bottom:14px}
+.ann-mark-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(180deg,#FFC984,#FFB74D);color:#4A3B32;font-size:14px;font-weight:800;border-radius:999px;padding:13px 0;width:100%;box-shadow:0 4px 0 rgba(0,0,0,.18);margin-bottom:16px}
+.ann-list{display:grid;gap:9px}
+.ann-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.ann-item .a-star{width:34px;height:34px;border-radius:12px;background:#FFF1DC;color:#EFA531;display:flex;align-items:center;justify-content:center;flex:none;font-size:15px}
+.ann-item .a-info{flex:1;min-width:0}
+.ann-item .a-info b{font-size:13.5px;font-weight:800;display:block}
+.ann-item .a-info small{font-size:11px;color:var(--ink-light);font-weight:400}
+.ann-item .a-val{font-size:13px;font-weight:900;color:var(--ink-sub);font-variant-numeric:tabular-nums;flex:none}
+.ann-item .a-del{width:30px;height:30px;border-radius:10px;color:var(--ink-light);display:flex;align-items:center;justify-content:center;flex:none}
+.ann-item .a-del svg{width:13px;height:13px}
+.ann-item .a-del:hover{color:var(--danger)}
+.ann-item .a-del.confirm{color:#fff;background:var(--danger)}
+.ann-empty{text-align:center;padding:30px 10px;color:var(--ink-sub);font-size:13px;line-height:1.9;background:var(--paper);border-radius:16px;border:1.5px dashed rgba(74,59,50,.14)}
+
+/* 标签管理 */
+.color-dots{display:flex;gap:9px;flex-wrap:wrap;padding:2px 0 4px}
+.cdot{width:32px;height:32px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:transform .12s ease;position:relative}
+.cdot.on{border-color:var(--ink);transform:scale(1.08)}
+.cdot::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:900;opacity:0}
+.cdot.on::after{opacity:1}
+.share-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.share-card .sc-top{width:44px;height:44px;border-radius:14px;color:#FFF9F2;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;flex:none}
+.share-card .sc-name{font-size:14.5px;font-weight:800}
+.share-card .sc-num{font-size:11.5px;color:var(--ink-sub)}
+.share-link{display:flex;gap:8px;align-items:center;background:var(--bg-soft);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.share-link input{flex:1;border:none;background:none;font-size:13px;font-family:inherit;color:var(--ink-sub);outline:none;min-width:0}
+.share-link .copy{font-size:12.5px;font-weight:800;color:var(--brand-deep);flex:none}
+.share-code{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.code-box{flex:1;text-align:center;background:var(--paper);border:1.5px dashed rgba(74,59,50,.18);border-radius:14px;padding:9px 0;font-size:14px;font-weight:900;letter-spacing:4px;color:var(--brand-deep)}
+.share-code span{font-size:11px;color:var(--ink-light);font-weight:400}
+.share-members{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.share-member{display:flex;align-items:center;gap:10px}
+.share-member .m-ava{width:32px;height:32px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+.share-member .m-name{flex:1;font-size:13px;font-weight:700}
+.share-member .m-name small{display:block;font-size:10.5px;color:var(--ink-light);font-weight:400}
+.share-member .m-count{font-size:12.5px;font-weight:800;color:var(--ink-sub)}
+.share-record{background:var(--bg-soft);border-radius:16px;padding:12px 14px;font-size:11.5px;color:var(--ink-sub);line-height:1.9;margin-bottom:4px}
+.share-record b{color:var(--ink);font-weight:800}
+.share-sync{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:12px;font-size:11.5px;color:var(--success);font-weight:800}
+.share-sync svg{width:13px;height:13px}
+
+/* 导入导出 */
+.tpl-block{background:var(--board);color:#E7D8C8;border-radius:18px;padding:14px 16px;font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:10.5px;line-height:1.75;overflow-x:auto;white-space:pre;margin-bottom:12px}
+.tpl-block .c-st{color:#A8D9BB}
+.tpl-block .c-kw{color:#FFD9A8}
+.tpl-block .c-cm{color:rgba(255,249,242,.45)}
+.imp-hint{font-size:11px;color:var(--ink-light);margin-top:10px;line-height:1.8}
+.data-btns{display:flex;gap:10px;margin-bottom:16px}
+.data-btn{flex:1;padding:12px;border-radius:16px;background:var(--bg-soft);border:1px solid var(--line);color:var(--ink);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:7px}
+.data-btn svg{width:15px;height:15px;color:var(--brand-deep)}
+
+/* toast */
+.toast{position:absolute;top:90px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--ink);color:#FFF9F2;font-size:12.5px;font-weight:700;border-radius:999px;padding:10px 18px;opacity:0;transition:all .25s ease;z-index:60;white-space:nowrap;box-shadow:0 10px 24px -10px rgba(74,59,50,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===================== 设计规范区 ===================== */
+.spec{padding:8px 0 72px}
+.spec-head{text-align:center;margin-bottom:36px}
+.spec-head h2{font-size:30px;font-weight:900}
+.spec-head p{color:var(--ink-sub);font-size:14.5px;margin-top:8px}
+.spec-grid{display:grid;grid-template-columns:1fr;gap:22px}
+.spec-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:26px}
+.spec-card h3{font-size:18px;font-weight:900;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.spec-card h3 .ico{width:30px;height:30px;border-radius:10px;background:var(--brand-wash);color:var(--brand-deep);display:inline-flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.swatches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.swatch{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.swatch .sw-main{height:64px;display:flex;align-items:flex-end;padding:8px 10px;color:#fff;font-size:11.5px;font-weight:800}
+.swatch .sw-info{padding:9px 11px}
+.swatch .sw-info b{display:block;font-size:13px}
+.swatch .sw-info span{font-size:11px;color:var(--ink-light)}
+.swatch.light .sw-main{color:var(--ink)}
+.type-scale{display:grid;gap:14px}
+.ts-row{display:flex;align-items:baseline;gap:14px;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.ts-row .demo{font-weight:800;white-space:nowrap}
+.ts-row .meta{font-size:11px;color:var(--ink-light);min-width:86px}
+.ts-row .use{font-size:12.5px;color:var(--ink-sub)}
+.comp-list{display:grid;gap:16px}
+.comp{display:grid;grid-template-columns:70px 1fr;gap:14px;align-items:start}
+.comp-vis{width:70px;height:70px;border-radius:18px;background:var(--bg-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
+.comp-vis svg{width:34px;height:34px;color:var(--brand-deep)}
+.comp h4{font-size:14.5px;font-weight:800;margin-bottom:4px}
+.comp p{font-size:12.5px;color:var(--ink-sub);line-height:1.7}
+.comp .tokens{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.comp .tokens span{font-size:10.5px;font-weight:700;color:var(--ink-sub);background:var(--bg-soft);border-radius:999px;padding:3px 9px}
+.motion-list{display:grid;gap:12px}
+.motion-item{display:flex;gap:12px;align-items:flex-start}
+.motion-item .m-ico{width:40px;height:40px;border-radius:14px;background:var(--brand-wash);color:var(--brand-deep);display:flex;align-items:center;justify-content:center;flex:none}
+.motion-item .m-ico svg{width:19px;height:19px}
+.motion-item b{font-size:14px;font-weight:800;display:block}
+.motion-item p{font-size:12.5px;color:var(--ink-sub);line-height:1.7}
+
+/* ===================== 落地区 ===================== */
+.landing{padding:8px 0 80px;background:linear-gradient(180deg,transparent,rgba(47,75,67,.05) 40%,rgba(47,75,67,.07))}
+.land-head{text-align:center;margin-bottom:36px}
+.land-head h2{font-size:30px;font-weight:900}
+.land-head p{color:var(--ink-sub);font-size:14.5px;margin-top:8px;max-width:38em;margin-left:auto;margin-right:auto}
+.land-grid{display:grid;grid-template-columns:1fr;gap:22px}
+.land-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:26px}
+.land-card h3{font-size:18px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.land-card h3 .ico{width:30px;height:30px;border-radius:10px;background:var(--board);color:#FFF9F2;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex:none}
+.code-block{background:var(--board);color:#E7D8C8;border-radius:18px;padding:18px;font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:11.5px;line-height:1.8;overflow-x:auto}
+.code-block .c-br{color:#F08A6D}
+.code-block .c-kw{color:#FFD9A8}
+.code-block .c-st{color:#A8D9BB}
+.code-block .c-cm{color:rgba(255,249,242,.45)}
+.land-list{display:grid;gap:10px}
+.land-item{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink);background:var(--bg-soft);border-radius:14px;padding:11px 14px}
+.land-item svg{width:16px;height:16px;color:var(--success);flex:none;margin-top:3px}
+.land-item b{font-weight:800}
+.phase-tag{display:inline-block;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 10px;margin:4px 6px 0 0}
+.phase-a{background:var(--brand-wash);color:var(--brand-deep)}
+.phase-b{background:#E2F0E4;color:#3E7C47}
+
+/* ===================== 页脚 ===================== */
+.site-foot{border-top:1px solid var(--line);padding:26px 0 40px;text-align:center;color:var(--ink-light);font-size:12px}
+.site-foot b{color:var(--ink-sub)}
+.site-foot .foot-line{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:6px}
+
+/* ===================== 响应式 ===================== */
+@media (min-width:820px){
+  .hero{padding:84px 0 96px}
+  .hero-in{grid-template-columns:1.05fr .95fr;gap:56px}
+  .hero h1{font-size:56px}
+  .demo-grid{grid-template-columns:1fr 380px;gap:40px}
+  .demo-side{order:1}
+  .demo-phone{order:2;position:sticky;top:90px;align-self:start}
+  .state-desc{min-height:300px}
+  .spec-grid{grid-template-columns:1fr 1fr}
+  .land-grid{grid-template-columns:1fr 1fr}
+  .swatches{grid-template-columns:repeat(3,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<!-- ===================== 页头 ===================== -->
+<header class="site-head">
+  <div class="site-head-in">
+    <div class="brand-mark">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="8" width="56" height="48" rx="14" fill="#2F4B43"/><text x="32" y="45" font-size="30" font-weight="800" fill="#FFF9F2" text-anchor="middle" font-family="sans-serif">日</text></svg>
+      趣工局 · 计数器设计稿
+    </div>
+    <span class="head-tag">V7 日历重构版 · 2026-11-05</span>
+  </div>
+</header>
+
+<!-- ===================== Hero ===================== -->
+<section class="hero">
+  <div class="wrap hero-in">
+    <div>
+      <span class="hero-kicker"><span class="dot"></span>重构提案 · 日历式记录</span>
+      <h1>一起数数</h1>
+      <p class="hero-sub">从「一个累加的数字」变成「一本日历账」。每一天都是一个格子，一天里想记多少条就记多少条，每条都记着几点几分、加了多少、谁记的。加错改错都行，合计永远自动算好；重要的日子钉上星标做成纪念日；设一个目标（也可以不设），它就按你最近的节奏预测哪天达成。</p>
+      <div class="hero-chips">
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>月历筛选 · 点哪天看哪天</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>一天多条 · 时刻细到分</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/><path d="M20 5l-9 9-3-3"/></svg>提交后仍可改 · 自动求和</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.8l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.1l6.1-.7z"/></svg>纪念日星标 · 常亮日历</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></svg>可选目标 · 预测达成日</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.6-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17.5" cy="9.5" r="2.4"/><path d="M16 15.6c2.7.2 4.3 1.7 4.8 3.9"/></svg>标签可命名 · 好友共同维护</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><rect x="4" y="15" width="16" height="6" rx="2"/></svg>导入导出 · 模板格式</span>
+      </div>
+      <p class="hero-note"><b>本轮重构</b><span>数据模型从「累加器 + 本地快照」升级为「标签 → 日 → 条目」三层的日历账本：默认 12:00 记一笔、时刻可改、数量可正可负、提交后逐条可编辑、合计现算不落死值；标签自定义命名随时改，口令分享后好友共同维护、每条署名、实时落库同步；新增 JSON / CSV 模板导入导出。<b>本轮追加</b>：可选目标 + 简单可解释的预测（不填不打扰，填了按近两周加权日均预测达成日）；界面做减法：统计并成单行、当日明细并入日历卡、条目改时间轴平铺——容器更少、密度不降。V5 / V6 设计稿原样保留，本稿为全新对照版。</span></p>
+    </div>
+
+    <!-- Hero 签名：日历大卡（可点周条切换日期） -->
+    <div class="tagcard">
+      <div class="tc-frame">
+        <div class="tc-top">
+          <span class="tc-label">喝水打卡<span class="tc-pill"><span class="star">★</span>11-01 开始打卡</span><span class="tc-pill">目标 100 杯</span></span>
+          <span class="tc-pill">已同步 · 2 人共同维护</span>
+        </div>
+        <div class="tc-num-wrap">
+          <div class="tc-num" id="heroNum">5</div>
+          <div class="tc-unit" id="heroDay">11月5日 · 今天合计 · 单位 杯</div>
+        </div>
+        <div class="week-strip" id="heroWeek"></div>
+        <div class="tc-foot" id="heroFoot">点上面任意一天，看看那天记了多少</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 核心演示 ===================== -->
+<section class="demo">
+  <div class="wrap">
+    <div class="demo-head">
+      <span class="eyebrow">CALENDAR LEDGER</span>
+      <h2>一本日历账，五个瞬间</h2>
+      <p>下面的手机里是完整可点的原型：切标签、翻月历、选日子、记一笔、改一笔、立纪念日、改标签、分享、导入导出，都能动手试。页面始终只有一个层级。</p>
+    </div>
+
+    <div class="demo-grid">
+      <div class="demo-side">
+        <div class="state-tabs" role="tablist" aria-label="演示状态">
+          <button class="state-tab on" data-state="main" role="tab" aria-selected="true"><b>日历主视图</b><span>大卡 + 月历 + 当日明细</span></button>
+          <button class="state-tab" data-state="entry" role="tab" aria-selected="false"><b>记一笔</b><span>默认 12:00 · 可改</span></button>
+          <button class="state-tab" data-state="ann" role="tab" aria-selected="false"><b>纪念日</b><span>星标节点</span></button>
+          <button class="state-tab" data-state="manage" role="tab" aria-selected="false"><b>标签与分享</b><span>命名 · 换色 · 协作</span></button>
+          <button class="state-tab" data-state="data" role="tab" aria-selected="false"><b>导入导出</b><span>模板格式</span></button>
+        </div>
+        <div class="state-desc" id="stateDesc"></div>
+        <div class="state-desc" id="stateNote">
+          <h3><span class="no" style="background:var(--brand)">i</span>怎么玩</h3>
+          <p class="lead">顶部大卡片永远是当前标签：今天的合计、一行小字带走本月与累计。中间的月历是筛选器——点哪天，下面就展开那一天的每一笔；再点「记一笔」，默认落在中午 12:00，提交后照样能改。给标签设个目标（可不设），大卡片会直接告诉你：按现在的节奏，大概哪天达成。</p>
+        </div>
+      </div>
+
+      <div class="demo-phone">
+        <div class="phone">
+          <div class="phone-notch" aria-hidden="true"></div>
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span class="icons">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 18.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zM12 13a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zM12 7.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zM12 2a1.6 1.6 0 1 0 0 3.2A1.6 1.6 0 0 0 12 2z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="8" width="14" height="9" rx="2.5"/><path d="M16 11l4-2v8l-4-2" stroke-linejoin="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="7" width="17" height="11" rx="3"/><path d="M7 7V5.5A1.5 1.5 0 0 1 8.5 4h7A1.5 1.5 0 0 1 17 5.5V7"/></svg>
+              </span>
+            </div>
+            <div class="app" id="appRoot"></div>
+            <div class="phone-home" aria-hidden="true"></div>
+          </div>
+          <div class="toast" id="phoneToast"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 设计规范 ===================== -->
+<section class="spec">
+  <div class="wrap">
+    <div class="spec-head">
+      <h2>设计规范</h2>
+      <p>沿用趣工局既有语言（陶土暖调 · 圆体 · 毛玻璃 · 按压按钮）。V7 新增组件族：月历、时刻条目行、纪念日星标、导入导出面板。</p>
+    </div>
+    <div class="spec-grid">
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg></span>色彩令牌</h3>
+        <div class="swatches">
+          <div class="swatch light"><div class="sw-main" style="background:#FFF9F2">#FFF9F2</div><div class="sw-info"><b>米底 · 页面背景</b><span>全局统一暖米，沿用品牌</span></div></div>
+          <div class="swatch"><div class="sw-main" style="background:#4A3B32">#4A3B32</div><div class="sw-info"><b>墨 · 主文本</b><span>标题与正文</span></div></div>
+          <div class="swatch"><div class="sw-main" style="background:#E8795A">#E8795A</div><div class="sw-info"><b>陶土 · 品牌强调</b><span>按钮 · 选中日格 · 今天描边</span></div></div>
+          <div class="swatch"><div class="sw-main" style="background:#2F4B43">#2F4B43</div><div class="sw-info"><b>记分牌绿 · 标签色之一</b><span>卡片主题色 · 代码块</span></div></div>
+          <div class="swatch light"><div class="sw-main" style="background:#FFB74D">#FFB74D</div><div class="sw-info"><b>蜜瓜 · 纪念日</b><span>★ 星标 · 立纪念日按钮</span></div></div>
+          <div class="swatch"><div class="sw-main" style="background:#EF5350">#EF5350</div><div class="sw-info"><b>砖红 · 负数修正</b><span>−1 修正条目 · 删除确认</span></div></div>
+        </div>
+        <p style="font-size:12px;color:var(--ink-sub);margin-top:14px;line-height:1.8">标签主题色沿用六色轮换（陶土 / 记分牌绿 / 紫薯 / 蜜瓜 / 薄荷 / 樱花）：大卡片、选中日格、条目数量、贡献头像全部跟随，颜色即标签身份。</p>
+      </div>
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>字体阶梯</h3>
+        <div class="type-scale">
+          <div class="ts-row"><span class="demo" style="font-size:30px">今日合计 · 76</span><span class="meta">76 / 900</span><span class="use">大卡片今日合计，tabular-nums 等宽</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:22px">条目数量 · ±N</span><span class="meta">17 / 900</span><span class="use">每条计数，正数墨色、负数砖红</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:16px">日格日期</span><span class="meta">12.5 / 800</span><span class="use">月历格内日期，下挂 8.5px 当天合计</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:14px">页面标题</span><span class="meta">17 / 900</span><span class="use">导航栏、浮层标题</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:12px">时间徽章</span><span class="meta">11 / 800</span><span class="use">条目行时刻，等宽数字</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:13px">记一笔按钮</span><span class="meta">14.5 / 900</span><span class="use">白底胶囊，主行动</span></div>
+        </div>
+      </div>
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/></svg></span>组件拆解</h3>
+        <div class="comp-list">
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><path d="M7.5 13.5h3M13.5 13.5h3M7.5 17h3"/></svg></div><div><h4>大卡片（标签头）</h4><p>永远显示当前标签：顶部卡名 + 成员头像 + 云同步；中部「今天合计」大数字；下方本月合计 / 累计 / 有记录天数三枚小统计；底部「＋ 记一笔」白底主按钮与「★ 立纪念日」蜜瓜按钮。背景跟随标签主题色。</p><div class="tokens"><span>主题色跟随</span><span>76px/900</span><span>圆角 30</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18"/><circle cx="8.5" cy="14.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="14.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="15.5" cy="17.8" r="1.6" fill="currentColor" stroke="none"/></svg></div><div><h4>月历组件（筛选器）</h4><p>周一起始七列，日格 = 日期 + 当天合计小数字（0 不显示）。今天描陶土边，选中格填标签主题色白字，纪念日右上角蜜瓜 ★。左右箭头翻月，跨年自动滚。</p><div class="tokens"><span>view 网格实现</span><span>不依赖 canvas</span><span>合计现算</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg></div><div><h4>时刻条目行</h4><p>时间徽章（HH:mm）+ ±数量（负数砖红）+ 备注 + 记录人头像。按时间正序排，整行可点进编辑；删除走两步确认。署名来自协作成员。</p><div class="tokens"><span>精确到分</span><span>署名头像</span><span>负数可辨</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div><div><h4>记一笔浮层</h4><p>时间默认 12:00：快选芯片（08:00 / 12:00 / 18:00 / 21:00）+ 时 / 分步进器兜底；数量步进可减到负数做修正；备注可选。保存后对应日格合计弹一下。</p><div class="tokens"><span>默认 12:00</span><span>可负修正</span><span>保存即同步</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.8l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.1l6.1-.7z"/></svg></div><div><h4>纪念日星标</h4><p>原「标记历史」升级：把选中的那天立为纪念日，日格右上 ★ 常亮；纪念日列表记录日期、名字与当天累计值，可改名可删。是里程碑，不是流水。</p><div class="tokens"><span>#FFB74D</span><span>列表可管理</span><span>当天累计存档</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></svg></div><div><h4>目标进度 · 预测</h4><p>目标可选：不填整块不渲染，零打扰。填了就在大卡片挂一条蜜瓜进度条 +「预计 X月X日 达成 · 日均 Y」：算法取近两周加权日均（近 7 天 ×2、前 7 天 ×1），端上可算、一句话能讲清。预计达成日在月历上以蜜瓜虚线旗标预告，随每笔落账实时修正；达成当笔弹庆祝并引导立纪念日。</p><div class="tokens"><span>加权日均</span><span>预计日期</span><span>虚线旗标</span><span>不填不渲染</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><rect x="4" y="15" width="16" height="6" rx="2"/></svg></div><div><h4>导入导出面板</h4><p>模板格式先行：JSON 全量（标签 / 条目 / 纪念日 / 目标）与 CSV 轻量（date,time,amount,note,by）两种模板；复制即备份，粘贴按「同名追加、其余新建」合并导入。</p><div class="tokens"><span>JSON + CSV</span><span>同名合并</span><span>落库同构</span></div></div></div>
+        </div>
+      </div>
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></svg></span>动效规则</h3>
+        <div class="motion-list">
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><div><b>落账弹跳</b><p>保存一笔后：大卡今日合计 0.18s 弹性放大回弹；对应日格合计数字同步弹一下。改账、删账同样触发重算动画。</p></div></div>
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18"/></svg></span><div><b>选日切换</b><p>点日格：选中态 0.15s 填色，下方当日明细 0.22s 淡入上移；翻月整片刷新，位置记忆回月首。</p></div></div>
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.8l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.1l6.1-.7z"/></svg></span><div><b>星标与署名</b><p>立纪念日成功：★ 在日格右上 0.3s 弹出，列表同步多一行；好友落账时条目行带头像 0.25s 淡入。</p></div></div>
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M8 6V4h8v2M7 6l1 14h8l1-14"/></svg></span><div><b>删除两步确认</b><p>条目 / 纪念日 / 标签删除都先变红（confirm 态），再点一次才执行；浮层一律 0.3s 上滑 + 背景压暗，全部尊重系统「减弱动态」。</p></div></div>
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></svg></span><div><b>进度与达成</b><p>落账后进度条 0.4s 流畅补位，预测日期随之实时修正；跨越目标的一笔弹出「🎉 达成目标」并引导立纪念日；月历预计达成日以蜜瓜虚线预告。</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 落地建议 ===================== -->
+<section class="landing">
+  <div class="wrap">
+    <div class="land-head">
+      <h2>落地到趣工局</h2>
+      <p>注册不动、页面就地重构：仍是单页 + 浮层，数据层从累加器换成三层账本，server/index.mjs 零依赖底座直接长出落库与实时同步。</p>
+    </div>
+    <div class="land-grid">
+
+      <div class="land-card">
+        <h3><span class="ico">01</span>页面与注册（不变）</h3>
+        <div class="code-block">
+<span class="c-cm">// tools.ts 里 counter 的注册完全不动，就地重构页面内部</span><br>
+<span class="c-br">{</span> id: <span class="c-st">'counter'</span>, name: <span class="c-st">'一起数数'</span>, path: <span class="c-st">'/pages/counter/index'</span><span class="c-br">}</span><br><br>
+<span class="c-cm">// 单页结构：标签行 + 大卡片 + 月历 + 当日明细</span><br>
+<span class="c-cm">// 六个页内浮层：记一笔 / 改一笔 / 纪念日 / 标签与分享 / 导入导出 / 新建标签</span>
+        </div>
+        <div class="land-list" style="margin-top:14px">
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>月历用 <b>view 网格</b>实现，不依赖 canvas——绕开 weapp canvas 常驻挂载的坑。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>storage 键升级 <b>counter_cards_v2</b>：首次打开把 v1 的 value 拆成一条今日条目，老用户不丢数。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>颜色即身份：六色轮换不变，大卡片 / 日格 / 头像 / 导出模板全部跟随标签色。</span></div>
+        </div>
+      </div>
+
+      <div class="land-card">
+        <h3><span class="ico">02</span>数据模型 V7（三层账本）</h3>
+        <div class="code-block">
+tag <span class="c-br">{</span> id, name, unit, colorIdx, target?,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;owner, members[], shareCode,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;version, updatedAt <span class="c-br">}</span>&nbsp;&nbsp;<span class="c-cm">// target 不填 = 不开启预测</span><br>
+entry <span class="c-br">{</span> id, tagId,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date <span class="c-st">'YYYY-MM-DD'</span>, time <span class="c-st">'HH:mm'</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount <span class="c-cm">// 可正可负，修正就记 −1</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;note?, by, updatedAt <span class="c-br">}</span><br>
+anniversary <span class="c-br">{</span> id, tagId, date, label,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valueAtMark <span class="c-br">}</span>&nbsp;&nbsp;<span class="c-cm">// 当天累计存档</span><br><br>
+event <span class="c-br">{</span> id, tagId, type: <span class="c-st">'entry.add|edit|del|tag.update|ann.*'</span>, payload, by, ts <span class="c-br">}</span>
+        </div>
+        <div class="land-list" style="margin-top:14px">
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>合计<b>永远现算</b>：日合计 / 月合计 / 累计都从条目求和，不落死值，改哪条补哪块。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>条目级 <b>last-write-wins</b>：每条有独立 updatedAt，两人改同一天不同条互不冲突。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>离线照记：本地先落 outbox（复用现有队列），联网按事件序补传。</span></div>
+        </div>
+      </div>
+
+      <div class="land-card">
+        <h3><span class="ico">03</span>接口与实时同步</h3>
+        <div class="code-block">
+<span class="c-cm">// server/index.mjs 零依赖底座上扩展（落库 SQLite/JSON 均可）</span><br>
+GET&nbsp;&nbsp;&nbsp;&nbsp;/api/v1/tags&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 我的标签</span><br>
+POST&nbsp;&nbsp;&nbsp;/api/v1/tags&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 新建（自定义命名）</span><br>
+PATCH&nbsp;&nbsp;/api/v1/tags/:id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 改名 / 换色 / 单位 / 目标</span><br>
+POST&nbsp;&nbsp;&nbsp;/api/v1/tags/:id/join&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 口令加入</span><br>
+GET&nbsp;&nbsp;&nbsp;&nbsp;/api/v1/tags/:id/entries?month=<span class="c-st">2026-11</span><br>
+POST&nbsp;&nbsp;&nbsp;/api/v1/entries&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 记一笔</span><br>
+PATCH&nbsp;&nbsp;/api/v1/entries/:id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 改一笔</span><br>
+DELETE&nbsp;/api/v1/entries/:id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 删一笔</span><br>
+WS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/api/v1/stream&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 实时推送（降级：3s 轮询）</span><br>
+GET&nbsp;&nbsp;&nbsp;&nbsp;/api/v1/tags/:id/export&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 模板导出</span><br>
+POST&nbsp;&nbsp;&nbsp;/api/v1/tags/:id/import&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 模板导入</span>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">
+          <span class="phase-tag phase-a">单页 + 六浮层</span>
+          <span class="phase-tag phase-b">server 底座已有</span>
+          <span class="phase-tag phase-b">WS 推送 + 轮询降级</span>
+          <span class="phase-tag phase-a">每条署名 by</span>
+        </div>
+      </div>
+
+      <div class="land-card">
+        <h3><span class="ico">04</span>目标预测模型（端上可解释）</h3>
+        <div class="code-block">
+<span class="c-cm">// 不加接口、不加表：target 存 tag 上，预测端上现算</span><br>
+rate = ( Σ<span class="c-st">近7天</span>日和×<span class="c-kw">2</span> + Σ<span class="c-st">前7天</span>日和×<span class="c-kw">1</span> ) / <span class="c-kw">21</span>&nbsp;&nbsp;<span class="c-cm">// 加权日均，近况话语权更大</span><br>
+eta&nbsp;&nbsp;= today + ceil((target − 累计) / rate)<br><br>
+<span class="c-cm">// 边界</span><br>
+target 未填&nbsp;&nbsp;&nbsp;<span class="c-cm">→ 模块整体不渲染，零打扰</span><br>
+rate = 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">→ 「最近两周没有进展」，不出假日期</span><br>
+累计 ≥ target&nbsp;<span class="c-cm">→ 「已达成」+ 引导立纪念日（成就闭环）</span>
+        </div>
+        <div class="land-list" style="margin-top:14px">
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>预测随每笔落账<b>实时修正</b>；月历在预计日挂蜜瓜虚线旗标，翻月也能看到。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>target 走既有 <b>PATCH /tags/:id</b> 同步，好友端共享同一目标与同一份预测。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>算法可替换升级（线性回归 / 按星期加权），展示层与接口都不用动。</span></div>
+        </div>
+      </div>
+
+      <div class="land-card">
+        <h3><span class="ico">05</span>导入导出模板</h3>
+        <div class="code-block">
+<span class="c-br">{</span><br>
+&nbsp;&nbsp;<span class="c-st">"app"</span>: <span class="c-st">"qgj-counter"</span>, <span class="c-st">"version"</span>: <span class="c-kw">1</span>,<br>
+&nbsp;&nbsp;<span class="c-st">"exportedAt"</span>: <span class="c-st">"2026-11-05T12:00:00+08:00"</span>,<br>
+&nbsp;&nbsp;<span class="c-st">"tags"</span>: <span class="c-br">[</span><span class="c-br">{</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-st">"name"</span>: <span class="c-st">"喝水打卡"</span>, <span class="c-st">"unit"</span>: <span class="c-st">"杯"</span>, <span class="c-st">"colorIdx"</span>: <span class="c-kw">0</span>, <span class="c-st">"target"</span>: <span class="c-kw">100</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-st">"entries"</span>: <span class="c-br">[</span><span class="c-br">{</span> <span class="c-st">"date"</span>: <span class="c-st">"2026-11-05"</span>, <span class="c-st">"time"</span>: <span class="c-st">"12:00"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-st">"amount"</span>: <span class="c-kw">2</span>, <span class="c-st">"note"</span>: <span class="c-st">"午饭"</span>, <span class="c-st">"by"</span>: <span class="c-st">"我"</span> <span class="c-br">}</span><span class="c-br">]</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-st">"anniversaries"</span>: <span class="c-br">[</span><span class="c-br">{</span> <span class="c-st">"date"</span>: <span class="c-st">"2026-11-01"</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-st">"label"</span>: <span class="c-st">"开始打卡"</span>, <span class="c-st">"valueAtMark"</span>: <span class="c-kw">5</span> <span class="c-br">}</span><span class="c-br">]</span><br>
+&nbsp;&nbsp;<span class="c-br">}</span><span class="c-br">]</span><br>
+<span class="c-br">}</span><br><br>
+<span class="c-cm">// CSV 轻量模板：date,time,amount,note,by</span>
+        </div>
+        <div class="land-list" style="margin-top:14px">
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>导入合并策略：<b>同名标签追加</b>条目，其余整卡新建；字段缺失按默认补齐并逐条校验。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>边界预设：单日条目上限 200、单标签 5 万条分页拉取、时区一律按本机日期、导出含纪念日。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>可延展：每周小结卡片、日历热力皮肤、纪念日到点提醒。</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 页脚 ===================== -->
+<footer class="site-foot">
+  <div class="wrap">
+    <b>趣工局 · 一起数数（计数器）设计稿 V7 日历重构版</b>
+    <div class="foot-line"><span>设计：陶土暖调 × 日历账本 × 星标纪念日</span><span>2026-11-05</span><span>V5 / V6 设计稿保留不动，本稿为全新数据模型对照版</span></div>
+  </div>
+</footer>
+
+<script>
+/* ===================== 基础 ===================== */
+const COLORS = [
+  { name:'陶土',     hex:'#E8795A', deep:['#E8795A','#CE5B3F'], soft:'#FFE9E0' },
+  { name:'记分牌绿', hex:'#2F4B43', deep:['#36564B','#223931'], soft:'#E2EFEA' },
+  { name:'紫薯',     hex:'#B39DDB', deep:['#9B7FD4','#7E57C2'], soft:'#F0EAFB' },
+  { name:'蜜瓜',     hex:'#FFB74D', deep:['#F5A623','#EF8B00'], soft:'#FFF1DC' },
+  { name:'薄荷',     hex:'#4DB6AC', deep:['#3FAF9F','#00897B'], soft:'#E4F5F3' },
+  { name:'樱花',     hex:'#F48FB1', deep:['#EF7FA6','#D6658F'], soft:'#FDEBF1' }
+];
+const AVA = { '我':'#8D7B70', '阿毛':'#E8795A', '一一':'#B39DDB', '米粒':'#4DB6AC', '桃子':'#F48FB1' };
+const TODAY = '2026-11-05';
+const WD = ['日','一','二','三','四','五','六'];
+const pad = n => String(n).padStart(2, '0');
+let _seq = 0;
+const uid = p => p + (++_seq).toString(36) + Math.random().toString(36).slice(2, 7);
+const mkE = (date, time, amount, note, by) => ({ id: uid('e'), date, time, amount, note: note || '', by: by || '我' });
+const fmtAmt = a => (a > 0 ? '+' : '−') + Math.abs(a);
+const fmtCN = ds => { const [y, m, d] = ds.split('-').map(Number); return `${m}月${d}日`; };
+const weekOf = ds => { const [y, m, d] = ds.split('-').map(Number); return WD[new Date(y, m - 1, d).getDay()]; };
+const relDay = ds => ds === TODAY ? '今天' : (ds === '2026-11-04' ? '昨天' : '');
+
+/* ===================== 演示数据 ===================== */
+const state = {
+  tags: [
+    {
+      id: 't1', name: '喝水打卡', unit: '杯', colorIdx: 0, synced: true, shareCode: '8241', target: 100,
+      members: [ { ini:'毛', c:'#E8795A', name:'阿毛', role:'owner' }, { ini:'一', c:'#B39DDB', name:'一一', role:'member' } ],
+      entries: [
+        mkE('2026-10-30', '12:00', 2, '午饭', '我'),
+        mkE('2026-10-30', '19:00', 2, '', '我'),
+        mkE('2026-10-31', '10:00', 3, '', '阿毛'),
+        mkE('2026-10-31', '21:00', 3, '', '我'),
+        mkE('2026-11-01', '08:10', 1, '第一天，开个好头', '我'),
+        mkE('2026-11-01', '12:00', 2, '', '阿毛'),
+        mkE('2026-11-01', '15:20', 1, '', '我'),
+        mkE('2026-11-01', '20:40', 1, '', '一一'),
+        mkE('2026-11-02', '08:00', 1, '', '我'),
+        mkE('2026-11-02', '12:30', 2, '午饭', '阿毛'),
+        mkE('2026-11-02', '18:10', 1, '', '我'),
+        mkE('2026-11-03', '08:10', 1, '晨起一杯', '我'),
+        mkE('2026-11-03', '12:30', 2, '午饭', '阿毛'),
+        mkE('2026-11-03', '21:00', 3, '今天格外渴', '我'),
+        mkE('2026-11-04', '08:05', 1, '晨起', '我'),
+        mkE('2026-11-04', '12:00', 2, '午饭 · 顺手用默认时间', '阿毛'),
+        mkE('2026-11-04', '15:40', 1, '', '我'),
+        mkE('2026-11-04', '19:20', -1, '记错了，修正一条', '我'),
+        mkE('2026-11-04', '21:30', 1, '', '一一'),
+        mkE('2026-11-05', '08:15', 1, '', '我'),
+        mkE('2026-11-05', '12:00', 2, '午饭', '阿毛'),
+        mkE('2026-11-05', '15:00', 1, '下午茶', '我'),
+        mkE('2026-11-05', '20:10', 1, '', '一一')
+      ],
+      anniversaries: [ { id: uid('a'), date: '2026-11-01', label: '开始打卡', valueAtMark: 5 } ]
+    },
+    {
+      id: 't2', name: '读书会进度', unit: '页', colorIdx: 2, synced: true, shareCode: '5317', target: 300,
+      members: [ { ini:'毛', c:'#E8795A', name:'阿毛', role:'owner' }, { ini:'米', c:'#4DB6AC', name:'米粒', role:'member' }, { ini:'桃', c:'#F48FB1', name:'桃子', role:'member' } ],
+      entries: [
+        mkE('2026-11-02', '20:30', 32, '《山月记》前半', '桃子'),
+        mkE('2026-11-04', '09:00', 45, '通勤读完一章', '我'),
+        mkE('2026-11-04', '21:00', 12, '睡前补一点', '桃子'),
+        mkE('2026-11-05', '12:10', 8, '午休', '米粒')
+      ],
+      anniversaries: [ { id: uid('a'), date: '2026-10-12', label: '读完第一本', valueAtMark: 312 } ]
+    },
+    {
+      id: 't3', name: '背单词', unit: '个', colorIdx: 4, synced: false, shareCode: '',
+      members: [],
+      entries: [
+        mkE('2026-11-01', '07:30', 20, 'List 1', '我'),
+        mkE('2026-11-05', '07:40', 15, 'List 2', '我')
+      ],
+      anniversaries: []
+    }
+  ],
+  activeTag: 't1',
+  selDate: TODAY,
+  calY: 2026, calM: 11,
+  sheet: null, editId: null,
+  addH: 12, addM: 0, addAmt: 1, addNote: '',
+  mgName: '', mgUnit: '', mgTarget: '',
+  ntName: '', ntUnit: '次', ntTarget: '',
+  impTxt: '',
+  colorCursor: 3,
+  confirmDel: null
+};
+
+/* ===================== 派生计算（合计永远现算） ===================== */
+const tagOf = id => state.tags.find(t => t.id === id);
+const act = () => tagOf(state.activeTag);
+const col = () => COLORS[((act().colorIdx % 6) + 6) % 6];
+const daySum = (t, d) => t.entries.filter(e => e.date === d).reduce((s, e) => s + e.amount, 0);
+const monthPrefix = () => `${state.calY}-${pad(state.calM)}`;
+const monthSum = t => t.entries.filter(e => (e.date || '').startsWith(monthPrefix())).reduce((s, e) => s + e.amount, 0);
+const monthDays = t => new Set(t.entries.filter(e => (e.date || '').startsWith(monthPrefix())).map(e => e.date)).size;
+const allSum = t => t.entries.reduce((s, e) => s + e.amount, 0);
+const todaySum = t => daySum(t, TODAY);
+const dayEntries = (t, d) => t.entries.filter(e => e.date === d).sort((a, b) => a.time < b.time ? -1 : 1);
+const lastEntry = t => [...t.entries].sort((a, b) => (a.date + a.time) < (b.date + b.time) ? 1 : -1)[0];
+
+/* ---------- 目标预测（简单可解释，端上现算） ---------- */
+const dateFromToday = n => { const d = new Date(2026, 10, 5 + n); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+const fmtMD = ds => `${Number(ds.split('-')[1])}月${Number(ds.split('-')[2])}日`;
+function forecast(t) {
+  if (!t.target) return null;                       // 目标不填 → 整个功能不触发
+  const total = allSum(t);
+  if (total >= t.target) return { done: true, total, remaining: 0 };
+  let wsum = 0, w = 0;                              // 近 7 天 ×2、前 7 天 ×1 的加权日均
+  for (let i = 1; i <= 14; i++) {
+    const s = daySum(t, dateFromToday(-i));
+    const wt = i <= 7 ? 2 : 1;
+    wsum += s * wt; w += wt;
+  }
+  const rate = wsum / w;
+  if (rate <= 0) return { stall: true, total, remaining: t.target - total };
+  const days = Math.ceil((t.target - total) / rate);
+  return { total, remaining: t.target - total, rate, days, date: dateFromToday(days) };
+}
+
+/* ===================== 手机内渲染 ===================== */
+const root = document.getElementById('appRoot');
+const toastEl = document.getElementById('phoneToast');
+
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1700);
+}
+
+function readInputs() {
+  const note = root.querySelector('#inpNote');  if (note) state.addNote = note.value;
+  const name = root.querySelector('#inpName');  if (name) state.mgName = name.value;
+  const unit = root.querySelector('#inpUnit');  if (unit) state.mgUnit = unit.value;
+  const ntN  = root.querySelector('#inpNtName');if (ntN)  state.ntName = ntN.value;
+  const ntU  = root.querySelector('#inpNtUnit');if (ntU)  state.ntUnit = ntU.value;
+  const imp  = root.querySelector('#impArea');  if (imp)  state.impTxt = imp.value;
+  const tgt  = root.querySelector('#inpTarget');if (tgt)  state.mgTarget = tgt.value;
+  const ntT  = root.querySelector('#inpNtTarget'); if (ntT) state.ntTarget = ntT.value;
+}
+
+function render() {
+  /* 滚动锚定：以日历卡为基准恢复位置——点日格/翻月不跳顶，
+     下方明细增减导致内容变高变矮也不影响；切标签等场景用 _toTop 回顶 */
+  const prevBody = root.querySelector('.app-body');
+  const prevCalTop = prevBody?.querySelector('.cal')?.getBoundingClientRect().top ?? null;
+  const toTop = state._toTop === true;
+  state._toTop = false;
+  root.innerHTML = '';
+  const body = document.createElement('div');
+  body.className = 'app-body';
+  body.appendChild(navbar());
+  body.appendChild(tagRow());
+  body.appendChild(bigCard());
+  body.appendChild(calendarBlock());
+  root.appendChild(body);
+  if (toTop) {
+    body.scrollTop = 0;
+  } else if (prevCalTop !== null) {
+    const drift = root.querySelector('.cal').getBoundingClientRect().top - prevCalTop;
+    if (drift) body.scrollTop += drift;
+  }
+  if (state.sheet === 'add') openAddSheet();
+  if (state.sheet === 'edit') openEditSheet();
+  if (state.sheet === 'ann') openAnnSheet();
+  if (state.sheet === 'manage') openManageSheet();
+  if (state.sheet === 'data') openDataSheet();
+  if (state.sheet === 'newTag') openNewTagSheet();
+}
+
+/* ---------- 导航栏 ---------- */
+function navbar() {
+  const nav = document.createElement('div');
+  nav.className = 'navbar';
+  nav.innerHTML = `
+    <span class="nav-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>一起数数</span>
+    <div class="nav-actions">
+      <button class="nav-btn" data-act="openData" aria-label="导入导出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><rect x="4" y="15" width="16" height="6" rx="2"/></svg></button>
+      <button class="nav-btn" data-act="openManage" aria-label="标签与分享"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h13M20 17h0.01"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18.5" cy="17" r="2"/></svg></button>
+    </div>`;
+  return nav;
+}
+
+/* ---------- 标签切换行 ---------- */
+function tagRow() {
+  const row = document.createElement('div');
+  row.className = 'tag-row';
+  state.tags.forEach(t => {
+    const c = COLORS[((t.colorIdx % 6) + 6) % 6];
+    const b = document.createElement('button');
+    b.className = 'tag-chip' + (t.id === state.activeTag ? ' on' : '');
+    b.style.setProperty('--c', c.hex);
+    b.setAttribute('data-act', 'pickTag');
+    b.setAttribute('data-id', t.id);
+    b.innerHTML = `<span class="dot"></span>${t.name}`;
+    row.appendChild(b);
+  });
+  const add = document.createElement('button');
+  add.className = 'tag-chip add';
+  add.setAttribute('data-act', 'newTag');
+  add.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="width:13px;height:13px"><path d="M12 5v14M5 12h14"/></svg>新建标签`;
+  row.appendChild(add);
+  return row;
+}
+
+/* ---------- 大卡片 ---------- */
+function bigCard() {
+  const t = act(), c = col();
+  const last = lastEntry(t);
+  const fc = forecast(t);
+  const members = t.members;
+  const box = document.createElement('div');
+  box.className = 'main-block';
+  box.style.background = `linear-gradient(180deg, ${c.deep[0]}, ${c.deep[1]})`;
+  box.innerHTML = `
+    <div class="mb-top">
+      <span class="mb-title">${t.name}</span>
+      <span class="mb-pills">
+        ${t.synced ? `<span class="mb-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg>已同步</span>` : `<span class="mb-pill">仅本机</span>`}
+        ${members.length ? `<span class="mb-pill"><span class="m-members">${members.slice(0, 3).map(m => `<span style="background:${m.c}">${m.ini}</span>`).join('')}</span>${members.length} 人</span>` : ''}
+      </span>
+    </div>
+    <div class="mb-num">
+      <div class="lbl">今天合计 · ${fmtCN(TODAY)}</div>
+      <span class="val" id="mainVal">${todaySum(t)}</span>
+      <div class="unit">${t.unit}</div>
+    </div>
+    <div class="mb-line"><span>本月 ${monthSum(t)}</span><span class="sep">·</span><span>累计 ${allSum(t)}</span><span class="sep">·</span><span>${monthDays(t)} 天有记录</span></div>
+    ${fc ? `<div class="mb-goal">
+      <div class="g-bar"><i style="width:${Math.min(100, Math.round(fc.total / t.target * 100))}%"></i></div>
+      <div class="g-txt">${fc.done
+        ? `<span class="done">🎉 已达成目标 ${t.target} ${t.unit}，立个纪念日吧</span>`
+        : fc.stall
+          ? `<span>目标 ${t.target} ${t.unit} · 还差 <b>${fc.remaining}</b>，最近两周还没有进展</span>`
+          : `<span><b>${fc.total}</b>/${t.target} ${t.unit} · 预计 <b>${fmtMD(fc.date)}</b> 达成</span><span class="rate">日均 ${fc.rate.toFixed(1)}</span>`}</div>
+    </div>` : `<div class="mb-stamp">${last ? `最近一条 · ${fmtCN(last.date)}${relDay(last.date) ? '（' + relDay(last.date) + '）' : ''} ${last.time} · ${last.by} ${fmtAmt(last.amount)} ${t.unit}` : '这一天还没记过，点「记一笔」开始'}</div>`}
+    <div class="mb-actions2">
+      <button class="mb-add" data-act="openAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>记一笔</button>
+      <button class="mb-ann" data-act="openAnn"><span class="star">★</span>立纪念日</button>
+    </div>`;
+  return box;
+}
+
+/* ---------- 月历 ---------- */
+function calendarBlock() {
+  const t = act(), c = col();
+  const fc = forecast(t);
+  const wrap = document.createElement('div');
+  wrap.className = 'cal';
+  wrap.innerHTML = `
+    <div class="cal-head">
+      <b>${state.calY}年${state.calM}月</b>
+      <span class="cal-nav">
+        <button data-act="calPrev" aria-label="上个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg></button>
+        <button data-act="calNext" aria-label="下个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l6 6-6 6"/></svg></button>
+      </span>
+    </div>
+    <div class="cal-weekrow">${['一','二','三','四','五','六','日'].map(w => `<span>${w}</span>`).join('')}</div>`;
+  const grid = document.createElement('div');
+  grid.className = 'cal-grid';
+  const firstDow = new Date(state.calY, state.calM - 1, 1).getDay();
+  const off = (firstDow + 6) % 7;
+  const dim = new Date(state.calY, state.calM, 0).getDate();
+  for (let i = 0; i < off; i++) {
+    const b = document.createElement('span');
+    b.className = 'cal-cell blank';
+    grid.appendChild(b);
+  }
+  for (let d = 1; d <= dim; d++) {
+    const ds = `${state.calY}-${pad(state.calM)}-${pad(d)}`;
+    const sum = daySum(t, ds);
+    const hasEntries = t.entries.some(e => e.date === ds);
+    const ann = t.anniversaries.find(a => a.date === ds);
+    const isEta = fc && !fc.done && !fc.stall && fc.date === ds;
+    const cell = document.createElement('button');
+    cell.className = 'cal-cell' + (ds === TODAY ? ' today' : '') + (ds === state.selDate ? ' sel' : '') + (isEta ? ' eta' : '');
+    if (ds === state.selDate) cell.style.background = c.hex;
+    cell.setAttribute('data-act', 'pickDay');
+    cell.setAttribute('data-date', ds);
+    cell.setAttribute('aria-label', `${ds}${sum ? ` 合计 ${sum} ${t.unit}` : ''}${isEta ? ' 预计达成日' : ''}`);
+    if (isEta) cell.title = `按当前节奏预计 ${fmtMD(ds)} 达成目标`;
+    cell.innerHTML = `
+      ${ann ? '<span class="star">★</span>' : ''}
+      <span class="d">${d}</span>
+      <span class="s ${hasEntries ? 'has' : ''}">${hasEntries ? sum : ''}</span>`;
+    grid.appendChild(cell);
+  }
+  wrap.appendChild(grid);
+
+  /* ---- 当日明细（并入同一张卡，信息密度不降） ---- */
+  const entries = dayEntries(t, state.selDate);
+  const sum = entries.reduce((s, e) => s + e.amount, 0);
+  const rel = relDay(state.selDate);
+  const day = document.createElement('div');
+  day.className = 'day-block';
+  let inner = `
+    <div class="day-sep"></div>
+    <div class="day-head">
+      <b>${fmtCN(state.selDate)} · 周${weekOf(state.selDate)}${rel ? ' · ' + rel : ''}</b>
+      <span class="day-sum">合计 <b style="color:${c.hex}">${sum}</b> ${t.unit}</span>
+    </div>
+    <div class="entry-list">`;
+  if (entries.length) {
+    inner += entries.map(e => `
+      <div class="entry" data-act="openEdit" data-id="${e.id}" role="button" aria-label="编辑这一条">
+        <span class="e-time">${e.time}</span>
+        <span class="e-main"><span class="e-amt ${e.amount < 0 ? 'neg' : ''}" style="color:${e.amount < 0 ? '' : 'var(--ink)'}">${fmtAmt(e.amount)}</span>${e.note ? `<span class="e-note">${e.note}</span>` : ''}</span>
+        <span class="e-by" style="background:${AVA[e.by] || 'var(--ink-sub)'}">${(e.by || '我')[0]}</span>
+        <svg class="e-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>`).join('');
+  } else {
+    inner += `<div class="day-empty">这天还没记过，点下面记一笔。</div>`;
+  }
+  inner += `</div>
+    <button class="add-card" data-act="openAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>再记一笔</button>`;
+  day.innerHTML = inner;
+  wrap.appendChild(day);
+  return wrap;
+}
+
+/* ===================== 浮层 ===================== */
+function sheetShell(title) {
+  return `<div class="sheet open" data-sheet>
+    <div class="sheet-inner">
+      <div class="sheet-grab"></div>
+      <div class="sheet-head"><b>${title}</b><button class="sheet-x" data-act="closeSheet" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;
+}
+const sheetEnd = `</div></div>`;
+
+function timeFields() {
+  const cur = `${pad(state.addH)}:${pad(state.addM)}`;
+  const chips = ['08:00', '12:00', '18:00', '21:00'];
+  return `
+    <div class="form-field">
+      <div class="form-label">时间</div>
+      <div class="chip-row">${chips.map(ch => `<button class="qchip ${cur === ch ? 'on' : ''}" data-act="qtime" data-t="${ch}">${ch}</button>`).join('')}</div>
+      <div class="tm-row">
+        <div class="tm-box">
+          <button class="tm-btn" data-act="tm" data-k="h" data-d="-1" aria-label="减一小时"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+          <span class="v" id="tmH" title="双击可直接输入">${pad(state.addH)}</span>
+          <button class="tm-btn" data-act="tm" data-k="h" data-d="1" aria-label="加一小时"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+        <span class="tm-colon">:</span>
+        <div class="tm-box">
+          <button class="tm-btn" data-act="tm" data-k="m" data-d="-5" aria-label="减五分钟"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+          <span class="v" id="tmM" title="双击可直接输入">${pad(state.addM)}</span>
+          <button class="tm-btn" data-act="tm" data-k="m" data-d="5" aria-label="加五分钟"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function amtFields() {
+  return `
+    <div class="form-field">
+      <div class="form-label">数量</div>
+      <div class="num-row">
+        <button class="num-btn" data-act="amt" data-d="-1" aria-label="减一"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+        <span class="num-val ${state.addAmt < 0 ? 'neg' : ''}" id="amtVal" title="双击可直接输入">${fmtAmt(state.addAmt)}</span>
+        <button class="num-btn" data-act="amt" data-d="1" aria-label="加一"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </div>
+    <div class="form-field">
+      <div class="form-label">备注</div>
+      <input class="form-input" id="inpNote" placeholder="选填" maxlength="20" autocomplete="off" value="${state.addNote || ''}">
+    </div>`;
+}
+
+function openAddSheet() {
+  const rel = relDay(state.selDate);
+  const el = document.createElement('div');
+  el.innerHTML = sheetShell(`记一笔 · ${fmtCN(state.selDate)}${rel ? '（' + rel + '）' : ''}`) + `
+      ${timeFields()}
+      ${amtFields()}
+      <div class="add-actions">
+        <button class="add-cancel" data-act="closeSheet">取消</button>
+        <button class="add-ok" data-act="saveAdd">保存这条</button>
+      </div>` + sheetEnd;
+  root.appendChild(el.firstChild);
+}
+
+function openEditSheet() {
+  const t = act();
+  const e = t.entries.find(x => x.id === state.editId);
+  if (!e) { state.sheet = null; return; }
+  /* 预填只在首次打开该条时执行：改时间/数量的步进会触发 render，
+     若在这里无条件回填，用户刚改的值会被冲掉 */
+  if (state._preFor !== state.editId) {
+    [state.addH, state.addM] = e.time.split(':').map(Number);
+    state.addAmt = e.amount;
+    state.addNote = e.note;
+    state._preFor = state.editId;
+  }
+  const rel = relDay(e.date);
+  const el = document.createElement('div');
+  el.innerHTML = sheetShell(`改这一笔 · ${fmtCN(e.date)}${rel ? '（' + rel + '）' : ''} ${e.time}`) + `
+      ${timeFields()}
+      ${amtFields()}
+      <div class="add-actions">
+        <button class="add-cancel" data-act="closeSheet">取消</button>
+        <button class="add-ok" data-act="saveEdit" data-id="${e.id}">保存修改</button>
+      </div>
+      <button class="del-btn ${state.confirmDel && state.confirmDel.kind === 'entry' ? 'confirm' : ''}" data-act="delEntry" data-id="${e.id}">${state.confirmDel && state.confirmDel.kind === 'entry' ? '再点一下，确认删除这一条' : '删除这一条'}</button>` + sheetEnd;
+  root.appendChild(el.firstChild);
+}
+
+function openAnnSheet() {
+  const t = act();
+  const el = document.createElement('div');
+  const list = [...t.anniversaries].sort((a, b) => a.date < b.date ? -1 : 1);
+  el.innerHTML = sheetShell(`「${t.name}」的纪念日`) + `
+      <button class="ann-mark-btn" data-act="markAnn"><span>★</span>把 ${fmtCN(state.selDate)} 立为纪念日</button>
+      ${list.length ? `<div class="ann-list">${list.map(a => `
+        <div class="ann-item">
+          <span class="a-star">★</span>
+          <span class="a-info"><b>${a.label}</b><small>${a.date} · 周${weekOf(a.date)} · 可改名可删除</small></span>
+          <span class="a-val">当天 ${a.valueAtMark} ${t.unit}</span>
+          <button class="a-del ${state.confirmDel && state.confirmDel.kind === 'ann' && state.confirmDel.id === a.id ? 'confirm' : ''}" data-act="delAnn" data-id="${a.id}" aria-label="删除纪念日"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>`).join('')}</div>` : `<div class="ann-empty">还没有纪念日。<br>挑一个有意义的日子，比如坚持满一周的那天。</div>`}` + sheetEnd;
+  root.appendChild(el.firstChild);
+}
+
+function openManageSheet() {
+  const t = act(), c = col();
+  if (state.mgName === '') state.mgName = t.name;
+  if (state.mgUnit === '') state.mgUnit = t.unit;
+  if (state.mgTarget === '') state.mgTarget = t.target ?? '';
+  const el = document.createElement('div');
+  el.innerHTML = sheetShell(`标签与分享 · ${t.name}`) + `
+      <div class="form-field">
+        <div class="form-label">名称</div>
+        <input class="form-input" id="inpName" maxlength="12" autocomplete="off" value="${state.mgName}">
+      </div>
+      <div class="form-field">
+        <div class="form-label">单位</div>
+        <input class="form-input" id="inpUnit" maxlength="4" autocomplete="off" value="${state.mgUnit}">
+      </div>
+      <div class="form-field">
+        <div class="form-label">目标（选填）</div>
+        <input class="form-input" id="inpTarget" type="number" min="0" inputmode="numeric" placeholder="不填 = 不开启预测" autocomplete="off" value="${state.mgTarget}">
+      </div>
+      <div class="form-field">
+        <div class="form-label">颜色</div>
+        <div class="color-dots">${COLORS.map((cc, i) => `<button class="cdot ${i === t.colorIdx ? 'on' : ''}" style="background:${cc.hex}" data-act="setCol" data-i="${i}" aria-label="${cc.name}"></button>`).join('')}</div>
+      </div>
+      <button class="add-ok" data-act="saveTag" style="width:100%;margin-bottom:18px">保存标签设置</button>
+      <div class="form-label">和朋友共同维护</div>
+      <div class="share-card">
+        <span class="sc-top" style="background:linear-gradient(180deg,${c.deep[0]},${c.deep[1]})">${todaySum(t)}</span>
+        <div style="flex:1;min-width:0"><div class="sc-name">${t.name}</div><div class="sc-num">${t.target ? `目标进度 ${allSum(t)}/${t.target} ${t.unit}` : `今天 ${todaySum(t)} ${t.unit} · 累计 ${allSum(t)} ${t.unit}`}</div></div>
+        <span class="mb-pill" style="background:var(--bg-soft);color:var(--ink-sub)">每条署名</span>
+      </div>
+      ${t.synced ? `
+      <div class="share-link">
+        <input value="qgj.link/c/${t.id}" readonly aria-label="邀请链接">
+        <button class="copy" data-act="copyLink">复制</button>
+      </div>
+      <div class="share-code">
+        <span class="code-box">${t.shareCode}</span>
+        <span>口令 · 朋友凭此加入<br>共同维护同一个标签</span>
+      </div>
+      <div class="share-members">
+        ${t.members.map((m, i) => `<div class="share-member"><span class="m-ava" style="background:${m.c}">${m.ini}</span><span class="m-name">${m.name}<small>${m.role === 'owner' ? '创建者' : '好友'}</small></span><span class="m-count">${[12, 7, 5][i] || 4} 条</span></div>`).join('')}
+        <div class="share-member"><span class="m-ava" style="background:#EEE;color:var(--ink-sub);font-size:16px">＋</span><span class="m-name">等朋友加入<small>链接或口令任一即可</small></span></div>
+      </div>
+      <div class="share-record"><b>${(lastEntry(t) || {}).by || '我'}</b> 刚刚记了一笔 · <b>阿毛</b> 今天 12:00 · <b>一一</b> 昨天 21:30</div>
+      <div class="share-sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>已落库，${t.members.length} 位小伙伴改动实时推送` : `<div class="share-record">这个标签还只在<b>本机</b>。分享给朋友后，大家记的每一条都会实时落库同步。</div><div class="share-sync" style="color:var(--ink-light)">未分享 · 仅本机</div>`}` + sheetEnd;
+  root.appendChild(el.firstChild);
+}
+
+function openDataSheet() {
+  const el = document.createElement('div');
+  el.innerHTML = sheetShell(`导入导出 · 模板格式`) + `
+      <div class="form-label">导出 · JSON 模板（全量）</div>
+      <div class="tpl-block">{
+  <span class="c-st">"app"</span>: <span class="c-st">"qgj-counter"</span>, <span class="c-st">"version"</span>: <span class="c-kw">1</span>,
+  <span class="c-st">"exportedAt"</span>: <span class="c-st">"2026-11-05T12:00:00+08:00"</span>,
+  <span class="c-st">"tags"</span>: [ {
+    <span class="c-st">"name"</span>: <span class="c-st">"喝水打卡"</span>, <span class="c-st">"unit"</span>: <span class="c-st">"杯"</span>, <span class="c-st">"colorIdx"</span>: <span class="c-kw">0</span>, <span class="c-st">"target"</span>: <span class="c-kw">100</span>,
+    <span class="c-st">"entries"</span>: [ { <span class="c-st">"date"</span>: <span class="c-st">"2026-11-05"</span>,
+      <span class="c-st">"time"</span>: <span class="c-st">"12:00"</span>, <span class="c-st">"amount"</span>: <span class="c-kw">2</span>,
+      <span class="c-st">"note"</span>: <span class="c-st">"午饭"</span>, <span class="c-st">"by"</span>: <span class="c-st">"我"</span> } ],
+    <span class="c-st">"anniversaries"</span>: [ { <span class="c-st">"date"</span>: <span class="c-st">"2026-11-01"</span>,
+      <span class="c-st">"label"</span>: <span class="c-st">"开始打卡"</span>, <span class="c-st">"valueAtMark"</span>: <span class="c-kw">5</span> } ] } ]
+}</div>
+      <div class="form-label">导出 · CSV 模板（轻量，一行一条）</div>
+      <div class="tpl-block"><span class="c-cm">date,time,amount,note,by</span>
+<span class="c-st">2026-11-05</span>,<span class="c-st">12:00</span>,<span class="c-kw">2</span>,午饭,我
+<span class="c-st">2026-11-04</span>,<span class="c-st">19:20</span>,<span class="c-kw">-1</span>,记错了修正,我</div>
+      <div class="data-btns">
+        <button class="data-btn" data-act="copyJson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>复制 JSON</button>
+        <button class="data-btn" data-act="copyCsv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>复制 CSV</button>
+      </div>
+      <div class="form-label">导入 · 粘贴同格式内容</div>
+      <textarea class="form-input" id="impArea" rows="4" placeholder='{"app":"qgj-counter","version":1,"tags":[…]}'>${state.impTxt || ''}</textarea>
+      <button class="add-ok" data-act="doImport" style="width:100%;margin-top:12px">按模板导入</button>
+      <p class="imp-hint">同名标签追加，其余新建；导入即落库同步。</p>` + sheetEnd;
+  root.appendChild(el.firstChild);
+}
+
+function openNewTagSheet() {
+  const next = COLORS[((state.colorCursor % 6) + 6) % 6];
+  const el = document.createElement('div');
+  el.innerHTML = sheetShell(`新建一个标签`) + `
+      <div class="form-field">
+        <div class="form-label">名称</div>
+        <input class="form-input" id="inpNtName" placeholder="比如：今天走了多少步" maxlength="12" autocomplete="off" value="${state.ntName || ''}">
+      </div>
+      <div class="form-field">
+        <div class="form-label">单位</div>
+        <input class="form-input" id="inpNtUnit" maxlength="4" autocomplete="off" value="${state.ntUnit || '次'}">
+      </div>
+      <div class="form-field">
+        <div class="form-label">目标（选填）</div>
+        <input class="form-input" id="inpNtTarget" type="number" min="0" inputmode="numeric" placeholder="不填 = 不开启预测" autocomplete="off" value="${state.ntTarget || ''}">
+      </div>
+      <div class="form-field">
+        <div class="form-label">颜色</div>
+        <div class="color-dots"><span class="cdot on" style="background:${next.hex}"></span><span style="font-size:12px;color:var(--ink-sub);align-self:center;font-weight:700">${next.name}</span></div>
+      </div>
+      <div class="add-actions">
+        <button class="add-cancel" data-act="closeSheet">取消</button>
+        <button class="add-ok" data-act="saveNewTag">创建标签</button>
+      </div>` + sheetEnd;
+  root.appendChild(el.firstChild);
+}
+
+/* 双击数字直接输入：数量 / 时 / 分 */
+root.addEventListener('dblclick', e => {
+  const v = e.target.closest('#amtVal, #tmH, #tmM');
+  if (!v || v.querySelector('input')) return;
+  const kind = v.id === 'amtVal' ? 'amt' : (v.id === 'tmH' ? 'h' : 'm');
+  const raw = Number(v.textContent.replace(/\+/g, '').replace(/−/g, '-')) || 0;
+  const inp = document.createElement('input');
+  inp.type = 'number';
+  inp.className = 'inline-edit';
+  inp.value = kind === 'amt' ? raw : Math.abs(raw);
+  v.textContent = '';
+  v.appendChild(inp);
+  inp.focus(); inp.select();
+  let done = false;
+  const commit = ok => {
+    if (done) return; done = true;
+    if (ok) {
+      const n = Math.floor(Number(inp.value));
+      if (Number.isFinite(n)) {
+        if (kind === 'amt') state.addAmt = n;
+        if (kind === 'h') state.addH = Math.min(23, Math.max(0, n));
+        if (kind === 'm') state.addM = Math.min(59, Math.max(0, n));
+      }
+    }
+    render();
+  };
+  inp.addEventListener('blur', () => commit(true));
+  inp.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') { ev.preventDefault(); commit(true); }
+    if (ev.key === 'Escape') commit(false);
+  });
+});
+
+/* ===================== 手机内事件 ===================== */
+root.addEventListener('input', e => {
+  const id = e.target.id;
+  if (id === 'inpName') state.mgName = e.target.value;
+  if (id === 'inpUnit') state.mgUnit = e.target.value;
+  if (id === 'inpTarget') state.mgTarget = e.target.value;
+  if (id === 'inpNtName') state.ntName = e.target.value;
+  if (id === 'inpNtUnit') state.ntUnit = e.target.value;
+  if (id === 'inpNtTarget') state.ntTarget = e.target.value;
+  if (id === 'impArea') state.impTxt = e.target.value;
+});
+
+root.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const a = el.dataset.act;
+  switch (a) {
+    case 'pickTag':
+      readInputs();
+      state.activeTag = el.dataset.id;
+      state.confirmDel = null;
+      state.mgName = ''; state.mgUnit = ''; state.mgTarget = '';
+      state._toTop = true;
+      render();
+      break;
+    case 'newTag':
+      readInputs();
+      state.sheet = 'newTag';
+      render();
+      break;
+    case 'saveNewTag': {
+      const name = (state.ntName || '').trim().slice(0, 12) || '我的标签';
+      const unit = (state.ntUnit || '次').trim().slice(0, 4) || '次';
+      const t = { id: uid('t'), name, unit, colorIdx: state.colorCursor % 6, synced: false, shareCode: '', target: Math.floor(Number(state.ntTarget)) > 0 ? Math.floor(Number(state.ntTarget)) : undefined, members: [], entries: [], anniversaries: [] };
+      state.colorCursor += 1;
+      state.tags.push(t);
+      state.activeTag = t.id;
+      state.sheet = null;
+      state.ntName = ''; state.ntUnit = '次'; state.ntTarget = '';
+      state.selDate = TODAY;
+      state._toTop = true;
+      toast('标签建好了，今天记第一笔吧');
+      render();
+      break;
+    }
+    case 'pickDay':
+      readInputs();
+      if (state.sheet && state.sheet !== 'add') { state.sheet = null; }
+      state.selDate = el.dataset.date;
+      state.confirmDel = null;
+      render();
+      break;
+    case 'calPrev':
+      state.calM -= 1; if (state.calM < 1) { state.calM = 12; state.calY -= 1; }
+      render();
+      break;
+    case 'calNext':
+      state.calM += 1; if (state.calM > 12) { state.calM = 1; state.calY += 1; }
+      render();
+      break;
+    case 'openAdd':
+      readInputs();
+      state.sheet = 'add'; state.editId = null;
+      state.addH = 12; state.addM = 0; state.addAmt = 1; state.addNote = '';
+      render();
+      break;
+    case 'openEdit':
+      readInputs();
+      state.sheet = 'edit'; state.editId = el.dataset.id; state.confirmDel = null; state._preFor = null;
+      render();
+      break;
+    case 'qtime': {
+      const [h, m] = el.dataset.t.split(':').map(Number);
+      state.addH = h; state.addM = m;
+      readInputs();
+      render();
+      break;
+    }
+    case 'tm': {
+      const d = Number(el.dataset.d);
+      if (el.dataset.k === 'h') state.addH = ((state.addH + d) % 24 + 24) % 24;
+      else state.addM = ((state.addM + d) % 60 + 60) % 60;
+      readInputs();
+      render();
+      const v = root.querySelector(el.dataset.k === 'h' ? '#tmH' : '#tmM');
+      if (v) { v.classList.remove('vpop'); void v.offsetWidth; v.classList.add('vpop'); }
+      break;
+    }
+    case 'amt': {
+      state.addAmt += Number(el.dataset.d);
+      readInputs();
+      render();
+      /* 动效：数值弹跳 + ±1 浮出 */
+      const v = root.querySelector('#amtVal');
+      if (v) {
+        v.classList.remove('vpop'); void v.offsetWidth; v.classList.add('vpop');
+        const f = document.createElement('span');
+        f.className = 'amt-float' + (Number(el.dataset.d) < 0 ? ' neg' : '');
+        f.textContent = Number(el.dataset.d) < 0 ? '−1' : '+1';
+        v.appendChild(f);
+        setTimeout(() => f.remove(), 750);
+      }
+      break;
+    }
+    case 'saveAdd': {
+      const t = act();
+      readInputs();
+      const below = t.target ? allSum(t) < t.target : false;
+      t.entries.push(mkE(state.selDate, `${pad(state.addH)}:${pad(state.addM)}`, state.addAmt, (state.addNote || '').trim()));
+      state.sheet = null; state.addNote = '';
+      toast(t.target && below && allSum(t) >= t.target
+        ? `🎉 达成目标 ${t.target} ${t.unit}！立个纪念日吧`
+        : `已记 ${fmtAmt(state.addAmt)} ${t.unit} · ${pad(state.addH)}:${pad(state.addM)}`);
+      render();
+      if (state.selDate === TODAY) {
+        const v = root.querySelector('#mainVal');
+        if (v) { v.classList.add('pop'); setTimeout(() => v.classList.remove('pop'), 220); }
+      }
+      break;
+    }
+    case 'saveEdit': {
+      const t = act();
+      const e = t.entries.find(x => x.id === el.dataset.id);
+      const below = t.target ? allSum(t) < t.target : false;
+      if (e) {
+        readInputs();
+        e.time = `${pad(state.addH)}:${pad(state.addM)}`;
+        e.amount = state.addAmt;
+        e.note = (state.addNote || '').trim();
+        e.by = e.by || '我';
+      }
+      state.sheet = null; state.editId = null; state.addNote = '';
+      toast(t.target && below && allSum(t) >= t.target
+        ? `🎉 达成目标 ${t.target} ${t.unit}！立个纪念日吧`
+        : '改好了，合计已重算');
+      render();
+      break;
+    }
+    case 'delEntry': {
+      const id = el.dataset.id;
+      if (state.confirmDel && state.confirmDel.kind === 'entry' && state.confirmDel.id === id) {
+        const t = act();
+        t.entries = t.entries.filter(x => x.id !== id);
+        state.confirmDel = null; state.sheet = null; state.editId = null;
+        toast('这一条已删除，合计重算');
+        render();
+      } else {
+        state.confirmDel = { kind: 'entry', id };
+        render();
+        toast('再点一下确认删除');
+      }
+      break;
+    }
+    case 'openAnn':
+      readInputs();
+      state.sheet = 'ann'; state.confirmDel = null;
+      render();
+      break;
+    case 'markAnn': {
+      const t = act();
+      const exists = t.anniversaries.find(x => x.date === state.selDate);
+      if (exists) { toast('这一天已经是纪念日了'); break; }
+      t.anniversaries.push({ id: uid('a'), date: state.selDate, label: `「${t.name}」纪念日`, valueAtMark: daySum(t, state.selDate) });
+      toast('★ 已立为纪念日，日历上会亮星标');
+      render();
+      break;
+    }
+    case 'delAnn': {
+      const id = el.dataset.id;
+      if (state.confirmDel && state.confirmDel.kind === 'ann' && state.confirmDel.id === id) {
+        const t = act();
+        t.anniversaries = t.anniversaries.filter(x => x.id !== id);
+        state.confirmDel = null;
+        toast('纪念日已删除');
+        render();
+      } else {
+        state.confirmDel = { kind: 'ann', id };
+        render();
+        toast('再点一下确认删除');
+      }
+      break;
+    }
+    case 'openManage':
+      readInputs();
+      state.sheet = 'manage'; state.confirmDel = null;
+      render();
+      break;
+    case 'setCol': {
+      const t = act();
+      t.colorIdx = Number(el.dataset.i);
+      state.mgName = state.mgName || t.name;
+      render();
+      break;
+    }
+    case 'saveTag': {
+      const t = act();
+      readInputs();
+      t.name = (state.mgName || '').trim().slice(0, 12) || t.name;
+      t.unit = (state.mgUnit || '').trim().slice(0, 4) || t.unit;
+      const tgt = Math.floor(Number(state.mgTarget));
+      t.target = tgt > 0 ? tgt : undefined;
+      state.mgName = t.name; state.mgUnit = t.unit; state.mgTarget = t.target ?? '';
+      toast('标签已更新，好友端实时同步');
+      render();
+      break;
+    }
+    case 'delTag': {
+      if (state.confirmDel && state.confirmDel.kind === 'tag') {
+        state.tags = state.tags.filter(t => t.id !== state.activeTag);
+        if (!state.tags.length) {
+          state.tags.push({ id: uid('t'), name: '我的标签', unit: '次', colorIdx: 0, synced: false, shareCode: '', members: [], entries: [], anniversaries: [] });
+        }
+        state.activeTag = state.tags[0].id;
+        state.confirmDel = null; state.sheet = null;
+        state.mgName = ''; state.mgUnit = ''; state.mgTarget = '';
+        state._toTop = true;
+        toast('标签已删除');
+        render();
+      } else {
+        state.confirmDel = { kind: 'tag' };
+        render();
+        toast('再点一下确认删除整个标签');
+      }
+      break;
+    }
+    case 'openData':
+      readInputs();
+      state.sheet = 'data';
+      render();
+      break;
+    case 'copyJson': {
+      const data = { app: 'qgj-counter', version: 1, exportedAt: new Date().toISOString(), tags: state.tags };
+      copyText(JSON.stringify(data, null, 2), 'JSON 已按模板复制');
+      break;
+    }
+    case 'copyCsv': {
+      const rows = ['date,time,amount,note,by'];
+      state.tags.forEach(t => t.entries.forEach(e => rows.push(`${e.date},${e.time},${e.amount},"${(e.note || '').replace(/"/g, '""')}",${e.by}`)));
+      copyText(rows.join('\n'), 'CSV 已按模板复制');
+      break;
+    }
+    case 'doImport': {
+      readInputs();
+      try {
+        const data = JSON.parse(state.impTxt);
+        if (!data || !Array.isArray(data.tags)) throw new Error('bad');
+        let nE = 0;
+        data.tags.forEach(rt => {
+          let t = state.tags.find(x => x.name === (rt.name || '').slice(0, 12));
+          if (!t) {
+            t = { id: uid('t'), name: (rt.name || '导入标签').slice(0, 12), unit: (rt.unit || '次').slice(0, 4), colorIdx: state.colorCursor % 6, synced: false, shareCode: '', members: [], entries: [], anniversaries: [] };
+            state.colorCursor += 1;
+            state.tags.push(t);
+          }
+          (Array.isArray(rt.entries) ? rt.entries : []).forEach(re => {
+            if (!re || !re.date || !re.time) return;
+            t.entries.push({ id: uid('e'), date: re.date, time: re.time, amount: Number(re.amount) || 0, note: re.note || '', by: re.by || '导入' });
+            nE += 1;
+          });
+          (Array.isArray(rt.anniversaries) ? rt.anniversaries : []).forEach(ra => {
+            if (!ra || !ra.date) return;
+            t.anniversaries.push({ id: uid('a'), date: ra.date, label: ra.label || '纪念日', valueAtMark: Number(ra.valueAtMark) || 0 });
+          });
+        });
+        state.impTxt = '';
+        toast(`导入成功：新条目 ${nE} 条，已落库`);
+        render();
+      } catch (err) {
+        toast('格式不对，按上面的模板来');
+      }
+      break;
+    }
+    case 'copyLink':
+      copyText('qgj.link/c/' + act().id, '链接已复制，去微信发给朋友');
+      break;
+    case 'closeSheet':
+      readInputs();
+      state.sheet = null; state.editId = null; state.confirmDel = null;
+      render();
+      break;
+  }
+});
+
+function copyText(txt, okMsg) {
+  const done = () => toast(okMsg);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(() => toast('复制失败，请手动选择文本'));
+  } else {
+    done();
+  }
+}
+
+/* ===================== 外部状态切换 ===================== */
+const descEl = document.getElementById('stateDesc');
+const tabs = document.querySelectorAll('.state-tab');
+
+const STATE_DESC = {
+  main: {
+    no: '01', title: '日历主视图 · 大卡 + 月历',
+    lead: '顶部大卡片永远是当前标签：今天的合计、一行小字带走本月与累计，设了目标就挂一条进度条和预测日期。中间月历随便翻，点哪天看哪天；那一天的每一笔就在日历下方，按时间排好。',
+    points: ['月历即筛选器：日格上的小数字 = 当天自动求和', '一天想记多少条都行，每条精确到几点几分', '目标可选：不填零打扰，填了按近两周节奏预测达成日', '★ 星标 = 纪念日；颜色即标签身份']
+  },
+  entry: {
+    no: '02', title: '记一笔 · 改一笔',
+    lead: '点「记一笔」默认落在中午 12:00，快选芯片或步进器随时改成别的时刻；数量可以 +1 也可以 −1 修正。提交之后照样能改：点当天列表里任何一条，时间、数量、备注全能改。',
+    points: ['默认时间 12:00，08:00 / 12:00 / 18:00 / 21:00 一键快选', '−1 负数条目用来修正记错的账，砖红显示一眼可辨', '提交后仍可改可删：每条独立 updatedAt，云端按条同步']
+  },
+  ann: {
+    no: '03', title: '纪念日节点',
+    lead: '原「标记历史」升级为纪念日：把有意义的日子钉在日历上，星标常亮，列表里随时回看「那天数到了多少」。是里程碑，不是流水。',
+    points: ['立纪念日落在当前选中的那天，日格右上 ★ 弹出', '当天累计值一并存档，作证', '名字可改、条目可删，都走两步确认']
+  },
+  manage: {
+    no: '04', title: '标签与分享 · 共同维护',
+    lead: '标签名称、单位、颜色、目标随时可改（六色轮换不变，颜色即身份；目标清空即关闭预测）；口令或链接分享给朋友后，大家一起在同一个标签下记数，每一条都署名。',
+    points: ['新建标签自定义命名，之后随时改名改色改单位', '目标可随时设置或清空：预测跟着开、跟着关', '朋友凭链接或 4 位口令加入，共同维护同一个标签', '每条计数署名：谁记的、几点记的，贡献看得见']
+  },
+  data: {
+    no: '05', title: '导入导出 · 模板格式',
+    lead: '数据 = 你的数据。两种模板一键导出：JSON 全量（标签 / 条目 / 纪念日）与 CSV 轻量（date,time,amount,note,by）。粘贴按「同名追加、其余新建」合并导入。',
+    points: ['导出即备份：换手机、给朋友、迁移都靠复制粘贴', '导入逐条校验，字段缺失按默认补齐', '导入完成立即落库，好友端实时同步']
+  }
+};
+
+function renderStateDesc(key) {
+  const d = STATE_DESC[key];
+  descEl.innerHTML = `
+    <h3><span class="no">${d.no}</span>${d.title}</h3>
+    <p class="lead">${d.lead}</p>
+    <div class="state-points">
+      ${d.points.map(p => `<div class="sp-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>${p}</span></div>`).join('')}
+    </div>`;
+}
+
+function syncTabs(view) {
+  tabs.forEach(t => {
+    const on = t.dataset.state === view;
+    t.classList.toggle('on', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  renderStateDesc(view);
+}
+
+tabs.forEach(t => t.addEventListener('click', () => {
+  const v = t.dataset.state;
+  syncTabs(v);
+  state.sheet = v === 'main' ? null : (v === 'entry' ? 'add' : v);
+  if (v === 'entry') { state.addH = 12; state.addM = 0; state.addAmt = 1; state.addNote = ''; }
+  if (v === 'ann') state.confirmDel = null;
+  render();
+}));
+
+/* ===================== Hero 周条交互 ===================== */
+const heroNum = document.getElementById('heroNum');
+const heroDay = document.getElementById('heroDay');
+const heroWeek = document.getElementById('heroWeek');
+const heroT1 = state.tags[0];
+const WEEK = ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08'];
+let heroSel = TODAY;
+
+function renderHero() {
+  heroWeek.innerHTML = WEEK.map(ds => {
+    const s = daySum(heroT1, ds);
+    const [, m, d] = ds.split('-');
+    const on = ds === heroSel;
+    return `<button class="ws-cell ${on ? 'on' : ''}" data-hero="${ds}" aria-label="${ds} 合计 ${s}">
+      <span class="w">周${WD[new Date(ds.split('-')[0], ds.split('-')[1] - 1, ds.split('-')[2]).getDay()]}</span>
+      <span class="n">${Number(m)}/${Number(d)}</span>
+      <span class="v ${s ? '' : 'dim'}">${s || '—'}</span>
+    </button>`;
+  }).join('');
+  heroNum.textContent = daySum(heroT1, heroSel);
+  heroDay.textContent = `${fmtCN(heroSel)}${heroSel === TODAY ? '（今天）' : ''} · 合计 · 单位 ${heroT1.unit}`;
+  const fc1 = forecast(heroT1);
+  document.getElementById('heroFoot').innerHTML = fc1 && !fc1.done && !fc1.stall
+    ? `本月 ${monthSum(heroT1)} · 累计 ${allSum(heroT1)} ${heroT1.unit} · 目标 ${heroT1.target} · 预计 <b style="color:#FFE3B8">${fmtMD(fc1.date)}</b> 达成`
+    : `本月 ${monthSum(heroT1)} · 累计 ${allSum(heroT1)} ${heroT1.unit}`;
+}
+heroWeek.addEventListener('click', e => {
+  const b = e.target.closest('[data-hero]');
+  if (!b) return;
+  heroSel = b.dataset.hero;
+  renderHero();
+});
+
+/* ===================== 初始化 ===================== */
+renderStateDesc('main');
+renderHero();
+render();
+</script>
+</body>
+</html>

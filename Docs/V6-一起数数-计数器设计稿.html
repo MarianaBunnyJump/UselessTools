@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一起数数 · 趣工局计数器设计稿 V6（一级页面精简版）</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='8' width='56' height='48' rx='14' fill='%232F4B43'/%3E%3Ctext x='32' y='44' font-size='30' font-weight='800' fill='%23FFF9F2' text-anchor='middle' font-family='sans-serif'%3E+1%3C/text%3E%3C/svg%3E">
+<style>
+/* ===================== 设计令牌 ===================== */
+:root{
+  --bg:#FFF9F2;
+  --bg-soft:#FBF1E4;
+  --ink:#4A3B32;
+  --ink-sub:#8D7B70;
+  --ink-light:#B8A99E;
+  --brand:#E8795A;
+  --brand-deep:#CE5B3F;
+  --brand-wash:#FFE9E0;
+  --board:#2F4B43;
+  --board-deep:#223931;
+  --board-line:#3E6156;
+  --paper:#FDF6E9;
+  --card:rgba(255,255,255,.86);
+  --line:rgba(74,59,50,.08);
+  --danger:#EF5350;
+  --success:#66BB6A;
+  --radius-card:28px;
+  --radius-btn:32px;
+  --shadow-card:0 10px 30px -12px rgba(74,59,50,.18);
+  --shadow-btn:0 6px 0 rgba(190,78,51,.85),0 16px 30px -14px rgba(74,59,50,.42);
+  --font-round:'Yuanti SC','YouYuan','幼圆',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-round);-webkit-font-smoothing:antialiased;line-height:1.6}
+::selection{background:var(--brand-wash);color:var(--brand-deep)}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ===================== 页头 ===================== */
+.site-head{position:sticky;top:0;z-index:50;background:rgba(255,249,242,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.site-head-in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand-mark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px}
+.brand-mark svg{width:26px;height:26px}
+.head-tag{font-size:12px;color:var(--ink-sub);background:var(--paper);border:1px solid var(--line);padding:4px 12px;border-radius:999px}
+
+/* ===================== Hero ===================== */
+.hero{position:relative;overflow:hidden;padding:64px 0 72px}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(720px 420px at 78% -8%,rgba(232,121,90,.12),transparent 62%),radial-gradient(520px 320px at 6% 110%,rgba(47,75,67,.08),transparent 60%);pointer-events:none}
+.hero-in{position:relative;display:grid;grid-template-columns:1fr;gap:44px;align-items:center}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--brand-deep);background:var(--brand-wash);border-radius:999px;padding:6px 14px;margin-bottom:18px}
+.hero-kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);display:inline-block}
+.hero h1{font-size:44px;line-height:1.15;font-weight:900;letter-spacing:1px}
+.hero-sub{margin-top:14px;font-size:16px;color:var(--ink-sub);max-width:36em}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;box-shadow:var(--shadow-card)}
+.chip svg{width:15px;height:15px;color:var(--brand-deep)}
+.hero-note{margin-top:22px;font-size:12.5px;color:var(--ink-light);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.hero-note b{color:var(--ink-sub);font-weight:700}
+
+/* 记分牌 signature（新结构：数字 + 标记历史） */
+.scoreboard{position:relative;max-width:400px;margin:0 auto;padding:8px}
+.scoreboard::before{content:"";position:absolute;inset:-14px;background:radial-gradient(60% 60% at 50% 40%,rgba(232,121,90,.14),transparent 70%);pointer-events:none}
+.sb-frame{position:relative;background:linear-gradient(180deg,#E8795A,#CE5B3F);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:24px 26px 22px;box-shadow:0 30px 60px -24px rgba(206,91,63,.5)}
+.sb-top{display:flex;justify-content:space-between;align-items:center;color:rgba(255,249,242,.72);font-size:12.5px}
+.sb-label{font-weight:800;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.sb-history-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,249,242,.12);border-radius:999px;padding:4px 10px;font-size:11.5px}
+.sb-history-pill svg{width:12px;height:12px}
+.sb-share{display:inline-flex;align-items:center;gap:5px;background:rgba(255,249,242,.12);border-radius:999px;padding:4px 10px;font-size:11.5px}
+.sb-share svg{width:12px;height:12px}
+.sb-num-wrap{text-align:center;padding:16px 0 8px}
+.sb-num{font-size:104px;line-height:1;font-weight:900;color:#FFF9F2;font-variant-numeric:tabular-nums;letter-spacing:2px;text-shadow:0 4px 0 rgba(0,0,0,.18)}
+.sb-unit{color:rgba(255,249,242,.6);font-size:14px;letter-spacing:1px;margin-top:2px}
+.sb-actions{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:18px}
+.sb-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.28),0 12px 20px -8px rgba(0,0,0,.45);transition:transform .12s ease,box-shadow .12s ease}
+.sb-btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.sb-btn svg{width:24px;height:24px}
+.sb-minus{background:linear-gradient(180deg,#6B5F57,#54473E)}
+.sb-plus{background:linear-gradient(180deg,#F08A6D,#E8795A)}
+.sb-mark{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(180deg,#FFC984,#FFB74D);color:#4A3B32;font-size:13.5px;font-weight:800;border-radius:999px;padding:13px 18px;box-shadow:0 4px 0 rgba(0,0,0,.22);transition:transform .12s ease,box-shadow .12s ease}
+.sb-mark:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.22)}
+.sb-mark svg{width:15px;height:15px}
+.sb-float{position:absolute;right:34px;top:86px;font-size:30px;font-weight:900;color:#FFE3B8;opacity:0;pointer-events:none}
+@keyframes floatUp{0%{opacity:0;transform:translateY(6px) scale(.7)}35%{opacity:1;transform:translateY(-2px) scale(1.05)}100%{opacity:0;transform:translateY(-26px) scale(1)}}
+.sb-stamp{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;color:rgba(255,249,242,.55);font-size:11.5px;min-height:18px}
+.sb-stamp .tick{display:inline-flex;align-items:center;gap:5px;color:#FFE3B8}
+.sb-stamp .tick svg{width:12px;height:12px}
+
+/* ===================== 核心演示区 ===================== */
+.demo{padding:8px 0 72px}
+.demo-head{text-align:center;margin-bottom:34px}
+.demo-head .eyebrow{display:inline-block;font-size:12px;font-weight:800;color:var(--brand-deep);letter-spacing:3px;margin-bottom:10px}
+.demo-head h2{font-size:30px;font-weight:900}
+.demo-head p{color:var(--ink-sub);font-size:14.5px;margin-top:8px}
+.demo-grid{display:grid;grid-template-columns:1fr;gap:34px;align-items:start}
+.demo-side{order:2}
+.demo-phone{order:1;display:flex;justify-content:center}
+
+.state-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.state-tab{flex:1;min-width:120px;border-radius:18px;padding:12px 10px;text-align:center;background:var(--card);border:1.5px solid transparent;box-shadow:var(--shadow-card);transition:all .18s ease}
+.state-tab b{display:block;font-size:14px;font-weight:800}
+.state-tab span{font-size:11.5px;color:var(--ink-sub)}
+.state-tab.on{border-color:var(--brand);background:#fff;transform:translateY(-2px)}
+.state-tab.on b{color:var(--brand-deep)}
+.state-desc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:26px;margin-bottom:18px;min-height:190px}
+.state-desc h3{font-size:19px;font-weight:900;display:flex;align-items:center;gap:10px}
+.state-desc h3 .no{width:30px;height:30px;border-radius:10px;background:var(--board);color:#FFF9F2;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.state-desc .lead{font-size:14px;color:var(--ink-sub);margin-top:10px;line-height:1.8}
+.state-points{margin-top:14px;display:grid;grid-template-columns:1fr;gap:8px}
+.sp-item{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--ink)}
+.sp-item svg{width:15px;height:15px;color:var(--brand-deep);flex:none;margin-top:3px}
+
+/* ===================== 手机 mockup ===================== */
+.phone{width:356px;flex:none;background:#101010;border-radius:56px;padding:12px;box-shadow:0 40px 80px -28px rgba(74,59,50,.5),0 0 0 2px #3a3a3a;position:relative}
+.phone-screen{background:var(--bg);border-radius:45px;overflow:hidden;position:relative;height:720px;display:flex;flex-direction:column}
+.phone-notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:118px;height:26px;background:#101010;border-radius:0 0 16px 16px;z-index:30}
+.phone-status{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 8px;font-size:12.5px;font-weight:700;position:relative;z-index:20;color:var(--ink)}
+.phone-status .icons{display:flex;gap:5px;align-items:center}
+.phone-status svg{width:15px;height:15px}
+.phone-home{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:118px;height:4px;border-radius:4px;background:var(--ink-light);z-index:30;opacity:.8}
+.app{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 8px;position:relative;z-index:20}
+.navbar .nav-title{font-size:16.5px;font-weight:900;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.navbar .nav-title svg{width:18px;height:18px}
+.navbar .nav-actions{display:flex;gap:8px}
+.navbar .nav-btn{width:36px;height:36px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-card)}
+.navbar .nav-btn svg{width:17px;height:17px;color:var(--ink-sub)}
+.app-body{flex:1;overflow-y:auto;padding:6px 16px 22px;scrollbar-width:none}
+.app-body::-webkit-scrollbar{display:none}
+.phone .app-body{min-height:0}
+
+/* ---------- 一级页：顶部大块 ---------- */
+.main-block{position:relative;background:linear-gradient(180deg,#36564B,#243A33);border-radius:30px;padding:18px 18px 16px;margin-bottom:14px;box-shadow:0 18px 38px -16px rgba(34,57,49,.5);overflow:hidden;animation:fadeBlock .3s ease}
+@keyframes fadeBlock{0%{opacity:.55}100%{opacity:1}}
+.mb-top{display:flex;justify-content:space-between;align-items:center;color:rgba(255,249,242,.75);font-size:12px;gap:8px}
+.mb-title{font-weight:800;letter-spacing:.5px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mb-pills{display:flex;gap:6px;align-items:center}
+.mb-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(255,249,242,.12);border-radius:999px;padding:4px 9px;font-size:10.5px}
+.mb-pill svg{width:11px;height:11px}
+.mb-pill--his{cursor:pointer;transition:background .15s ease}
+.mb-pill--his:hover{background:rgba(255,249,242,.22)}
+.mb-pill--his .badge{background:var(--brand);color:#fff;border-radius:999px;min-width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;padding:0 4px}
+.mb-num{text-align:center;padding:12px 0 4px}
+.mb-num .val{font-size:88px;line-height:1;font-weight:900;color:#FFF9F2;font-variant-numeric:tabular-nums;letter-spacing:2px;text-shadow:0 4px 0 rgba(0,0,0,.16);display:inline-block;transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.mb-num .val.pop{transform:scale(1.1)}
+.mb-num .unit{color:rgba(255,249,242,.6);font-size:13px;margin-top:2px}
+.mb-actions{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:12px}
+.mb-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.28);transition:transform .12s ease,box-shadow .12s ease;position:relative;flex:none}
+.mb-btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.mb-btn svg{width:23px;height:23px}
+.mb-minus{background:linear-gradient(180deg,#6B5F57,#54473E)}
+.mb-plus{background:linear-gradient(180deg,#F08A6D,#E8795A)}
+.mb-mark{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(180deg,#FFC984,#FFB74D);color:#4A3B32;font-size:13.5px;font-weight:800;border-radius:999px;padding:13px 18px;box-shadow:0 4px 0 rgba(0,0,0,.22);transition:transform .12s ease,box-shadow .12s ease;position:relative}
+.mb-mark:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.22)}
+.mb-mark svg{width:15px;height:15px}
+.mb-mark .tick{position:absolute;right:-8px;top:-8px;width:22px;height:22px;border-radius:50%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(.4)}
+.mb-mark .tick.show{animation:tickPop .5s ease forwards}
+@keyframes tickPop{0%{opacity:0;transform:scale(.4)}55%{opacity:1;transform:scale(1.15)}100%{opacity:0;transform:scale(1)}}
+.mb-float{position:absolute;top:-16px;right:18px;font-size:24px;font-weight:900;color:#FFE3B8;opacity:0;pointer-events:none}
+@keyframes floatUp2{0%{opacity:0;transform:translateY(4px) scale(.7)}35%{opacity:1;transform:translateY(-1px) scale(1.05)}100%{opacity:0;transform:translateY(-20px) scale(1)}}
+.mb-stamp{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;color:rgba(255,249,242,.55);font-size:11px;min-height:16px}
+.mb-stamp .tick{display:inline-flex;align-items:center;gap:5px;color:#FFE3B8}
+.mb-stamp .tick svg{width:11px;height:11px}
+@keyframes stampIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ---------- 一级页：小块列表 ---------- */
+.panel-title{display:flex;align-items:center;justify-content:space-between;margin:14px 4px 10px}
+.panel-title b{font-size:15px;font-weight:900}
+.panel-title .hint{font-size:11px;color:var(--ink-light)}
+.card-list{display:grid;gap:9px}
+.mini-card{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid transparent;border-radius:18px;padding:10px 12px;box-shadow:var(--shadow-card);transition:all .16s ease;position:relative;overflow:hidden;cursor:pointer}
+.mini-card:active{transform:scale(.985)}
+.mini-card .m-topbar{position:absolute;top:0;left:0;right:0;height:5px}
+.mini-card.on{border-color:var(--brand);background:#fff}
+.mini-card .m-name{flex:1;min-width:0;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-card .m-name small{display:block;font-size:10.5px;color:var(--ink-light);font-weight:400;margin-top:1px}
+.mini-card .m-val{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.mini-card .m-unit{font-size:11px;color:var(--ink-sub);font-weight:700}
+.mini-card .m-sync{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--ink-sub);background:var(--bg-soft);border-radius:999px;padding:4px 8px;font-weight:700}
+.mini-card .m-sync svg{width:10px;height:10px}
+.mini-card .m-members{display:inline-flex;align-items:center}
+.mini-card .m-members span{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8.5px;color:#fff;font-weight:800;border:1.5px solid #fff;margin-left:-5px}
+.mini-card .m-members span:first-child{margin-left:0}
+.mini-card .m-del{width:28px;height:28px;border-radius:10px;color:var(--ink-light);display:flex;align-items:center;justify-content:center;flex:none;transition:color .15s ease;opacity:.6}
+.mini-card .m-del svg{width:13px;height:13px}
+.mini-card .m-del.confirm{color:var(--danger);opacity:1}
+.mini-card .m-del:hover{color:var(--danger);opacity:1}
+.mini-card .m-share{width:28px;height:28px;border-radius:10px;color:var(--ink-sub);display:flex;align-items:center;justify-content:center;flex:none;background:var(--bg-soft);border:1px solid var(--line);transition:all .15s ease}
+.mini-card .m-share svg{width:13px;height:13px}
+.mini-card .m-share:hover{color:var(--brand-deep);background:var(--brand-wash);border-color:var(--brand)}
+.add-card{display:flex;align-items:center;gap:12px;background:var(--paper);border:2px dashed rgba(232,121,90,.45);border-radius:18px;padding:12px;color:var(--brand-deep);font-weight:800;font-size:13.5px;width:100%;justify-content:center;margin-top:9px}
+.add-card svg{width:18px;height:18px}
+
+/* ---------- 浮层：新建 ---------- */
+.sheet{position:absolute;inset:0;z-index:45;background:rgba(74,59,50,.35);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.sheet.open{opacity:1;pointer-events:auto}
+.sheet-inner{background:var(--bg);border-radius:30px 30px 0 0;padding:18px 20px 26px;width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.3,.64,1)}
+.sheet.open .sheet-inner{transform:translateY(0)}
+.sheet-grab{width:44px;height:5px;border-radius:5px;background:var(--line);margin:0 auto 16px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet-head b{font-size:17px;font-weight:900}
+.sheet-x{width:32px;height:32px;border-radius:11px;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;color:var(--ink-sub)}
+.sheet-x svg{width:14px;height:14px}
+.form-label{font-size:12px;font-weight:800;color:var(--ink-sub);margin-bottom:8px;letter-spacing:1px}
+.form-input{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:13px 14px;font-size:16px;font-family:inherit;color:var(--ink);outline:none;transition:border-color .16s ease}
+.form-input:focus{border-color:var(--brand)}
+.num-row{display:flex;align-items:center;gap:12px}
+.num-btn{width:40px;height:40px;border-radius:12px;background:var(--bg-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-sub)}
+.num-btn svg{width:15px;height:15px}
+.num-val{font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;min-width:52px;text-align:center}
+.form-field{margin-bottom:14px}
+.form-field:last-of-type{margin-bottom:18px}
+.add-actions{display:flex;gap:10px}
+.add-cancel{flex:1;padding:13px;border-radius:var(--radius-btn);background:var(--bg-soft);color:var(--ink-sub);font-weight:800;font-size:15px}
+.add-ok{flex:1;padding:13px;border-radius:var(--radius-btn);background:linear-gradient(180deg,#F08A6D,#E8795A);color:#fff;font-weight:800;font-size:15px;box-shadow:var(--shadow-btn)}
+.add-ok:active{transform:translateY(2px)}
+
+/* ---------- 浮层：历史 ---------- */
+.his-list{display:grid;gap:9px;max-height:280px;overflow-y:auto;padding-right:2px}
+.his-item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;animation:stampIn .25s ease}
+.his-item .h-dot{width:34px;height:34px;border-radius:12px;background:var(--brand-wash);color:var(--brand-deep);display:flex;align-items:center;justify-content:center;flex:none;font-size:15px;font-weight:900}
+.his-item .h-info{flex:1;min-width:0}
+.his-item .h-time{font-size:13.5px;font-weight:800}
+.his-item .h-note{font-size:11px;color:var(--ink-light);font-weight:400;display:block;margin-top:1px}
+.his-item .h-val{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--ink)}
+.his-item .h-del{width:30px;height:30px;border-radius:10px;color:var(--ink-light);display:flex;align-items:center;justify-content:center;flex:none}
+.his-item .h-del svg{width:13px;height:13px}
+.his-item .h-del:hover{color:var(--danger)}
+.his-empty{text-align:center;padding:34px 0 26px;color:var(--ink-sub);font-size:13.5px;line-height:1.9}
+.his-empty b{color:var(--brand-deep);font-weight:800}
+
+/* ---------- 浮层：协作 ---------- */
+.share-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.share-card .sc-name{font-size:14.5px;font-weight:800}
+.share-card .sc-num{font-size:11.5px;color:var(--ink-sub)}
+.share-card .sc-top{width:44px;height:44px;border-radius:14px;background:var(--board);color:#FFF9F2;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;flex:none}
+.share-link{display:flex;gap:8px;align-items:center;background:var(--bg-soft);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:14px}
+.share-link input{flex:1;border:none;background:none;font-size:13px;font-family:inherit;color:var(--ink-sub);outline:none}
+.share-link .copy{font-size:12.5px;font-weight:800;color:var(--brand-deep);flex:none}
+.share-code{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.code-box{flex:1;text-align:center;background:var(--paper);border:1.5px dashed rgba(74,59,50,.18);border-radius:14px;padding:9px 0;font-size:14px;font-weight:900;letter-spacing:4px;color:var(--brand-deep)}
+.share-code span{font-size:11px;color:var(--ink-light);font-weight:400}
+.share-members{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.share-member{display:flex;align-items:center;gap:10px}
+.share-member .m-ava{width:32px;height:32px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+.share-member .m-name{flex:1;font-size:13px;font-weight:700}
+.share-member .m-name small{display:block;font-size:10.5px;color:var(--ink-light);font-weight:400}
+.share-member .m-count{font-size:12.5px;font-weight:800;color:var(--ink-sub)}
+.share-record{background:var(--bg-soft);border-radius:16px;padding:12px 14px;font-size:11.5px;color:var(--ink-sub);line-height:1.9}
+.share-record b{color:var(--ink);font-weight:800}
+.share-sync{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;font-size:11.5px;color:var(--success);font-weight:800}
+.share-sync svg{width:13px;height:13px}
+.share-sync .cloud{margin-left:auto;color:var(--ink-light);font-size:11px;font-weight:400}
+
+/* toast */
+.toast{position:absolute;top:90px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--ink);color:#FFF9F2;font-size:12.5px;font-weight:700;border-radius:999px;padding:10px 18px;opacity:0;transition:all .25s ease;z-index:60;white-space:nowrap;box-shadow:0 10px 24px -10px rgba(74,59,50,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===================== 设计规范区 ===================== */
+.spec{padding:8px 0 72px}
+.spec-head{text-align:center;margin-bottom:36px}
+.spec-head h2{font-size:30px;font-weight:900}
+.spec-head p{color:var(--ink-sub);font-size:14.5px;margin-top:8px}
+.spec-grid{display:grid;grid-template-columns:1fr;gap:22px}
+.spec-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:26px}
+.spec-card h3{font-size:18px;font-weight:900;margin-bottom:18px;display:flex;align-items:center;gap:9px}
+.spec-card h3 .ico{width:30px;height:30px;border-radius:10px;background:var(--brand-wash);color:var(--brand-deep);display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.swatches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.swatch{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#fff}
+.swatch .sw-main{height:64px;display:flex;align-items:flex-end;padding:8px 10px;color:#fff;font-size:11.5px;font-weight:800}
+.swatch .sw-info{padding:9px 11px}
+.swatch .sw-info b{display:block;font-size:13px}
+.swatch .sw-info span{font-size:11px;color:var(--ink-light)}
+.swatch.light .sw-main{color:var(--ink)}
+.type-scale{display:grid;gap:14px}
+.ts-row{display:flex;align-items:baseline;gap:14px;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.ts-row .demo{font-weight:800;white-space:nowrap}
+.ts-row .meta{font-size:11px;color:var(--ink-light);min-width:86px}
+.ts-row .use{font-size:12.5px;color:var(--ink-sub)}
+.comp-list{display:grid;gap:16px}
+.comp{display:grid;grid-template-columns:70px 1fr;gap:14px;align-items:start}
+.comp-vis{width:70px;height:70px;border-radius:18px;background:var(--bg-soft);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.comp-vis svg{width:34px;height:34px;color:var(--brand-deep)}
+.comp-vis .mini-board{background:var(--board);color:#FFF9F2;font-weight:900;font-size:20px;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.comp h4{font-size:14.5px;font-weight:800;margin-bottom:4px}
+.comp p{font-size:12.5px;color:var(--ink-sub);line-height:1.7}
+.comp .tokens{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.comp .tokens span{font-size:10.5px;font-weight:700;color:var(--ink-sub);background:var(--bg-soft);border-radius:999px;padding:3px 9px}
+.motion-list{display:grid;gap:12px}
+.motion-item{display:flex;gap:12px;align-items:flex-start}
+.motion-item .m-ico{width:40px;height:40px;border-radius:14px;background:var(--brand-wash);color:var(--brand-deep);display:flex;align-items:center;justify-content:center;flex:none}
+.motion-item .m-ico svg{width:19px;height:19px}
+.motion-item b{font-size:14px;font-weight:800;display:block}
+.motion-item p{font-size:12.5px;color:var(--ink-sub);line-height:1.7}
+
+/* ===================== 落地区 ===================== */
+.landing{padding:8px 0 80px;background:linear-gradient(180deg,transparent,rgba(47,75,67,.05) 40%,rgba(47,75,67,.07))}
+.land-head{text-align:center;margin-bottom:36px}
+.land-head h2{font-size:30px;font-weight:900}
+.land-head p{color:var(--ink-sub);font-size:14.5px;margin-top:8px;max-width:38em;margin-left:auto;margin-right:auto}
+.land-grid{display:grid;grid-template-columns:1fr;gap:22px}
+.land-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:26px}
+.land-card h3{font-size:18px;font-weight:900;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.land-card h3 .ico{width:30px;height:30px;border-radius:10px;background:var(--board);color:#FFF9F2;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.code-block{background:var(--board);color:#E7D8C8;border-radius:18px;padding:18px;font-family:Consolas,'JetBrains Mono','Courier New',monospace;font-size:12px;line-height:1.8;overflow-x:auto}
+.code-block .c-br{color:#F08A6D}
+.code-block .c-kw{color:#FFD9A8}
+.code-block .c-st{color:#A8D9BB}
+.code-block .c-cm{color:rgba(255,249,242,.45)}
+.land-list{display:grid;gap:10px}
+.land-item{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink);background:var(--bg-soft);border-radius:14px;padding:11px 14px}
+.land-item svg{width:16px;height:16px;color:var(--success);flex:none;margin-top:3px}
+.land-item b{font-weight:800}
+.phase-tag{display:inline-block;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:2px}
+.phase-a{background:var(--brand-wash);color:var(--brand-deep)}
+.phase-b{background:#E2F0E4;color:#3E7C47}
+
+/* ===================== 页脚 ===================== */
+.site-foot{border-top:1px solid var(--line);padding:26px 0 40px;text-align:center;color:var(--ink-light);font-size:12px}
+.site-foot b{color:var(--ink-sub)}
+.site-foot .foot-line{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:6px}
+
+/* ===================== 响应式 ===================== */
+@media (min-width:768px){
+  .hero{padding:84px 0 96px}
+  .hero-in{grid-template-columns:1.05fr .95fr;gap:56px}
+  .hero h1{font-size:56px}
+  .demo-grid{grid-template-columns:1fr 356px;gap:40px}
+  .demo-side{order:1}
+  .demo-phone{order:2}
+  .demo-phone{position:sticky;top:90px;align-self:start}
+  .state-desc{min-height:300px}
+  .spec-grid{grid-template-columns:1fr 1fr}
+  .land-grid{grid-template-columns:1fr 1fr}
+  .swatches{grid-template-columns:repeat(3,1fr)}
+  .phone{width:356px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<!-- ===================== 页头 ===================== -->
+<header class="site-head">
+  <div class="site-head-in">
+    <div class="brand-mark">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="8" width="56" height="48" rx="14" fill="#2F4B43"/><text x="32" y="45" font-size="28" font-weight="800" fill="#FFF9F2" text-anchor="middle" font-family="sans-serif">+1</text></svg>
+      趣工局 · 计数器设计稿
+    </div>
+    <span class="head-tag">V6 一级页面版 · 2026-11-04</span>
+  </div>
+</header>
+
+<!-- ===================== Hero ===================== -->
+<section class="hero">
+  <div class="wrap hero-in">
+    <div>
+      <span class="hero-kicker"><span class="dot"></span>新工具提案 · 一级页面精简版</span>
+      <h1>一起数数</h1>
+      <p class="hero-sub">一屏到底：顶部一块大的放当前计数，下面一排小的随时切换。数到想留证据的数字，点一下「标记历史」，手机本地就记下这个时间点。想和朋友一起数，就把卡片分享出去。</p>
+      <div class="hero-chips">
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 9h8M8 13h5"/></svg>一个页面完成全部操作</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>顶部大块 · 小块列表切换</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>标记历史 · 本地留时间戳</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.6-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17.5" cy="9.5" r="2.4"/><path d="M16 15.6c2.7.2 4.3 1.7 4.8 3.9"/></svg>好友同步保留</span>
+      </div>
+      <p class="hero-note"><b>本轮精简</b>：去掉二级页面、目标计数、小计数点、图标选择；保留协作同步，新增历史时间戳。V5 完整版保留不动，此为对照版。</p>
+    </div>
+
+    <!-- 记分牌 signature（新结构） -->
+    <div class="scoreboard">
+      <div class="sb-frame">
+        <div class="sb-top">
+          <span class="sb-label">喝水打卡<span class="sb-history-pill" id="heroHisPill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>历史 <b id="heroHisBadge" style="font-weight:800">2</b></span></span>
+          <span class="sb-share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg>已同步</span>
+        </div>
+        <div class="sb-num-wrap">
+          <div class="sb-num" id="heroNum">8</div>
+          <div class="sb-unit">杯</div>
+        </div>
+        <div class="sb-actions">
+          <button class="sb-btn sb-minus" aria-label="减一"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+          <button class="sb-mark" id="heroMark" aria-label="标记历史"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>标记历史</button>
+          <button class="sb-btn sb-plus" aria-label="加一"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+        <div class="sb-stamp" id="heroStamp"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 核心演示 ===================== -->
+<section class="demo">
+  <div class="wrap">
+    <div class="demo-head">
+      <span class="eyebrow">ONE SCREEN</span>
+      <h2>一屏到底，四个瞬间</h2>
+      <p>下面的手机里是完整可点的原型：切卡片、加减数、标记历史、开历史面板、新建、分享，都能动手试。页面始终只有一个层级。</p>
+    </div>
+
+    <div class="demo-grid">
+      <div class="demo-side">
+        <div class="state-tabs" role="tablist" aria-label="演示状态">
+          <button class="state-tab on" data-state="main" role="tab" aria-selected="true"><b>主视图</b><span>大块 + 小块列表</span></button>
+          <button class="state-tab" data-state="create" role="tab" aria-selected="false"><b>新建计数</b><span>名称 · 初始值</span></button>
+          <button class="state-tab" data-state="history" role="tab" aria-selected="false"><b>历史时间戳</b><span>时间 + 次数</span></button>
+          <button class="state-tab" data-state="collab" role="tab" aria-selected="false"><b>好友协作</b><span>分享 · 共同维护</span></button>
+        </div>
+        <div class="state-desc" id="stateDesc"></div>
+        <div class="state-desc" id="stateNote">
+          <h3><span class="no" style="background:var(--brand)">i</span>怎么玩</h3>
+          <p class="lead">顶部大块永远留着一张卡片；点下面的小卡，大块立刻切换，背景颜色也跟着换成那张卡的主题色。大块上点「标记历史」，本地存下这一刻的时间和次数。每张小卡右侧都有分享按钮，点开叫上好友一起数。</p>
+        </div>
+      </div>
+
+      <div class="demo-phone">
+        <div class="phone">
+          <div class="phone-notch" aria-hidden="true"></div>
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span class="icons">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 18.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zM12 13a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zM12 7.5a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zM12 2a1.6 1.6 0 1 0 0 3.2A1.6 1.6 0 0 0 12 2z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="8" width="14" height="9" rx="2.5"/><path d="M16 11l4-2v8l-4-2" stroke-linejoin="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="7" width="17" height="11" rx="3"/><path d="M7 7V5.5A1.5 1.5 0 0 1 8.5 4h7A1.5 1.5 0 0 1 17 5.5V7"/></svg>
+              </span>
+            </div>
+            <div class="app" id="appRoot"></div>
+            <div class="phone-home" aria-hidden="true"></div>
+          </div>
+          <div class="toast" id="phoneToast"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 设计规范 ===================== -->
+<section class="spec">
+  <div class="wrap">
+    <div class="spec-head">
+      <h2>设计规范</h2>
+      <p>沿用趣工局既有语言（陶土暖调 · 圆体 · 毛玻璃 · 按压按钮）。新增组件族：大块记分牌、小块列表、历史时间戳。</p>
+    </div>
+    <div class="spec-grid">
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg></span>色彩令牌</h3>
+        <div class="swatches">
+          <div class="swatch light"><div class="sw-main" style="background:#FFF9F2">#FFF9F2</div><div class="sw-info"><b>米底 · 页面背景</b><span>全局统一暖米，沿用品牌</span></div></div>
+          <div class="swatch"><div class="sw-main" style="background:#4A3B32">#4A3B32</div><div class="sw-info"><b>墨 · 主文本</b><span>标题与正文</span></div></div>
+          <div class="swatch"><div class="sw-main" style="background:#E8795A">#E8795A</div><div class="sw-info"><b>陶土 · 品牌强调</b><span>按钮 · 标签 · 激活态</span></div></div>
+          <div class="swatch"><div class="sw-main" style="background:#2F4B43">#2F4B43</div><div class="sw-info"><b>记分牌绿 · 新增</b><span>卡片主题色之一 · 代码块</span></div></div>
+          <div class="swatch light"><div class="sw-main" style="background:#FFB74D">#FFB74D</div><div class="sw-info"><b>蜜瓜 · 标记历史</b><span>标记按钮 · 时间戳点缀</span></div></div>
+          <div class="swatch light"><div class="sw-main" style="background:#8D7B70">#8D7B70</div><div class="sw-info"><b>点墨 · 次级文本</b><span>说明 · 单位 · 时间</span></div></div>
+        </div>
+      </div>
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>字体阶梯</h3>
+        <div class="type-scale">
+          <div class="ts-row"><span class="demo" style="font-size:30px">大块数字 · 88</span><span class="meta">88 / 900</span><span class="use">大块记分牌数字，tabular-nums 等宽</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:24px">小块数值</span><span class="meta">24 / 900</span><span class="use">列表里每张卡的数字</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:17px">页面标题</span><span class="meta">17 / 900</span><span class="use">导航栏、浮层标题</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:14px">卡片名称</span><span class="meta">14 / 800</span><span class="use">小块卡名、正文、按钮</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:12px">时间戳与标签</span><span class="meta">10.5–12 / 700</span><span class="use">历史时间、同步状态、协作记录</span></div>
+          <div class="ts-row"><span class="demo" style="font-size:13px">标记历史按钮</span><span class="meta">13.5 / 800</span><span class="use">蜜瓜胶囊按钮，按压下沉</span></div>
+        </div>
+      </div>
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/></svg></span>组件拆解</h3>
+        <div class="comp-list">
+          <div class="comp"><div class="comp-vis"><div class="mini-board">8</div></div><div><h4>大块记分牌（顶部）</h4><p>永远显示当前卡片，背景跟随卡片主题色（每色配一个深色变体，保证白字可读）。顶部一行：卡名 + 云同步 + 历史徽章；中部大数字；底部 − / 标记历史 / + 三个动作。</p><div class="tokens"><span>主题色跟随</span><span>88px/900</span><span>圆角 30</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="14" rx="4"/><path d="M8 8.5h9M8 12h9"/></svg></div><div><h4>小块列表（下方）</h4><p>一张张横排小卡：5px 色条 + 卡名 + 24px 数值 + 云朵。点击切换顶部大块，当前卡描陶土边 + 白底。尾部常驻「＋ 新建」。</p><div class="tokens"><span>圆角 18</span><span>高亮描边</span><span>24px 数字</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg></div><div><h4>标记历史（蜜瓜胶囊）</h4><p>夹在 − 与 + 中间，是「留证据」动作。点击后：绿勾 tick 弹出 + 历史徽章 +1 + 下方时间戳行写入「11-04 09:41 · 8 次」。</p><div class="tokens"><span>#FFB74D</span><span>tick 0.5s</span><span>本地保存</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 5.5h16M4 12h16M4 18.5h10"/><circle cx="19.5" cy="18.5" r="1.4" fill="currentColor" stroke="none"/></svg></div><div><h4>历史时间戳面板</h4><p>底部抽屉：按时间倒序的「时刻 + 当时次数」列表，单条可删，空态引导去点标记。历史存在手机本地，与卡片一起随账号同步。</p><div class="tokens"><span>抽屉</span><span>倒序</span><span>单条删除</span></div></div></div>
+          <div class="comp"><div class="comp-vis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg></div><div><h4>协作面板（保留）</h4><p>与 V5 一致：链接 + 4 位口令 + 成员贡献 + 最近记录 + 已同步标识。卡片右上角小云朵显示同步状态。</p><div class="tokens"><span>底部抽屉</span><span>口令 4 位</span><span>云同步</span></div></div></div>
+        </div>
+      </div>
+
+      <div class="spec-card">
+        <h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></svg></span>动效规则</h3>
+        <div class="motion-list">
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><div><b>数字弹跳</b><p>±1 时大块数字 0.18s 弹性放大到 1.1 回弹，只动数字不动整板；小块数字同步更新但不动画。</p></div></div>
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg></span><div><b>标记成功 tick</b><p>点击标记历史：按钮右上角弹出一个绿勾（0.5s），下方时间戳行 0.25s 淡入，历史徽章 +1。一个动作，三层确认。</p></div></div>
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M8 6V4h8v2M7 6l1 14h8l1-14"/></svg></span><div><b>删除两步确认</b><p>小块卡上的删除按钮先变红（confirm 态），再点一次才删除卡片；历史条目同理先红后删。</p></div></div>
+          <div class="motion-item"><span class="m-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><div><b>切换与抽屉</b><p>点小块切大块：数字区 0.2s 淡入新值；浮层一律 0.3s 上滑 + 背景压暗。全部尊重系统「减弱动态」。</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 落地建议 ===================== -->
+<section class="landing">
+  <div class="wrap">
+    <div class="land-head">
+      <h2>落地到趣工局</h2>
+      <p>单页结构更轻：一个页面 + 三个浮层。数据模型同步精简，历史时间戳先落本地，随账号体系再上云。</p>
+    </div>
+    <div class="land-grid">
+
+      <div class="land-card">
+        <h3><span class="ico">01</span>页面与注册</h3>
+        <div class="code-block">
+<span class="c-cm">// fun-toolbox/src/data/tools.ts 新增</span><br>
+<span class="c-br">{</span> id: <span class="c-st">'counter'</span>, name: <span class="c-st">'一起数数'</span>, icon: <span class="c-st">'🔢'</span>,<br>
+&nbsp;&nbsp;desc: <span class="c-st">'一屏到底 数到尽头'</span>, path: <span class="c-st">'/pages/counter/index'</span>,<br>
+&nbsp;&nbsp;boxColor: <span class="c-st">'#DCE9DF'</span>, boxColorDeep: <span class="c-st">'#C4D8CB'</span>,<br>
+&nbsp;&nbsp;ribbonColor: <span class="c-st">'#2F4B43'</span>, category: <span class="c-st">'fun'</span> <span class="c-br">}</span><br><br>
+<span class="c-cm">// app.config.ts 主包只注册一页</span><br>
+<span class="c-st">'pages/counter/index'</span>
+        </div>
+        <div class="land-list" style="margin-top:14px">
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>单页 <b>index</b>：大块 + 小块列表；新建、历史、协作均为页内浮层，无二级页面跳转。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>数据与历史先落 <b>wx.storage</b>（storage.ts 已有封装），本地体验完整，不阻塞提审。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>卡片颜色按创建顺序自动轮换六色，用户不用选图标选颜色——两步即开数。</span></div>
+        </div>
+      </div>
+
+      <div class="land-card">
+        <h3><span class="ico">02</span>数据模型（精简版）</h3>
+        <div class="code-block">
+<span class="c-cm">// 无图标、无目标、无小计数点；新增 history 时间戳</span><br>
+card <span class="c-br">{</span><br>
+&nbsp;&nbsp;id, title, colorIdx, unit,<br>
+&nbsp;&nbsp;value,<span class="c-cm">// 主计数</span><br>
+&nbsp;&nbsp;history: [<span class="c-br">{</span> id, ts, value <span class="c-br">}</span>],&nbsp;<span class="c-cm">// 本地时间戳快照</span><br>
+&nbsp;&nbsp;owner, members: [openid...],<br>
+&nbsp;&nbsp;version, updatedAt<span class="c-cm">// 乐观锁</span><br>
+<span class="c-br">}</span><br><br>
+event <span class="c-br">{</span> cardId, userId, delta, ts <span class="c-br">}</span>&nbsp;<span class="c-cm">// 增量：计数与历史标记都走它</span>
+        </div>
+        <div class="land-list" style="margin-top:14px">
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>「标记历史」本地写入 <b>{ ts, value }</b> 快照；与 +1 一样作为增量事件同步，好友也能看到你的标记。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>离线可数可标记：本地先记，联网后按事件序补传；冲突按事件级 last-write-wins。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>分享链接 = cardId 短链 + 4 位口令，新成员凭口令加入 members 共同计数。</span></div>
+        </div>
+      </div>
+
+      <div class="land-card">
+        <h3><span class="ico">03</span>接口预留</h3>
+        <div class="code-block">
+<span class="c-cm">// 待服务器部署后启用（request 合法域名 + HTTPS）</span><br>
+GET&nbsp;&nbsp;/api/cards&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 我的卡片</span><br>
+POST&nbsp;&nbsp;/api/cards&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-cm">// 新建</span><br>
+GET&nbsp;&nbsp;/api/cards/:id/events&nbsp;<span class="c-cm">// 拉增量（计数 + 历史标记）</span><br>
+POST&nbsp;&nbsp;/api/cards/:id/events&nbsp;<span class="c-cm">// 提交增量</span><br>
+POST&nbsp;&nbsp;/api/cards/:id/join&nbsp;&nbsp;<span class="c-cm">// 口令加入</span>
+        </div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+          <span class="phase-tag phase-a">V1 · 本地优先</span>
+          <span class="phase-tag phase-a">单页三浮层</span>
+          <span class="phase-tag phase-b">V2 · 云同步（待服务器）</span>
+          <span class="phase-tag phase-b">复用 U-1~U-3 登录链路</span>
+        </div>
+      </div>
+
+      <div class="land-card">
+        <h3><span class="ico">04</span>边界与后续</h3>
+        <div class="land-list">
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>按本轮反馈精简：<b>无目标、无小计数点、无图标选择</b>；二级页面全部移除，新建/历史/协作都是页内浮层。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>历史时间戳为<b>本地快照</b>（手机本地留时间 + 次数），上云后随账号跨设备可见。</span></div>
+          <div class="land-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>可延展：标记历史导出为图片分享、每日自动留档、皮肤工坊的记分牌皮肤。</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 页脚 ===================== -->
+<footer class="site-foot">
+  <div class="wrap">
+    <b>趣工局 · 一起数数（计数器）设计稿 V6 一级页面版</b>
+    <div class="foot-line"><span>设计：陶土暖调 × 大块记分牌 × 时间戳</span><span>2026-11-04</span><span>V5 完整版保留，本版为精简对照</span></div>
+  </div>
+</footer>
+
+<script>
+/* ===================== 演示数据与状态 ===================== */
+const COLORS = [
+  { name:'陶土',    hex:'#E8795A', deep:['#E8795A','#CE5B3F'], soft:'#FFE9E0' },
+  { name:'记分牌绿',hex:'#2F4B43', deep:['#36564B','#223931'], soft:'#E2EFEA' },
+  { name:'紫薯',    hex:'#B39DDB', deep:['#9B7FD4','#7E57C2'], soft:'#F0EAFB' },
+  { name:'蜜瓜',    hex:'#FFB74D', deep:['#F5A623','#EF8B00'], soft:'#FFF1DC' },
+  { name:'薄荷',    hex:'#4DB6AC', deep:['#3FAF9F','#00897B'], soft:'#E4F5F3' },
+  { name:'樱花',    hex:'#F48FB1', deep:['#EF7FA6','#D6658F'], soft:'#FDEBF1' }
+];
+
+let state = {
+  activeCard: 'c1',
+  sheet: null,          // null | 'create' | 'history' | 'share'
+  confirmDel: null,     // 待确认删除的卡片 id
+  confirmHis: null,     // 待确认删除的历史条目 id
+  newTitle: '', newStep: 0, colorCursor: 0,
+  cards: [
+    {
+      id: 'c1', title: '喝水打卡', colorIdx: 0, unit: '杯', value: 8,
+      history: [
+        { id: 'h1', ts: '11-04 09:41', value: 8 },
+        { id: 'h2', ts: '11-03 22:15', value: 6 }
+      ],
+      members: [ { n:'毛', c:'#E8795A' }, { n:'一', c:'#B39DDB' } ],
+      synced: true, lastBy: '阿毛', lastAt: '3 分钟前'
+    },
+    {
+      id: 'c2', title: '连胜记一记', colorIdx: 4, unit: '局', value: 12,
+      history: [],
+      members: [], synced: true, lastBy: '我', lastAt: '昨天'
+    },
+    {
+      id: 'c3', title: '读书会进度', colorIdx: 2, unit: '本', value: 37,
+      history: [ { id: 'h3', ts: '11-02 20:05', value: 36 } ],
+      members: [ { n:'毛', c:'#E8795A' }, { n:'米', c:'#4DB6AC' }, { n:'桃', c:'#F48FB1' } ],
+      synced: true, lastBy: '桃子', lastAt: '12 分钟前'
+    }
+  ]
+};
+
+const uid = () => Math.random().toString(36).slice(2, 8);
+const pad = n => String(n).padStart(2, '0');
+function nowStamp() {
+  const d = new Date();
+  return `${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function getCard() { return state.cards.find(c => c.id === state.activeCard) || state.cards[0]; }
+
+/* ===================== 状态说明文案 ===================== */
+const STATE_DESC = {
+  main: {
+    no: '01', title: '主视图 · 大块 + 小块',
+    lead: '顶部大块永远留着一张卡片：卡名、大数字、云同步、历史徽章、−/标记历史/+。下方一排小卡，点击任意一张，大块立刻切换。',
+    points: ['没有二级页面：新建、历史、协作都是页内浮层','大块背景 = 当前卡的主题色，点小卡切换时一起换色','小块列表尾部常驻「＋ 新建一张计数」，一步开新卡']
+  },
+  create: {
+    no: '02', title: '新建计数',
+    lead: '只问两件事：叫什么、从几开始。不需要图标、不需要目标、不需要小计数点——颜色按创建顺序自动轮换。',
+    points: ['名称输入 + 初始值步进器，两步完成','颜色自动轮换六色（陶土/绿/紫/蜜瓜/薄荷/樱花）','创建后直接成为顶部大块，立刻能数']
+  },
+  history: {
+    no: '03', title: '历史时间戳',
+    lead: '数到想留证据的数字，点「标记历史」：手机本地存下这一刻的时间和次数。右上角历史徽章显示已存几条，点开按时间倒序回看。',
+    points: ['标记即快照：{ 时间, 次数 } 存在手机本地','历史面板单条可删，空态引导去标记第一条','历史与 +1 一样作为增量事件，上云后随账号同步']
+  },
+  collab: {
+    no: '04', title: '好友协作',
+    lead: '每张小卡右侧都有一个分享按钮，点开就是协作面板：链接 + 4 位口令，朋友凭口令加入后一起维护同一个数字。导航栏右上角也能分享当前这张。',
+    points: ['成员贡献榜：每人累计 +1 次数','最近记录时间线：谁数了哪一下都看得见','卡片右上角小云朵 = 已同步']
+  }
+};
+
+/* ===================== 手机内渲染 ===================== */
+const root = document.getElementById('appRoot');
+const toastEl = document.getElementById('phoneToast');
+
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 1600);
+}
+
+function render() {
+  root.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'app-body';
+  wrap.appendChild(navbar());
+  wrap.appendChild(mainBlock());
+  wrap.appendChild(miniList());
+  root.appendChild(wrap);
+  if (state.sheet === 'create') openSheet('create');
+  if (state.sheet === 'history') openSheet('history');
+  if (state.sheet === 'share') openSheet('share');
+}
+
+function navbar() {
+  const nav = document.createElement('div');
+  nav.className = 'navbar';
+  nav.innerHTML = `
+    <span class="nav-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 9h8M8 13h5"/></svg>一起数数</span>
+    <div class="nav-actions">
+      <button class="nav-btn" data-act="share" aria-label="分享"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8h16v-8"/><path d="M12 16V3"/><path d="M8 7l4-4 4 4"/></svg></button>
+    </div>`;
+  return nav;
+}
+
+function mainBlock() {
+  const c = getCard();
+  const col = COLORS[c.colorIdx];
+  const box = document.createElement('div');
+  box.className = 'main-block';
+  box.style.background = `linear-gradient(180deg, ${col.deep[0]}, ${col.deep[1]})`;
+  const last = c.history[0];
+  box.innerHTML = `
+    <div class="mb-top">
+      <span class="mb-title">${c.title}</span>
+      <span class="mb-pills">
+        ${c.synced ? `<span class="mb-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg>已同步</span>` : ''}
+        <span class="mb-pill mb-pill--his" data-act="openHistory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>历史 <span class="badge">${c.history.length}</span></span>
+      </span>
+    </div>
+    <div class="mb-num">
+      <span class="val" id="mainVal">${c.value}</span>
+      <div class="unit">${c.unit}</div>
+    </div>
+    <div class="mb-actions">
+      <button class="mb-btn mb-minus" data-act="minus" aria-label="减一"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg><span class="mb-float" data-f="−1"></span></button>
+      <button class="mb-mark" data-act="mark" aria-label="标记历史"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></svg>标记历史<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span></button>
+      <button class="mb-btn mb-plus" data-act="plus" aria-label="加一"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="mb-float" data-f="+1"></span></button>
+    </div>
+    <div class="mb-stamp" id="mbStamp">
+      ${last ? `<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>最近标记 · ${last.ts} · ${last.value} ${c.unit}` : '还没标记过历史，点上面的「标记历史」留下第一条'}
+    </div>`;
+  return box;
+}
+
+function miniList() {
+  const box = document.createElement('div');
+  const head = document.createElement('div');
+  head.className = 'panel-title';
+  head.innerHTML = `<b>我的计数</b><span class="hint">${state.cards.length} 张</span>`;
+  box.appendChild(head);
+  const list = document.createElement('div');
+  list.className = 'card-list';
+  state.cards.forEach(c => {
+    const col = COLORS[c.colorIdx];
+    const on = c.id === state.activeCard;
+    const item = document.createElement('div');
+    item.className = `mini-card ${on ? 'on' : ''}`;
+    item.setAttribute('data-act', 'open');
+    item.setAttribute('data-id', c.id);
+    item.innerHTML = `
+      <span class="m-topbar" style="background:${col.hex}"></span>
+      <span class="m-name">${c.title}<small>${on ? '正在顶部显示' : '点一下换到顶部'}</small></span>
+      <span class="m-val" style="color:${col.hex}">${c.value}</span>
+      <span class="m-unit">${c.unit}</span>
+      ${c.synced ? `<span class="m-sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg>云</span>` : ''}
+      ${c.members.length ? `<span class="m-members">${c.members.slice(0, 3).map(m => `<span style="background:${m.c}">${m.n}</span>`).join('')}</span>` : ''}
+      <button class="m-share" data-act="shareCard" data-id="${c.id}" aria-label="分享这张卡"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8h16v-8"/><path d="M12 16V3"/><path d="M8 7l4-4 4 4"/></svg></button>
+      <button class="m-del ${state.confirmDel === c.id ? 'confirm' : ''}" data-act="delCard" data-id="${c.id}" aria-label="删除">${state.confirmDel === c.id ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M9 6V4h6v2M7 6l1 14h8l1-14M10 10v7M14 10v7"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'}</button>`;
+    list.appendChild(item);
+  });
+  box.appendChild(list);
+  const add = document.createElement('button');
+  add.className = 'add-card';
+  add.setAttribute('data-act', 'create');
+  add.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>新建一张计数`;
+  box.appendChild(add);
+  return box;
+}
+
+function openSheet(kind) {
+  const app = root.querySelector('.app-body');
+  if (kind === 'create') openCreate(app);
+  if (kind === 'history') openHistory(app);
+  if (kind === 'share') openShare(app);
+}
+
+function openCreate(app) {
+  const sheet = document.createElement('div');
+  sheet.className = 'sheet open';
+  sheet.innerHTML = `
+    <div class="sheet-inner">
+      <div class="sheet-grab"></div>
+      <div class="sheet-head"><b>新建一张计数</b><button class="sheet-x" data-act="closeSheet" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="form-field">
+        <div class="form-label">它叫什么</div>
+        <input class="form-input" id="inpTitle" placeholder="比如：今天写了几个字" maxlength="12" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <div class="form-label">从几开始</div>
+        <div class="num-row">
+          <button class="num-btn" data-act="stepper" data-d="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+          <span class="num-val" id="stepperVal">0</span>
+          <button class="num-btn" data-act="stepper" data-d="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+      </div>
+      <div class="add-actions">
+        <button class="add-cancel" data-act="closeSheet">取消</button>
+        <button class="add-ok" data-act="createCard">创建，开始数</button>
+      </div>
+    </div>`;
+  app.appendChild(sheet);
+  const inp = sheet.querySelector('#inpTitle');
+  setTimeout(() => inp && inp.focus(), 250);
+}
+
+function openHistory(app) {
+  const c = getCard();
+  const sheet = document.createElement('div');
+  sheet.className = 'sheet open';
+  sheet.innerHTML = `
+    <div class="sheet-inner">
+      <div class="sheet-grab"></div>
+      <div class="sheet-head"><b>「${c.title}」的历史</b><button class="sheet-x" data-act="closeSheet" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      ${c.history.length ? `
+        <div class="his-list">
+          ${c.history.map(h => `
+            <div class="his-item">
+              <span class="h-dot">${h.value}</span>
+              <span class="h-info"><span class="h-time">${h.ts}</span><span class="h-note">${h.value} ${c.unit} · 本机时间戳</span></span>
+              <span class="h-val">${h.value} ${c.unit}</span>
+              <button class="h-del ${state.confirmHis === h.id ? 'confirm' : ''}" data-act="delHis" data-id="${h.id}" aria-label="删除">${state.confirmHis === h.id ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M9 6V4h6v2M7 6l1 14h8l1-14M10 10v7M14 10v7"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'}</button>
+            </div>`).join('')}
+        </div>` : `
+        <div class="his-empty">还没有时间戳。<br>回到大块，数到一个想留住的数字，<br>点一下<b>「标记历史」</b>就有了。</div>`}
+    </div>`;
+  app.appendChild(sheet);
+}
+
+function openShare(app) {
+  const c = getCard();
+  const sheet = document.createElement('div');
+  sheet.className = 'sheet open';
+  sheet.innerHTML = `
+    <div class="sheet-inner">
+      <div class="sheet-grab"></div>
+      <div class="sheet-head"><b>分享「${c.title}」</b><button class="sheet-x" data-act="closeSheet" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="share-card">
+        <span class="sc-top">${c.value}</span>
+        <div style="flex:1;min-width:0"><div class="sc-name">${c.title}</div><div class="sc-num">当前 ${c.value} ${c.unit}</div></div>
+        <span class="mb-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5C4.8 15.4 3.5 13.3 3.5 11c0-4 3.6-7 8-7s8 3 8 7-3.6 7-8 7c-.9 0-1.7-.1-2.5-.4L6 19z"/></svg>已同步</span>
+      </div>
+      <div class="share-link">
+        <input value="doubao.link/c/${c.id}" readonly aria-label="邀请链接">
+        <button class="copy" data-act="copy">复制</button>
+      </div>
+      <div class="share-code">
+        <span class="code-box">${String(c.id.charCodeAt(0) % 10)}${String(c.id.charCodeAt(1) % 10)}${String(c.id.length)}${String(c.members.length)}</span>
+        <span>口令 · 朋友凭此加入</span>
+      </div>
+      <div class="share-members">
+        ${c.members.map((m, i) => `<div class="share-member"><span class="m-ava" style="background:${m.c}">${m.n}</span><span class="m-name">${m.n === '毛' ? '阿毛' : m.n === '一' ? '一一' : '桃子'}<small>${i === 0 ? '创建者' : '好友'} · 昨日加入</small></span><span class="m-count">+${[9, 12, 7][i] || 5} 次</span></div>`).join('')}
+        <div class="share-member"><span class="m-ava" style="background:#EEE;color:var(--ink-sub);font-size:16px">＋</span><span class="m-name">等待朋友加入<small>链接或口令任一即可</small></span></div>
+      </div>
+      <div class="share-record">
+        <b>${c.lastBy}</b> 刚刚 +1 · <b>桃子</b> 12 分钟前标记了历史 · <b>阿毛</b> 昨天 +1
+      </div>
+      <div class="share-sync">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>已同步，${c.members.length || 0} 位小伙伴随时可数
+        <span class="cloud">云同步 · 服务器接入中</span>
+      </div>
+    </div>`;
+  app.appendChild(sheet);
+}
+
+/* ===================== 手机内事件 ===================== */
+root.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act;
+  switch (act) {
+    case 'open':
+      state.activeCard = el.dataset.id;
+      state.confirmDel = null;
+      render();
+      break;
+    case 'create':
+      state.sheet = 'create';
+      state.newTitle = '';
+      state.newStep = 0;
+      render();
+      break;
+    case 'stepper': {
+      state.newStep = Math.max(0, state.newStep + Number(el.dataset.d));
+      const v = root.querySelector('#stepperVal');
+      if (v) v.textContent = state.newStep;
+      break;
+    }
+    case 'createCard': {
+      const inp = root.querySelector('#inpTitle');
+      const title = (inp && inp.value.trim()) || '我的计数';
+      const card = {
+        id: uid(), title, colorIdx: state.colorCursor % COLORS.length, unit: '次', value: state.newStep,
+        history: [], members: [], synced: false, lastBy: '我', lastAt: '刚刚'
+      };
+      state.colorCursor += 1;
+      state.cards.push(card);
+      state.activeCard = card.id;
+      state.sheet = null;
+      toast('计数创建好了，开始数吧');
+      render();
+      break;
+    }
+    case 'plus': bump(1, el); break;
+    case 'minus': bump(-1, el); break;
+    case 'mark': {
+      const c = getCard();
+      c.history.unshift({ id: uid(), ts: nowStamp(), value: c.value });
+      const tick = root.querySelector('.mb-mark .tick');
+      if (tick) { tick.classList.remove('show'); void tick.offsetWidth; tick.classList.add('show'); }
+      const badge = root.querySelector('.mb-pill--his .badge');
+      if (badge) badge.textContent = c.history.length;
+      const stamp = root.querySelector('#mbStamp');
+      if (stamp) stamp.innerHTML = `<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>已标记 · ${c.history[0].ts} · ${c.value} ${c.unit}`;
+      toast(`已标记 · ${c.value} ${c.unit}`);
+      break;
+    }
+    case 'openHistory':
+      state.sheet = 'history';
+      render();
+      break;
+    case 'delHis': {
+      const c = getCard();
+      const id = el.dataset.id;
+      if (state.confirmHis === id) {
+        c.history = c.history.filter(h => h.id !== id);
+        state.confirmHis = null;
+        toast('这条时间戳已删除');
+        render();
+      } else {
+        state.confirmHis = id;
+        toast('再点一下确认删除');
+        render();
+      }
+      break;
+    }
+    case 'delCard': {
+      const id = el.dataset.id;
+      if (state.confirmDel === id) {
+        state.cards = state.cards.filter(c => c.id !== id);
+        state.confirmDel = null;
+        if (!state.cards.some(c => c.id === state.activeCard)) state.activeCard = state.cards[0].id;
+        toast('卡片已删除');
+        render();
+      } else {
+        state.confirmDel = id;
+        toast('再点一下确认删除');
+        render();
+      }
+      break;
+    }
+    case 'shareCard':
+      state.activeCard = el.dataset.id;
+      state.sheet = 'share';
+      render();
+      break;
+    case 'share':
+      state.sheet = 'share';
+      render();
+      break;
+    case 'closeSheet':
+      state.sheet = null;
+      render();
+      break;
+    case 'copy':
+      toast('链接已复制，去微信发给朋友');
+      break;
+  }
+});
+
+function bump(delta, btnEl) {
+  const c = getCard();
+  c.value = Math.max(0, c.value + delta);
+  const val = root.querySelector('#mainVal');
+  if (val) {
+    val.textContent = c.value;
+    val.classList.add('pop');
+    setTimeout(() => val.classList.remove('pop'), 200);
+  }
+  const float = btnEl.querySelector('.mb-float');
+  if (float) {
+    float.style.animation = 'none';
+    void float.offsetWidth;
+    float.style.animation = 'floatUp2 1s ease-out forwards';
+  }
+  root.querySelectorAll('.mini-card[data-id]').forEach(m => {
+    if (m.dataset.id === c.id) {
+      const mv = m.querySelector('.m-val');
+      if (mv) mv.textContent = c.value;
+    }
+  });
+}
+
+/* ===================== 外部状态切换 ===================== */
+const descEl = document.getElementById('stateDesc');
+const tabs = document.querySelectorAll('.state-tab');
+
+function renderStateDesc(key) {
+  const d = STATE_DESC[key];
+  descEl.innerHTML = `
+    <h3><span class="no">${d.no}</span>${d.title}</h3>
+    <p class="lead">${d.lead}</p>
+    <div class="state-points">
+      ${d.points.map(p => `<div class="sp-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg><span>${p}</span></div>`).join('')}
+    </div>`;
+}
+
+function syncTabs(view) {
+  tabs.forEach(t => {
+    const on = t.dataset.state === view;
+    t.classList.toggle('on', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  renderStateDesc(view);
+}
+
+tabs.forEach(t => t.addEventListener('click', () => {
+  const v = t.dataset.state;
+  syncTabs(v);
+  if (v === 'main') state.sheet = null;
+  if (v === 'create') state.sheet = 'create';
+  if (v === 'history') state.sheet = 'history';
+  if (v === 'collab') state.sheet = 'share';
+  render();
+}));
+
+/* ===================== Hero 记分牌交互 ===================== */
+let heroVal = 8;
+let heroHis = 2;
+const heroNum = document.getElementById('heroNum');
+const heroHisBadge = document.getElementById('heroHisBadge');
+const heroStamp = document.getElementById('heroStamp');
+function bumpHero(delta) {
+  heroVal = Math.max(0, heroVal + delta);
+  heroNum.textContent = heroVal;
+}
+function markHero() {
+  heroHis += 1;
+  heroHisBadge.textContent = heroHis;
+  const d = new Date();
+  heroStamp.innerHTML = `<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>已标记 · ${nowStamp()} · ${heroVal} 杯`;
+  heroStamp.style.animation = 'none';
+  void heroStamp.offsetWidth;
+  heroStamp.style.animation = 'stampIn .3s ease';
+}
+document.querySelectorAll('.sb-btn').forEach(b => b.addEventListener('click', () => {
+  bumpHero(b.classList.contains('sb-plus') ? 1 : -1, b);
+}));
+document.getElementById('heroMark').addEventListener('click', markHero);
+
+/* ===================== 初始化 ===================== */
+renderStateDesc('main');
+render();
+</script>
+</body>
+</html>
