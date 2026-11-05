@@ -585,7 +585,21 @@ export default function Counter() {
             }}
           />
         </View>
-      ) : null}
+      ) : (
+        <View className='app-body'>
+          <View className='counter-empty'>
+            <Text className='counter-empty-ico'>✚</Text>
+            <Text className='counter-empty-title'>还没有要数的东西</Text>
+            <Text className='counter-empty-sub'>
+              建一个标签，从今天开始记。{'\n'}家人朋友可以用口令一起数同一个标签。
+            </Text>
+            <View className='counter-empty-btn' onClick={() => setSheet('newTag')}>
+              <Text className='counter-empty-btn-ico'>✚</Text>
+              <Text>新建第一个标签</Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       {/* ---------------- 记录 / 编辑 ---------------- */}
       {sheet === 'add' && activeTag ? (
