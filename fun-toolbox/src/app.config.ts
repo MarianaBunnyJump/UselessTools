@@ -18,6 +18,7 @@ export default defineAppConfig({
     'pages/wheel/history',
     'pages/mixer/index',
     'pages/bubble/index',
+    'pages/counter/index',
     'pages/about/index',
     'pages/level/index',
     'pages/level/simple-level',

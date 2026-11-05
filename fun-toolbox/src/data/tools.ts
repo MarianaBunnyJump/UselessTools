@@ -254,5 +254,16 @@ export const TOOLS: ToolMeta[] = [
     boxColorDeep: '#F5CDBB',
     ribbonColor: '#C4523A',
     category: 'fun'
+  },
+  {
+    id: 'counter',
+    name: '一起数数',
+    icon: '🔢',
+    desc: '一屏到底 数到尽头',
+    path: '/pages/counter/index',
+    boxColor: '#DCE9DF',
+    boxColorDeep: '#C4D8CB',
+    ribbonColor: '#2F4B43',
+    category: 'fun'
   }
 ]
