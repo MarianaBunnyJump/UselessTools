@@ -1,8 +1,11 @@
-import { get, set } from './storage'
+import { get, set, remove } from './storage'
+import { todayStr } from './counterCalc'
 
-/* ===================== 一起数数 · 本地数据层 =====================
- * 设计原则：本地优先。没有服务器时也能完整地数数、标记历史；
+/* ===================== 一起数数 v2 · 本地数据层（日历账模型） =====================
+ * 模型：tag{ entries[date,time,amount,note,by], anniversaries[date,time,label,valueAtMark], photo }
+ * 设计原则：本地优先。没有服务器时也能完整地记数、标记历史；
  * 所有云端变更先写本地 outbox，联网后再按顺序补传。
+ * 存储按标签分 key（c_tag_<id> + 索引），避免单个 key 超限。
  */
 
 export const COUNTER_COLORS = [
@@ -14,17 +17,34 @@ export const COUNTER_COLORS = [
   { name: '樱花', hex: '#F48FB1', deep: ['#EF7FA6', '#D6658F'], soft: '#FDEBF1' }
 ]
 
-const CARDS_KEY = 'counter_cards_v1'
-const ACTIVE_KEY = 'counter_active_v1'
+/* 自定义照片背景在颜色条里的虚拟下标（6 = 照片） */
+export const PHOTO_COLOR_IDX = 6
+
+const INDEX_KEY = 'counter_index_v2'
+const TAG_KEY_PREFIX = 'c_tag_'
 const COLOR_CURSOR_KEY = 'counter_color_cursor_v1'
-const OUTBOX_KEY = 'counter_outbox_v1'
+const OUTBOX_KEY = 'counter_outbox_v2'
 const TOKEN_KEY = 'counter_token_v1'
 const ACCOUNT_KEY = 'counter_account_v1'
+const MIGRATED_KEY = 'counter_migrated_v2'
 
-export interface CounterMark {
+/* ---------------- 数据结构 ---------------- */
+
+export interface CounterEntry {
   id: string
-  ts: number
-  value: number
+  date: string /* YYYY-MM-DD */
+  time: string /* HH:MM */
+  amount: number
+  note: string
+  by: string
+}
+
+export interface CounterAnniversary {
+  id: string
+  date: string
+  time: string
+  label: string
+  valueAtMark: number
 }
 
 export interface CounterMember {
@@ -32,39 +52,35 @@ export interface CounterMember {
   name: string
   colorIdx: number
   role: 'owner' | 'member'
-  contribution: number
 }
 
-export interface CounterCard {
+export interface CounterTag {
   id: string
-  title: string
+  name: string
   unit: string
-  value: number
   colorIdx: number
-  history: CounterMark[]
-  members: CounterMember[]
-  version: number
+  target?: number
+  photo?: string /* 本地持久文件路径 */
+  photoUrl?: string /* 云端照片 URL */
   synced: boolean
   shareCode?: string
+  members: CounterMember[]
+  version: number
   createdAt: number
   updatedAt: number
-  lastBy?: string
-  lastAt?: number
-}
-
-export interface SyncEvent {
-  id: string
-  type: 'delta' | 'mark'
-  delta?: number
-  value?: number
-  ts: number
+  entries: CounterEntry[]
+  anniversaries: CounterAnniversary[]
 }
 
 export type OutboxItem =
-  | { key: string; type: 'create'; cardId: string }
-  | { key: string; type: 'events'; cardId: string; events: SyncEvent[] }
-  | { key: string; type: 'deleteCard'; cardId: string }
-  | { key: string; type: 'deleteMark'; cardId: string; markId: string }
+  | { key: string; type: 'createTag'; tagId: string }
+  | { key: string; type: 'updateMeta'; tagId: string }
+  | { key: string; type: 'photo'; tagId: string }
+  | { key: string; type: 'entries'; tagId: string; entries: CounterEntry[] }
+  | { key: string; type: 'delEntry'; tagId: string; entryId: string }
+  | { key: string; type: 'marks'; tagId: string; marks: CounterAnniversary[] }
+  | { key: string; type: 'delMark'; tagId: string; markId: string }
+  | { key: string; type: 'delTag'; tagId: string }
 
 let seq = 0
 
@@ -83,107 +99,215 @@ export function nextColorIdx(): number {
   return cursor % COUNTER_COLORS.length
 }
 
-export function formatStamp(ts: number): string {
-  const d = new Date(ts)
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+export function peekColorIdx(): number {
+  const cursor = get<number>(COLOR_CURSOR_KEY, 0)
+  return cursor % COUNTER_COLORS.length
 }
 
-export function formatRelative(ts?: number): string {
-  if (!ts) return ''
-  const diff = Date.now() - ts
-  if (diff < 60 * 1000) return '刚刚'
-  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)} 分钟前`
-  if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)} 小时前`
-  if (diff < 48 * 60 * 60 * 1000) return '昨天'
-  return formatStamp(ts)
+/* ---------------- v1 → v2 迁移（老卡片 → 日历账，不丢用户记录） ---------------- */
+
+function migrateV1() {
+  const legacy = get<any[]>('counter_cards_v1', [])
+  const index = get<{ ids: string[]; activeId: string }>(INDEX_KEY, { ids: [], activeId: '' })
+  const now = Date.now()
+
+  if (Array.isArray(legacy) && legacy.length) {
+    legacy.forEach((raw: any, i: number) => {
+      if (!raw || typeof raw.id !== 'string') return
+      const today = todayStr()
+      const entries: CounterEntry[] = []
+      /* value 折算成一条 entry：date=迁移当天、time=00:00、note=迁移自旧版 */
+      const value = Math.max(0, Math.floor(Number(raw.value) || 0))
+      if (value > 0) {
+        entries.push({ id: newId('e'), date: today, time: '00:00', amount: value, note: '迁移自旧版', by: '我' })
+      }
+      /* history[] 每条转成 anniversary：从 ts 拆出 date/time，label=历史 */
+      const anniversaries: CounterAnniversary[] = []
+      if (Array.isArray(raw.history)) {
+        raw.history.forEach((h: any) => {
+          const ts = Number(h && h.ts)
+          if (!Number.isFinite(ts) || ts <= 0) return
+          const d = new Date(ts)
+          const pad = (n: number) => String(n).padStart(2, '0')
+          anniversaries.push({
+            id: typeof h.id === 'string' && h.id ? h.id : newId('a'),
+            date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+            time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+            label: '历史',
+            valueAtMark: Math.max(0, Math.floor(Number(h.value) || 0))
+          })
+        })
+      }
+      const members: CounterMember[] = Array.isArray(raw.members)
+        ? raw.members
+            .filter((m: any) => m && typeof m.id === 'string')
+            .map((m: any) => ({
+              id: m.id,
+              name: typeof m.name === 'string' ? m.name.slice(0, 12) : '好友',
+              colorIdx: Number.isFinite(Number(m.colorIdx)) ? Number(m.colorIdx) : 0,
+              role: m.role === 'owner' ? ('owner' as const) : ('member' as const)
+            }))
+        : []
+      const tag: CounterTag = {
+        id: raw.id,
+        name: typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim().slice(0, 12) : '我的标签',
+        unit: typeof raw.unit === 'string' && raw.unit.trim() ? raw.unit.trim().slice(0, 4) : '次',
+        colorIdx: Math.max(0, Math.floor(Number(raw.colorIdx) || 0)) % COUNTER_COLORS.length,
+        synced: !!raw.synced,
+        shareCode: typeof raw.shareCode === 'string' ? raw.shareCode : undefined,
+        members,
+        version: Math.max(0, Math.floor(Number(raw.version) || 0)),
+        createdAt: Number(raw.createdAt) || now,
+        updatedAt: Number(raw.updatedAt) || now,
+        entries,
+        anniversaries
+      }
+      set(TAG_KEY_PREFIX + tag.id, tag)
+      if (!index.ids.includes(tag.id)) index.ids.push(tag.id)
+      if (!index.activeId && i === 0) index.activeId = tag.id
+    })
+  }
+  if (!index.ids.length) {
+    index.ids = []
+    index.activeId = ''
+  }
+  set(INDEX_KEY, index)
+  /* 旧队列 / 旧卡片 key 只读留底，不再参与同步 */
+  remove('counter_outbox_v1')
+  set(MIGRATED_KEY, 1)
 }
 
-function sanitizeMark(raw: any): CounterMark | null {
+export function ensureStoreReady() {
+  if (!get<number>(MIGRATED_KEY, 0)) migrateV1()
+}
+
+/* ---------------- 标签读写（按标签分 key） ---------------- */
+
+function sanitizeEntry(raw: any): CounterEntry | null {
   if (!raw || typeof raw !== 'object') return null
-  const ts = Number(raw.ts)
-  const value = Number(raw.value)
-  if (!Number.isFinite(ts) || !Number.isFinite(value)) return null
+  const date = String(raw.date || '')
+  const time = String(raw.time || '')
+  const amount = Number(raw.amount)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{1,2}:\d{2}$/.test(time)) return null
+  if (!Number.isFinite(amount) || amount === 0) return null
   return {
-    id: typeof raw.id === 'string' && raw.id ? raw.id : newId('m'),
-    ts,
-    value: Math.max(0, Math.floor(value))
+    id: typeof raw.id === 'string' && raw.id ? raw.id : newId('e'),
+    date,
+    time: time.padStart(5, '0'),
+    amount: Math.floor(amount),
+    note: typeof raw.note === 'string' ? raw.note.slice(0, 20) : '',
+    by: typeof raw.by === 'string' && raw.by ? raw.by.slice(0, 12) : '我'
   }
 }
 
-function sanitizeMember(raw: any): CounterMember | null {
-  if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string') return null
+function sanitizeAnniversary(raw: any): CounterAnniversary | null {
+  if (!raw || typeof raw !== 'object') return null
+  const date = String(raw.date || '')
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null
+  const valueAtMark = Number(raw.valueAtMark)
   return {
-    id: raw.id,
-    name: typeof raw.name === 'string' ? raw.name.slice(0, 12) : '好友',
-    colorIdx: Number.isFinite(Number(raw.colorIdx)) ? Number(raw.colorIdx) % COUNTER_COLORS.length : 0,
-    role: raw.role === 'owner' ? 'owner' : 'member',
-    contribution: Math.max(0, Math.floor(Number(raw.contribution) || 0))
+    id: typeof raw.id === 'string' && raw.id ? raw.id : newId('a'),
+    date,
+    time: /^\d{1,2}:\d{2}$/.test(String(raw.time)) ? String(raw.time).padStart(5, '0') : '12:00',
+    label: typeof raw.label === 'string' && raw.label ? raw.label.slice(0, 20) : '纪念日',
+    valueAtMark: Number.isFinite(valueAtMark) ? Math.floor(valueAtMark) : 0
   }
 }
 
-function sanitizeCard(raw: any): CounterCard | null {
+function sanitizeTag(raw: any): CounterTag | null {
   if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string') return null
-  const history = Array.isArray(raw.history)
-    ? raw.history.map(sanitizeMark).filter(Boolean).slice(0, 500) as CounterMark[]
+  const entries = (Array.isArray(raw.entries) ? raw.entries.map(sanitizeEntry).filter(Boolean) : []) as CounterEntry[]
+  const anniversaries = (Array.isArray(raw.anniversaries) ? raw.anniversaries.map(sanitizeAnniversary).filter(Boolean) : []) as CounterAnniversary[]
+  const members: CounterMember[] = Array.isArray(raw.members)
+    ? raw.members
+        .filter((m: any) => m && typeof m.id === 'string')
+        .map((m: any) => ({
+          id: m.id,
+          name: typeof m.name === 'string' ? m.name.slice(0, 12) : '好友',
+          colorIdx: Number.isFinite(Number(m.colorIdx)) ? Number(m.colorIdx) : 0,
+          role: m.role === 'owner' ? ('owner' as const) : ('member' as const)
+        }))
     : []
-  const members = Array.isArray(raw.members)
-    ? raw.members.map(sanitizeMember).filter(Boolean) as CounterMember[]
-    : []
+  const target = Math.floor(Number(raw.target))
   return {
     id: raw.id,
-    title: typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim().slice(0, 12) : '我的计数',
+    name: typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim().slice(0, 12) : '我的标签',
     unit: typeof raw.unit === 'string' && raw.unit.trim() ? raw.unit.trim().slice(0, 4) : '次',
-    value: Math.max(0, Math.floor(Number(raw.value) || 0)),
     colorIdx: Math.max(0, Math.floor(Number(raw.colorIdx) || 0)) % COUNTER_COLORS.length,
-    history,
+    target: target > 0 ? target : undefined,
+    photo: typeof raw.photo === 'string' && raw.photo ? raw.photo : undefined,
+    photoUrl: typeof raw.photoUrl === 'string' && raw.photoUrl ? raw.photoUrl : undefined,
+    synced: !!raw.synced,
+    shareCode: typeof raw.shareCode === 'string' && raw.shareCode ? raw.shareCode : undefined,
     members,
     version: Math.max(0, Math.floor(Number(raw.version) || 0)),
-    synced: !!raw.synced,
-    shareCode: typeof raw.shareCode === 'string' ? raw.shareCode : undefined,
     createdAt: Number(raw.createdAt) || Date.now(),
     updatedAt: Number(raw.updatedAt) || Date.now(),
-    lastBy: typeof raw.lastBy === 'string' ? raw.lastBy : undefined,
-    lastAt: Number(raw.lastAt) || undefined
+    entries,
+    anniversaries
   }
 }
 
-export function starterCard(): CounterCard {
-  const now = Date.now()
-  return {
-    id: newId('c'),
-    title: '喝水打卡',
-    unit: '杯',
-    value: 0,
-    colorIdx: 0,
-    history: [],
-    members: [],
-    version: 0,
-    synced: false,
-    createdAt: now,
-    updatedAt: now
-  }
+function tagKey(id: string) {
+  return TAG_KEY_PREFIX + id
 }
 
-export function loadCards(): CounterCard[] {
-  const raw = get<any[]>(CARDS_KEY, [])
-  if (!Array.isArray(raw)) return []
-  return raw.map(sanitizeCard).filter(Boolean) as CounterCard[]
+export function loadTags(): CounterTag[] {
+  ensureStoreReady()
+  const index = get<{ ids: string[]; activeId: string }>(INDEX_KEY, { ids: [], activeId: '' })
+  const ids = Array.isArray(index.ids) ? index.ids : []
+  const tags: CounterTag[] = []
+  ids.forEach(id => {
+    const raw = get<any>(tagKey(id), null)
+    const tag = sanitizeTag(raw)
+    if (tag) tags.push(tag)
+  })
+  return tags
 }
 
-export function saveCards(cards: CounterCard[]) {
-  set(CARDS_KEY, cards)
+export function saveTag(tag: CounterTag) {
+  set(tagKey(tag.id), tag)
+}
+
+export function saveTags(tags: CounterTag[]) {
+  const index = get<{ ids: string[]; activeId: string }>(INDEX_KEY, { ids: [], activeId: '' })
+  const known = new Set(index.ids || [])
+  tags.forEach(t => {
+    saveTag(t)
+    if (!known.has(t.id)) index.ids = [...(index.ids || []), t.id]
+  })
+  set(INDEX_KEY, index)
+}
+
+export function removeTagLocal(tagId: string) {
+  remove(tagKey(tagId))
+  const index = get<{ ids: string[]; activeId: string }>(INDEX_KEY, { ids: [], activeId: '' })
+  index.ids = (index.ids || []).filter((id: string) => id !== tagId)
+  if (index.activeId === tagId) index.activeId = index.ids[0] || ''
+  set(INDEX_KEY, index)
+}
+
+export function loadIndex(): { ids: string[]; activeId: string } {
+  ensureStoreReady()
+  const index = get<{ ids: string[]; activeId: string }>(INDEX_KEY, { ids: [], activeId: '' })
+  return { ids: Array.isArray(index.ids) ? index.ids : [], activeId: typeof index.activeId === 'string' ? index.activeId : '' }
+}
+
+export function saveIndex(index: { ids: string[]; activeId: string }) {
+  set(INDEX_KEY, index)
 }
 
 export function loadActiveId(): string {
-  return get<string>(ACTIVE_KEY, '')
+  return loadIndex().activeId
 }
 
 export function saveActiveId(id: string) {
-  set(ACTIVE_KEY, id)
+  const index = loadIndex()
+  index.activeId = id
+  set(INDEX_KEY, index)
 }
 
-/* ---------------- 增量队列 ---------------- */
+/* ---------------- 增量队列（outbox v2） ---------------- */
 
 export function loadOutbox(): OutboxItem[] {
   const raw = get<any[]>(OUTBOX_KEY, [])
@@ -202,8 +326,15 @@ export function enqueue(item: OutboxItem) {
   saveOutbox(list)
 }
 
-export function enqueueEvent(cardId: string, event: SyncEvent) {
-  const item: OutboxItem = { key: 'e' + event.id, type: 'events', cardId, events: [event] }
+export function enqueueEntries(tagId: string, entries: CounterEntry[]) {
+  if (!entries.length) return
+  const item: OutboxItem = { key: 'en' + entries[0].id, type: 'entries', tagId, entries }
+  enqueue(item)
+}
+
+export function enqueueMarks(tagId: string, marks: CounterAnniversary[]) {
+  if (!marks.length) return
+  const item: OutboxItem = { key: 'mk' + marks[0].id, type: 'marks', tagId, marks }
   enqueue(item)
 }
 
@@ -213,26 +344,44 @@ export function removeOutbox(keys: string[]) {
   saveOutbox(loadOutbox().filter(item => !setKeys.has(item.key)))
 }
 
-export function hasPending(cardId?: string): boolean {
+export function hasPending(tagId?: string): boolean {
   const list = loadOutbox()
-  return cardId ? list.some(item => ('cardId' in item ? item.cardId === cardId : false)) : list.length > 0
+  return tagId ? list.some(item => item.tagId === tagId) : list.length > 0
 }
 
-/* 撤销还没发出的历史标记（本地删了，就不该再补传到服务器） */
-export function removePendingEvent(cardId: string, eventId: string) {
+/* 整张标签还没上云就删掉时，清掉它的全部待办 */
+export function clearPendingTag(tagId: string) {
+  saveOutbox(loadOutbox().filter(item => item.tagId !== tagId))
+}
+
+/* 撤销还没发出的记录（本地删了，就不该再补传到服务器） */
+export function removePendingEntry(tagId: string, entryId: string) {
   const list = loadOutbox()
   const next = list.filter(item => {
-    if (item.type === 'events' && item.cardId === cardId) {
-      return !item.events.some(e => e.id === eventId)
+    if (item.type === 'entries' && item.tagId === tagId) {
+      return !item.entries.some(e => e.id === entryId)
+    }
+    if (item.type === 'delEntry' && item.tagId === tagId) {
+      return item.entryId !== entryId
     }
     return true
   })
   saveOutbox(next)
 }
 
-/* 整张卡还没上云就删掉时，清掉它的创建 / 增量任务 */
-export function clearPendingCard(cardId: string) {
-  saveOutbox(loadOutbox().filter(item => !('cardId' in item) || item.cardId !== cardId))
+/* 撤销还没发出的历史标记 */
+export function removePendingMark(tagId: string, markId: string) {
+  const list = loadOutbox()
+  const next = list.filter(item => {
+    if (item.type === 'marks' && item.tagId === tagId) {
+      return !item.marks.some(m => m.id === markId)
+    }
+    if (item.type === 'delMark' && item.tagId === tagId) {
+      return item.markId !== markId
+    }
+    return true
+  })
+  saveOutbox(next)
 }
 
 /* ---------------- 会话（匿名设备令牌） ---------------- */
