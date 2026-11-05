@@ -1,3 +1,4 @@
+import Taro from '@tarojs/taro'
 import { get, set, remove } from './storage'
 import { todayStr } from './counterCalc'
 
@@ -256,8 +257,17 @@ export function loadTags(): CounterTag[] {
   ensureStoreReady()
   const index = get<{ ids: string[]; activeId: string }>(INDEX_KEY, { ids: [], activeId: '' })
   const ids = Array.isArray(index.ids) ? index.ids : []
+
+  /* 自愈：索引漏登记时（老版本或异常中断），按 key 前缀把游离标签找回来。
+   * 否则用户建完标签会看到它凭空消失。 */
+  const orphans = listTagIdsFromStorage().filter((id) => !ids.includes(id))
+  if (orphans.length) {
+    index.ids = [...ids, ...orphans]
+    set(INDEX_KEY, index)
+  }
+
   const tags: CounterTag[] = []
-  ids.forEach(id => {
+  ;(index.ids as string[]).forEach(id => {
     const raw = get<any>(tagKey(id), null)
     const tag = sanitizeTag(raw)
     if (tag) tags.push(tag)
@@ -265,8 +275,26 @@ export function loadTags(): CounterTag[] {
   return tags
 }
 
+function listTagIdsFromStorage(): string[] {
+  try {
+    const keys: string[] = (Taro.getStorageInfoSync() || {}).keys || []
+    return keys
+      .filter((k) => typeof k === 'string' && k.indexOf(TAG_KEY_PREFIX) === 0)
+      .map((k) => k.slice(TAG_KEY_PREFIX.length))
+  } catch (e) {
+    return []
+  }
+}
+
 export function saveTag(tag: CounterTag) {
   set(tagKey(tag.id), tag)
+  /* 标签本体和索引必须一起落盘：只写本体会让 loadTags() 读不到它 */
+  const index = get<{ ids: string[]; activeId: string }>(INDEX_KEY, { ids: [], activeId: '' })
+  const ids = Array.isArray(index.ids) ? index.ids : []
+  if (!ids.includes(tag.id)) {
+    index.ids = [...ids, tag.id]
+    set(INDEX_KEY, index)
+  }
 }
 
 export function saveTags(tags: CounterTag[]) {
