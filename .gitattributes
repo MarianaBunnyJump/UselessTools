@@ -1,0 +1,2 @@
+# 部署脚本必须在 Linux 上以 LF 运行（core.autocrlf=true 会把它们变成 CRLF）
+*.sh text eol=lf
