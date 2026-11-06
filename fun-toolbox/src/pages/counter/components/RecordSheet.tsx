@@ -39,8 +39,10 @@ export default function RecordSheet({ title, initTime, initAmount, initNote, isE
         placeholderText: String(curVal)
       } as any)
       if (!res.confirm) return
-      const n = Math.floor(Number(res.content))
-      if (!Number.isFinite(n)) return
+      /* editable 模式的输入内容在 res.content，Taro 类型未声明 */
+      const input = (res as { content?: string }).content
+      const n = Math.floor(Number(input))
+      if (!input || !Number.isFinite(n)) return
       if (kind === 'amt') setAmount(n)
       if (kind === 'h') setH(Math.min(23, Math.max(0, n)))
       if (kind === 'm') setM(Math.min(59, Math.max(0, n)))

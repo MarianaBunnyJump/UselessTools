@@ -303,7 +303,8 @@ async function flushOutbox() {
     try {
       if (item.type === 'createTag') {
         const tag = JSON.parse(Taro.getStorageSync('c_tag_' + item.tagId) || 'null') as CounterTag | null
-        if (!tag || tag.deleted) {
+        /* 本地已删除的标签，存储键会被 removeTagLocal 清掉，这里拿到 null */
+        if (!tag) {
           removeOutbox([item.key])
           continue
         }

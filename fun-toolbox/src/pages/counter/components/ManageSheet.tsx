@@ -2,12 +2,21 @@ import { View, Text, Input, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useState } from 'react'
 import Sheet from './Sheet'
-import type { CounterTag } from '../../../utils/counterStore'
+import type { CounterMember, CounterTag } from '../../../utils/counterStore'
 import { COUNTER_COLORS, loadAccountId } from '../../../utils/counterStore'
 import { allSum, fmtCN, relDay } from '../../../utils/counterCalc'
 import { tagColor } from './BigCard'
 
 /* 标签与分享浮层：改名称/单位/目标/颜色/照片 + 口令分享 + 成员 */
+
+/* 目标输入是字符串：空串视为未设置，非法数字也按未设置处理 */
+function targetNum(v: string): number | undefined {
+  const t = String(v || '').trim()
+  if (!t) return undefined
+  const n = Math.floor(Number(t))
+  return Number.isFinite(n) && n > 0 ? n : undefined
+}
+
 interface ManageSheetProps {
   tag: CounterTag
   photo: string
@@ -37,6 +46,9 @@ export default function ManageSheet({
     .sort((a, b) => ((a.date + a.time) < (b.date + b.time) ? 1 : -1))
     .slice(0, 3)
     .map(e => `${e.by} ${relDay(e.date) || fmtCN(e.date)} ${e.time}`)
+
+  /* 本地记录只存署名文本，成员条数按 by 归组统计 */
+  const memberCount = (m: CounterMember) => tag.entries.filter(e => e.by === m.name).length
 
   const handleDelTag = () => {
     if (!confirmTag) {
@@ -107,7 +119,7 @@ export default function ManageSheet({
         <Text className='cdot-hint'>照片背景会随标签同步给好友，好友端看到同一张图；大卡与日历都用它。</Text>
       </View>
 
-      <View className='add-ok manage-save' onClick={() => onSaveMeta(name.trim(), unit.trim(), target)}>
+      <View className='add-ok manage-save' onClick={() => onSaveMeta(name.trim(), unit.trim(), targetNum(target))}>
         <Text>保存标签设置</Text>
       </View>
 
@@ -150,7 +162,7 @@ export default function ManageSheet({
                   <Text className='m-name-txt'>{m.id === myId ? '我' : m.name}</Text>
                   <Text className='m-name-sub'>{m.role === 'owner' ? '创建者' : '好友'}</Text>
                 </View>
-                <Text className='m-count'>{m.contribution} 条</Text>
+                <Text className='m-count'>{memberCount(m)} 条</Text>
               </View>
             ))}
             <View className='share-member'>
