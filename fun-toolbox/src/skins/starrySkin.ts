@@ -48,7 +48,7 @@ export const starrySkin: SkinDefinition = {
   desc: '卡片像星子一样，散在夜空里',
   accent: '#81D4FA',
   preview: 'linear-gradient(165deg, #1B2440 0%, #2A3560 55%, #3D4778 100%)',
-  unlock: { type: 'free' },
+  unlock: { type: 'level', level: 4 },
   backgroundCss: 'linear-gradient(180deg, #1B2440 0%, #2A3560 55%, #3D4778 100%)',
   draw: drawStarry,
   particles: 'twinkle',

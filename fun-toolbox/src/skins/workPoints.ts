@@ -1,22 +1,67 @@
-/* ===================== 工分体系（由使用记录实时派生，不落盘） =====================
- * 工分 = Σ(各工具打开次数) × 10；等级每 200 工分一级，上限 Lv.10
- * 本机等级不能作为云端账号或会员权益的凭据。
+/* ===================== 工分体系兼容层 =====================
+ * 规则与数值已全部迁到 utils/growth.ts（等级非线性、工分独立落盘）。
+ * 本文件只保留旧签名，供尚未重构的页面（level / settings / SimpleHome / registry）继续调用，
+ * 三栏重构完成后会逐步移除这些调用点。
  */
 
 import { get, set } from '../utils/storage'
-import { TOOLS } from '../data/tools'
+import {
+  LV_NEED,
+  MAX_LEVEL,
+  getPoints,
+  lvOf,
+  lvName,
+  lvRemain,
+  LV_REWARD
+} from '../utils/growth'
 
+export { MAX_LEVEL }
+
+/* 旧常量名保留（旧代码里有引用）；新代码请用 growth 的 POINTS_PER_OPEN */
 export const WORK_POINT_PER_OPEN = 10
-export const LEVEL_STEP = 200
-export const MAX_LEVEL = 10
+/** 旧版每级固定 200 分，新版已非线性——仅为兼容旧调用点保留，勿用于新逻辑 */
+export const LEVEL_STEP = 0
 
 export const TITLE_PREFIXES = ['快乐的', '有趣的', '好玩的'] as const
 export const TITLE_PREFIX_EVENT = 'title-prefix-changed'
 const TITLE_PREFIX_KEY = 'home_title_prefix'
 
-export function getLevelThreshold(level: number): number {
-  return Math.max(0, Math.min(MAX_LEVEL, level) - 1) * LEVEL_STEP
+export function getWorkPoints(): number {
+  return getPoints()
 }
+
+export interface WorkLevel {
+  level: number
+  curBase: number
+  nextAt: number
+}
+
+export function getWorkLevel(points: number): WorkLevel {
+  const level = lvOf(points)
+  const curBase = LV_NEED[level - 1]
+  const nextAt = level >= MAX_LEVEL ? curBase : LV_NEED[level]
+  return { level, curBase, nextAt }
+}
+
+export function getLevelThreshold(level: number): number {
+  return LV_NEED[Math.max(0, Math.min(MAX_LEVEL, level) - 1)]
+}
+
+export function getLevelRemain(points: number): number | null {
+  return lvRemain(points)
+}
+
+/* 称号改为设计稿的「摸鱼」系列 */
+export function getLevelTitle(level: number): string {
+  return lvName(level)
+}
+
+export function getLevelBenefit(level: number): { text: string; implemented: boolean } {
+  const r = LV_REWARD[Math.max(0, Math.min(MAX_LEVEL, level) - 1)]
+  return { text: `${r.t} · ${r.d}`, implemented: true }
+}
+
+/* ---- 标题前缀（旧功能，三栏首页改用设计稿的固定「摸鱼界」前缀后移除） ---- */
 
 export function getAvailableTitlePrefixes(level: number): readonly string[] {
   return level >= 3 ? TITLE_PREFIXES : []
@@ -31,43 +76,4 @@ export function getSelectedTitlePrefix(level: number): string {
 export function saveTitlePrefix(prefix: string, level: number): boolean {
   if (!getAvailableTitlePrefixes(level).includes(prefix)) return false
   return set(TITLE_PREFIX_KEY, prefix)
-}
-
-export function getWorkPoints(): number {
-  const opens = TOOLS.reduce((sum, t) => sum + (get<number>(`usage_${t.id}`, 0) || 0), 0)
-  return opens * WORK_POINT_PER_OPEN
-}
-
-export interface WorkLevel {
-  level: number
-  curBase: number
-  nextAt: number
-}
-
-export function getWorkLevel(points: number): WorkLevel {
-  const level = Math.min(MAX_LEVEL, 1 + Math.floor(points / LEVEL_STEP))
-  const curBase = (level - 1) * LEVEL_STEP
-  const nextAt = level >= MAX_LEVEL ? curBase : level * LEVEL_STEP
-  return { level, curBase, nextAt }
-}
-
-export function getLevelTitle(level: number): string {
-  const titles = ['初来乍到', '熟门熟路', '快乐工友', '趣味达人', '好玩行家', '闪耀匠人', '奇想大师', '资深玩家', '传奇工友', '工局局长']
-  return titles[Math.max(0, Math.min(MAX_LEVEL, level) - 1)]
-}
-
-export function getLevelBenefit(level: number): { text: string; implemented: boolean } {
-  const benefits = [
-    { text: '查看工局等级与成长进度', implemented: true },
-    { text: '获得「熟门熟路」称号', implemented: true },
-    { text: '首页选择「快乐的 / 有趣的 / 好玩的」前缀', implemented: true },
-    { text: '等级专属皮肤权益（规划中）', implemented: false },
-    { text: '首页标题点击触发专属彩带', implemented: true },
-    { text: '更多装饰物展示位（规划中）', implemented: false },
-    { text: '高级工局徽章（规划中）', implemented: false },
-    { text: '专属分享卡片边框（规划中）', implemented: false },
-    { text: '局长候选权益（规划中）', implemented: false },
-    { text: '终极局长徽章（规划中）', implemented: false }
-  ]
-  return benefits[Math.max(0, Math.min(MAX_LEVEL, level) - 1)]
 }
