@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>趣工局 · 三栏版设计稿</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239FDDF9'/%3E%3Crect x='18' y='26' width='28' height='20' rx='3' fill='%23FFD3C8'/%3E%3Crect x='30' y='26' width='4' height='20' fill='%23FF7043'/%3E%3C/svg%3E">
+<style>
+/* ===================== 令牌：沿用现有主题（theme.scss） ===================== */
+:root{
+  --accent:#E8795A;
+  --accent-deep:#CE5B3F;
+  --ink:#4A3B32;
+  --ink2:#8D7B70;
+  --ink3:#B8A99E;
+  --card:rgba(255,255,255,.82);
+  --card-solid:#FFFFFF;
+  --line:rgba(74,59,50,.06);
+  --line-2:rgba(74,59,50,.12);
+  --bg:#FFF9F2;
+  --ok:#66BB6A;
+  --danger:#EF5350;
+  --font:'Yuanti SC','YouYuan','幼圆',-apple-system,BlinkMacSystemFont,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --hand:'Yuanti SC','YouYuan','KaiTi','楷体','STKaiti','Xingkai SC',cursive;
+  --shadow:0 10px 30px -12px rgba(74,59,50,.18);
+  --r-card:28px;
+  --r-card-s:24px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:#EFEDE8;color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.5;font-size:14px}
+button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;font-size:inherit}
+input{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ===================== 手机列 ===================== */
+.app{
+  position:relative;width:375px;height:100dvh;min-height:520px;margin:0 auto;
+  background:var(--bg);overflow:hidden;
+  box-shadow:0 0 0 1px rgba(45,42,38,.06),0 24px 70px -34px rgba(45,42,38,.32);
+}
+#view{position:relative;height:100%;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(56px + env(safe-area-inset-bottom));z-index:2}
+#view::-webkit-scrollbar{width:0}
+
+/* ===================== Tab 栏（跟随皮肤） ===================== */
+body[data-skin="toy"]{--tab-bg:rgba(255,255,255,.93);--tab-fg:#5E7C93;--tab-on:#2C86C6;--tab-line:rgba(255,255,255,.75);--tab-ind:rgba(44,134,198,.85)}
+body[data-skin="starry"]{--tab-bg:rgba(19,26,47,.95);--tab-fg:rgba(255,255,255,.52);--tab-on:#81D4FA;--tab-line:rgba(255,255,255,.12);--tab-ind:rgba(129,212,250,.9)}
+body[data-skin="grid"]{--tab-bg:rgba(255,255,255,.96);--tab-fg:#8D7B70;--tab-on:#CE5B3F;--tab-line:rgba(74,59,50,.08);--tab-ind:rgba(232,121,90,.9)}
+.tabbar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:375px;
+  display:flex;background:var(--tab-bg);border-top:1px solid var(--tab-line);
+  padding-bottom:env(safe-area-inset-bottom);z-index:40;
+}
+.tab{flex:1;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--tab-fg);position:relative;padding:6px 0 4px;transition:color .12s ease}
+.tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab .t-l{font-size:11px;font-weight:600}
+.tab.on{color:var(--tab-on)}
+.tab.on .t-l{font-weight:800}
+.tab.on::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:2.5px;border-radius:0 0 3px 3px;background:var(--tab-ind)}
+
+/* ===================== 皮肤层 ===================== */
+.skin{position:absolute;inset:0;z-index:0;overflow:hidden}
+.skin[data-skin="toy"]{background:linear-gradient(180deg,#64C7F5 0%,#9FDDF9 55%,#C9EEFC 100%)}
+.skin[data-skin="starry"]{background:linear-gradient(180deg,#1B2440 0%,#2A3560 55%,#3D4778 100%)}
+.skin[data-skin="grid"]{background:#FFF9F2;background-image:radial-gradient(rgba(232,121,90,.13) 1.5px,transparent 1.5px);background-size:26px 26px}
+
+/* 玩具工局：彩虹拱 + 云 + 积木 */
+.toy-art{position:absolute;inset:0 0 54px 0;pointer-events:none}
+.arc{position:absolute;left:50%;transform:translateX(-50%);border-style:solid;border-bottom:none;border-radius:50% 50% 0 0}
+.arc-1{width:435px;height:218px;bottom:-24px;border-width:6px;border-color:rgba(255,138,128,.55)}
+.arc-2{width:420px;height:210px;bottom:-24px;border-width:6px;border-color:rgba(255,183,77,.55)}
+.arc-3{width:405px;height:203px;bottom:-24px;border-width:6px;border-color:rgba(255,241,118,.55)}
+.arc-4{width:390px;height:195px;bottom:-24px;border-width:6px;border-color:rgba(165,214,167,.55)}
+.arc-5{width:375px;height:188px;bottom:-24px;border-width:6px;border-color:rgba(129,212,250,.55)}
+.arc-6{width:360px;height:180px;bottom:-24px;border-width:6px;border-color:rgba(179,157,219,.55)}
+.cloud{position:absolute;width:64px;height:34px}
+.cloud i{position:absolute;background:rgba(255,255,255,.92);border-radius:50%;display:block}
+.cloud i:nth-child(1){width:34px;height:34px;left:15px;top:0}
+.cloud i:nth-child(2){width:26px;height:26px;left:41px;top:8px}
+.cloud i:nth-child(3){width:25px;height:25px;left:0;top:9px}
+.cloud-1{left:22px;top:56px;transform:scale(1.02)}
+.cloud-2{right:-12px;top:34px;transform:scale(.92)}
+.cloud-3{right:-4px;top:236px;transform:scale(.74);opacity:.9}
+.toy-block{position:absolute;border-radius:22%;box-shadow:0 6px 14px -6px rgba(30,70,110,.35)}
+.toy-block::before,.toy-block::after{content:"";position:absolute;width:22%;padding-top:22%;border-radius:50%;background:rgba(255,255,255,.38);top:4%}
+.toy-block::before{left:22%}
+.toy-block::after{right:22%}
+.bk-1{width:34px;height:34px;left:18px;bottom:2px;background:#EF5350;transform:rotate(-10deg)}
+.bk-2{width:26px;height:26px;left:62px;bottom:10px;background:#FFCA28;transform:rotate(8deg)}
+.bk-3{width:30px;height:30px;right:56px;bottom:6px;background:#66BB6A;transform:rotate(-6deg)}
+.bk-4{width:36px;height:36px;right:-8px;bottom:0;background:#42A5F5;transform:rotate(11deg)}
+.confetti{position:absolute;border-radius:50%;pointer-events:none}
+.cf-1{width:6px;height:6px;left:36px;top:210px;background:rgba(255,255,255,.75)}
+.cf-2{width:5px;height:5px;right:52px;top:330px;background:rgba(255,241,118,.85)}
+.cf-3{width:7px;height:7px;left:70px;top:470px;background:rgba(255,255,255,.6)}
+.cf-4{width:4px;height:4px;right:90px;top:540px;background:rgba(255,138,128,.8)}
+
+/* 星夜：月亮 + 山 + 星点 */
+.starry-art{position:absolute;inset:0 0 54px 0;pointer-events:none}
+.moon{position:absolute;right:26px;top:40px;width:38px;height:38px;border-radius:50%;background:#FFF4D6;box-shadow:0 0 46px 18px rgba(255,244,214,.35)}
+.moon::before{content:"";position:absolute;left:9px;top:10px;width:8px;height:8px;border-radius:50%;background:rgba(210,190,150,.5)}
+.moon::after{content:"";position:absolute;left:22px;top:22px;width:5px;height:5px;border-radius:50%;background:rgba(210,190,150,.5)}
+.hill{position:absolute;left:0;right:0;bottom:0;height:120px;background:rgba(16,22,44,.55);clip-path:polygon(0 100%,0 62%,18% 26%,36% 70%,58% 40%,78% 88%,100% 34%,100% 100%)}
+.star{position:absolute;border-radius:50%;background:#FFF;}
+.st-1{width:3px;height:3px;left:38px;top:120px;opacity:.85}
+.st-2{width:2px;height:2px;left:130px;top:78px;opacity:.7}
+.st-3{width:2.5px;height:2.5px;right:96px;top:150px;opacity:.8}
+.st-4{width:2px;height:2px;left:72px;top:284px;opacity:.65}
+.st-5{width:3px;height:3px;right:44px;top:392px;opacity:.9}
+.st-6{width:2px;height:2px;left:150px;top:452px;opacity:.6}
+
+/* ===================== 首页 · 顶栏按钮 ===================== */
+.home{position:relative;padding-top:calc(20px + env(safe-area-inset-top));min-height:100%;display:flex;flex-direction:column}
+.home-acts{position:absolute;left:12px;top:calc(26px + env(safe-area-inset-top));display:flex;gap:12px;z-index:10}
+.hact{position:relative;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.8);box-shadow:0 6px 16px -8px rgba(74,59,50,.2);display:grid;place-items:center;font-size:17px;line-height:1;transition:transform .12s ease}
+.hact:active{transform:scale(.92)}
+.hact.done{opacity:.7;background:rgba(255,255,255,.5);font-size:14px;font-weight:800;color:#4CAF7D}
+.ck-dot{position:absolute;right:2px;top:2px;width:7px;height:7px;border-radius:50%;background:#FF5252;box-shadow:0 0 0 1.5px rgba(255,255,255,.95)}
+.hact .hact-txt{font-size:14px;font-weight:800;color:#FF7043}
+
+.home-head{text-align:center;padding:30px 18px 0}
+.home-prefix{display:block;font-size:12px;letter-spacing:1.5px;color:#8D7B70;margin-bottom:2px}
+.home-title{font-family:var(--hand);font-size:29px;font-weight:800;letter-spacing:6px;line-height:1.2;text-indent:6px}
+.home-title i{display:inline-block;font-style:normal;padding:0 1px;text-shadow:-1px 0 0 #fff,1px 0 0 #fff,0 -1px 0 #fff,0 1px 0 #fff,0 3px 7px rgba(74,59,50,.18)}
+.t-1{color:#FF8A80}.t-2{color:#FFB74D}.t-3{color:#4DB6AC}
+.home-slogan{display:inline-block;margin-top:10px;padding:5px 14px;font-size:12px;color:#8D7B70;background:rgba(255,255,255,.5);border:1px dashed rgba(141,123,112,.3);border-radius:13px}
+
+/* 等级条 */
+.home-level{padding:8px 12px 6px}
+.lv-bar{display:flex;align-items:center;padding:6px 11px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);border-radius:12px;box-shadow:0 6px 16px -8px rgba(74,59,50,.18)}
+.lv-name{font-size:11px;font-weight:800;color:#8D7B70;white-space:nowrap}
+.lv-track{flex:1;height:6px;margin:0 7px;border-radius:3px;background:rgba(74,59,50,.12);overflow:hidden}
+.lv-fill{display:block;height:100%;width:40%;border-radius:3px;background:linear-gradient(90deg,#E8795A,#CE5B3F)}
+.lv-remain{font-size:10.5px;color:#8D7B70;white-space:nowrap}
+
+/* ===================== 首页 · 礼盒网格 ===================== */
+.gift-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:2px 12px 0;position:relative;z-index:2}
+.gift{position:relative;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.7);border-radius:14px;box-shadow:0 10px 30px -14px rgba(74,59,50,.16);padding:9px 8px 8px;display:flex;flex-direction:column;align-items:center;transition:transform .2s ease,box-shadow .2s ease}
+.gift:nth-child(odd){transform:rotate(-2deg)}
+.gift:nth-child(even){transform:rotate(2deg)}
+.gift:active{transform:scale(.96) rotate(0deg)}
+.gift .gb-stage{position:relative;width:75px;height:75px;animation:bob 3.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.gift .gb-stage{animation:none}}
+.gb-body{position:absolute;left:7.5px;right:7.5px;bottom:3px;height:48px;border-radius:4px 4px 8px 8px;overflow:hidden;box-shadow:inset 0 -6px 9px -5px rgba(0,0,0,.14)}
+.gb-ribbon-v{position:absolute;left:50%;top:0;bottom:0;width:11px;margin-left:-5.5px}
+.gb-ribbon-h{position:absolute;left:0;right:0;top:17px;height:8px;opacity:.9}
+.gb-lid{position:absolute;left:2px;right:2px;bottom:46px;height:15px;border-radius:4px;box-shadow:0 2px 5px -2px rgba(0,0,0,.22);z-index:2;transition:transform .45s cubic-bezier(.34,1.4,.64,1),opacity .45s ease}
+.gb-lid-ribbon{position:absolute;left:50%;top:0;bottom:0;width:11px;margin-left:-5.5px}
+.gb-bow{position:absolute;left:50%;bottom:59px;width:35px;height:13px;margin-left:-17.5px;z-index:1;transition:transform .45s cubic-bezier(.34,1.4,.64,1),opacity .45s ease}
+.gb-loop{position:absolute;top:1px;width:13px;height:10px;border:2.5px solid #FF7043;border-radius:50% 50% 50% 50%/60% 60% 40% 40%}
+.gb-loop-l{left:0;transform:rotate(-22deg)}
+.gb-loop-r{right:0;transform:rotate(22deg)}
+.gb-knot{position:absolute;left:50%;top:3px;width:8px;height:7px;margin-left:-4px;border-radius:3px}
+.gb-pop{position:absolute;left:0;right:0;bottom:50px;display:grid;place-items:center;z-index:1;opacity:0;transform:translateY(12px) scale(.6);transition:transform .5s cubic-bezier(.34,1.56,.64,1) .1s,opacity .4s ease .1s}
+.gb-pop span{font-size:32px;line-height:1.2;filter:drop-shadow(0 4px 6px rgba(74,59,50,.25))}
+.gift.opening .gb-lid,.gift.opening .gb-bow{transform:translateY(-26px) rotate(-30deg);opacity:0}
+.gift.opening .gb-pop{opacity:1;transform:translateY(-13px) scale(1)}
+.gift.opening .gb-stage{animation:none}
+.gift .gb-name{margin-top:9px;font-size:14px;font-weight:700;color:#4A3B32;text-align:center}
+.gift .gb-desc{margin-top:2px;font-size:10.5px;color:#8D7B70;text-align:center;line-height:1.4}
+
+.home-foot{margin-top:auto;padding:16px 0 14px;text-align:center;position:relative;z-index:2}
+.home-foot .hf{font-size:11px;color:rgba(74,59,50,.55);text-decoration:underline;text-decoration-color:rgba(184,169,158,.5)}
+.home-foot .hf2{margin-top:5px;font-size:10px;letter-spacing:.5px;color:rgba(74,59,50,.42)}
+
+/* 首页空态（自选为 0 时） */
+.home-empty{margin:8px 12px;padding:26px 18px;text-align:center;background:rgba(255,255,255,.62);border:1px dashed rgba(255,255,255,.9);border-radius:14px;position:relative;z-index:2}
+.home-empty b{display:block;font-size:14px;color:#4A3B32}
+.home-empty span{display:block;margin-top:4px;font-size:11.5px;color:#8D7B70;line-height:1.6}
+
+/* ===================== 列表（简洁模式，还原现有） ===================== */
+.simple{position:relative;height:100%;min-height:100%;display:flex;flex-direction:column;padding-top:calc(20px + env(safe-area-inset-top))}
+.simple[data-skin="toy"]{background:linear-gradient(180deg,#9FDDF9 0%,#C9EEFC 60%,#EAF7FE 100%)}
+.simple[data-skin="starry"]{background:linear-gradient(180deg,#2A3560 0%,#3D4778 100%)}
+.simple[data-skin="grid"]{background:#FFF9F2}
+.sh-edit-tip{margin:2px 12px 10px;padding:6px 10px;border-radius:8px;font-size:10.5px;color:#8D7B70;background:rgba(255,255,255,.62)}
+
+.sh-body{flex:1;display:flex;min-height:0}
+.sh-scroll{flex:1;min-width:0;overflow-y:auto;padding:0 0 24px;scroll-behavior:smooth}
+.sh-scroll::-webkit-scrollbar{width:0}
+.sh-rail{width:28px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding-bottom:40px}
+.sh-rail-in{padding:6px 3px;border-radius:14px;background:rgba(255,255,255,.72);box-shadow:0 8px 20px -12px rgba(74,59,50,.3);display:flex;flex-direction:column;gap:3px}
+.rail-item{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;background:transparent;transition:transform .12s ease,background .12s ease}
+.rail-item:active{transform:scale(.88)}
+.rail-item.on{background:rgba(201,160,99,.22)}
+.rail-sep{display:block;width:16px;height:1px;margin:3px 0;background:rgba(74,59,50,.14)}
+.rail-edit{color:#8D7B70}
+.rail-edit svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.rail-edit.on{color:#fff;background:linear-gradient(135deg,#FF9A8B,#FF6A88)}
+
+.sh-group{position:relative;margin:0 12px 14px;padding-top:2px}
+.sh-deco{position:absolute;top:-2px;left:-6px;right:-6px;height:60px;border-radius:14px;overflow:hidden;pointer-events:none}
+.sh-tri{position:absolute;width:0;height:0;border-style:solid;border-width:0 23px 40px 23px;border-color:transparent}
+.sh-tri-1{right:28px;bottom:0}
+.sh-tri-2{right:76px;bottom:0;transform:scale(.6);transform-origin:bottom center}
+.sh-dot{position:absolute;border-radius:50%}
+.sh-dot-1{width:7px;height:7px;left:15px;top:15px}
+.sh-dot-2{width:4.5px;height:4.5px;left:29px;top:28px}
+.sh-ghead{position:relative;display:flex;align-items:center;gap:6px;padding:7px 2px 7px}
+.sh-gi{font-size:15px}
+.sh-gn{font-size:15px;font-weight:800;color:#4A3B32;letter-spacing:.5px}
+.sh-gc{padding:1px 7px;border-radius:7px;font-size:10px;color:#8D7B70;background:rgba(255,255,255,.6)}
+.sh-cards{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:stretch;gap:9px 0}
+.sh-card{position:relative;width:calc(50% - 4.5px);padding:10px 9px;border-radius:12px;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.95);box-shadow:0 8px 22px -14px rgba(74,59,50,.2);display:flex;flex-direction:column;text-align:left;transition:transform .1s ease}
+.sh-card:active{transform:scale(.97)}
+.sh-card.edit{border:1.5px dashed rgba(201,160,99,.6);background:rgba(255,255,255,.97)}
+.sh-ci{width:38px;height:38px;border-radius:11px;background:rgba(255,249,242,.9);display:grid;place-items:center;margin-bottom:7px}
+.sh-ci span{font-size:20px;line-height:1}
+.sh-cn{font-size:13.5px;font-weight:700;color:#4A3B32}
+.sh-cd{margin-top:3px;font-size:11.5px;color:#8D7B70;line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.sh-go{position:absolute;right:8px;top:9px;font-size:15px;color:#D8CEC7}
+.sh-ops{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:6px;border-top:1px solid rgba(74,59,50,.06)}
+.sh-op{font-size:12px;color:#8D7B70;padding:2px 5px}
+.sh-op:active{transform:scale(.9)}
+.sh-sec-title{padding:12px 14px 4px;font-size:11px;font-weight:700;color:#B8A99E}
+
+/* ===================== 我的（简洁） ===================== */
+.mine{min-height:100%;padding:calc(28px + env(safe-area-inset-top)) 20px 78px;display:flex;flex-direction:column}
+.mine[data-skin="toy"]{background:linear-gradient(180deg,#B7E6FB 0%,#DDF3FD 62%,#F2FAFE 100%)}
+.mine[data-skin="starry"]{background:linear-gradient(180deg,#243055 0%,#333D6C 60%,#3B4577 100%)}
+.mine[data-skin="grid"]{background:#FFF9F2}
+.me-hero{text-align:center;padding-top:8px}
+.me-ava{width:76px;height:76px;border-radius:50%;margin:0 auto;display:grid;place-items:center;color:#fff;font-size:30px;font-weight:800;letter-spacing:-1px;box-shadow:0 8px 20px -10px rgba(74,59,50,.55)}
+.me-ava.gost{border:1.5px dashed var(--ink3);background:transparent;color:var(--ink3);font-size:26px;box-shadow:none}
+.me-name{margin-top:12px;font-size:17px;font-weight:800;color:#4A3B32}
+.me-name.muted{color:#B8A99E;font-weight:700}
+.me-edit{margin-top:12px;min-height:38px;padding:0 15px;border-radius:19px;border:1px solid rgba(74,59,50,.14);background:rgba(255,255,255,.7);font-size:12px;font-weight:700;color:#6B5A4F;display:inline-flex;align-items:center;gap:5px}
+.me-edit:active{background:#fff}
+
+.me-list{margin-top:26px;background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.me-row{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:10px 13px;text-align:left;border-bottom:1px solid var(--line)}
+.me-row:last-child{border-bottom:none}
+.me-row:active{background:rgba(255,249,242,.8)}
+.me-ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(255,249,242,.95);font-size:14px;flex:none}
+.me-rt{flex:1;min-width:0;display:flex;flex-direction:column}
+.me-rt b{font-size:13px;font-weight:700;color:#4A3B32}
+.me-rt span{font-size:10.5px;color:#B8A99E;margin-top:1px}
+.me-val{font-size:11.5px;color:#8D7B70;flex:none;display:inline-flex;align-items:center;gap:2px}
+.me-foot{margin-top:auto;padding-top:26px;text-align:center;font-size:10px;letter-spacing:.5px;color:rgba(74,59,50,.38)}
+
+/* ===================== 浮层 ===================== */
+.mask{position:fixed;inset:0;z-index:60;background:rgba(74,59,50,.4);display:flex;align-items:flex-end;justify-content:center;animation:fade .18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{width:375px;max-height:82dvh;background:#FBF7F1;border-radius:20px 20px 0 0;display:flex;flex-direction:column;animation:up .18s cubic-bezier(.2,.9,.3,1);overflow:hidden}
+@keyframes up{from{transform:translateY(18px)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.sheet,.mask{animation:none}}
+.grip{width:34px;height:4px;border-radius:2px;background:rgba(74,59,50,.16);margin:8px auto 2px;flex:none}
+.sh-head{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 10px;flex:none}
+.sh-title{font-size:16px;font-weight:800;color:#4A3B32}
+.sh-x{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#8D7B70;font-size:15px}
+.sh-x:active{background:rgba(255,255,255,.7)}
+.sh-body2{padding:0 16px 18px;overflow-y:auto;flex:1}
+.f-label{font-size:11px;font-weight:700;color:#8D7B70;margin:12px 0 6px}
+.f-label.first{margin-top:0}
+.inp{width:100%;height:44px;background:#fff;border:1px solid var(--line-2);border-radius:10px;padding:0 12px;font-size:15px;color:#4A3B32}
+.inp:focus{outline:none;border-color:var(--accent)}
+.preview{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.preview .pv{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:19px;font-weight:800;flex:none}
+.preview .pv-t{min-width:0}
+.preview .pv-n{font-size:13px;font-weight:800;color:#4A3B32;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview .pv-s{font-size:10.5px;color:#B8A99E;margin-top:1px}
+.swatches{display:flex;gap:9px}
+.sw{width:36px;height:36px;border-radius:50%;position:relative}
+.sw.on::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid #4A3B32}
+.note{font-size:10.5px;line-height:1.7;color:#B8A99E;margin-top:10px}
+
+.pick-list{display:flex;flex-direction:column;gap:7px;padding-bottom:4px}
+.pk{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:48px;text-align:left;width:100%}
+.pk.on{border-color:rgba(232,121,90,.5);background:#FFF6F1}
+.pk-dot{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:15px;flex:none;background:#FFF9F2}
+.pk-m{flex:1;min-width:0;display:flex;flex-direction:column}
+.pk-n{font-size:12.5px;font-weight:700;color:#4A3B32}
+.pk-d{font-size:10px;color:#B8A99E;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-mark{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(74,59,50,.15);display:grid;place-items:center;flex:none;color:#B8A99E}
+.pk.on .pk-mark{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.skins{display:flex;flex-direction:column;gap:8px}
+.sk{display:flex;align-items:center;gap:11px;padding:8px;border-radius:12px;border:1.5px solid transparent;background:#fff;text-align:left;width:100%}
+.sk.on{border-color:var(--accent);background:#FFF6F1}
+.sk-prev{width:56px;height:40px;border-radius:9px;flex:none;box-shadow:inset 0 0 0 1px rgba(74,59,50,.06)}
+.sk-m{flex:1;min-width:0;display:flex;flex-direction:column}
+.sk-n{font-size:12.5px;font-weight:800;color:#4A3B32}
+.sk-d{font-size:10px;color:#B8A99E;margin-top:1px}
+.sk-ok{font-size:11px;font-weight:800;color:var(--accent);flex:none}
+
+.sh-acts{display:flex;gap:9px;padding:10px 16px calc(14px + env(safe-area-inset-bottom));background:#FBF7F1;position:sticky;bottom:0;flex:none;border-top:1px solid var(--line)}
+.btn{flex:1;min-height:44px;border-radius:12px;font-size:14px;font-weight:800;display:grid;place-items:center}
+.btn-main{background:var(--accent);color:#fff}
+.btn-main:active{background:var(--accent-deep)}
+.btn-ghost{background:#fff;border:1px solid var(--line-2);color:#4A3B32}
+
+/* 深色皮肤下：文字提亮，否则灰字看不清 */
+.app.theme-starry .home-prefix{color:#DCE6FF}
+.app.theme-starry .home-slogan{color:#EAF0FF;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35)}
+.app.theme-starry .lv-bar{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3)}
+.app.theme-starry .lv-name,.app.theme-starry .lv-remain{color:#EAF0FF}
+.app.theme-starry .lv-track{background:rgba(255,255,255,.22)}
+.app.theme-starry .gift{background:rgba(255,255,255,.5);border-color:rgba(255,255,255,.72)}
+.app.theme-starry .gb-name{color:#FFFFFF}
+.app.theme-starry .gb-desc{color:#D9E0F2}
+.app.theme-starry .hf,.app.theme-starry .hf2{color:rgba(255,255,255,.62);text-decoration-color:rgba(255,255,255,.4)}
+/* 深色皮肤下：列表页 */
+.app.theme-starry .sh-lv-t{color:#EAF0FF}
+.app.theme-starry .sh-lv-track{background:rgba(255,255,255,.2)}
+.app.theme-starry .sh-gn{color:#FFFFFF}
+.app.theme-starry .sh-gc{color:#DCE6FF;background:rgba(255,255,255,.18)}
+.app.theme-starry .sh-rail-in{background:rgba(255,255,255,.16);box-shadow:0 8px 20px -12px rgba(0,0,0,.5)}
+.app.theme-starry .sh-btn{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28);color:#EAF0FF}
+/* 深色皮肤下：我的页 */
+.app.theme-starry .me-name{color:#FFFFFF}
+.app.theme-starry .me-name.muted{color:rgba(255,255,255,.62)}
+.app.theme-starry .me-val{color:rgba(255,255,255,.6)}
+.app.theme-starry .me-edit{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.32);color:#F2F6FF}
+.app.theme-starry .me-list{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.18)}
+.app.theme-starry .me-row{border-bottom-color:rgba(255,255,255,.12)}
+.app.theme-starry .me-row:active{background:rgba(255,255,255,.16)}
+.app.theme-starry .me-rt b{color:#FFFFFF}
+.app.theme-starry .me-rt span{color:rgba(255,255,255,.55)}
+.app.theme-starry .me-ic{background:rgba(255,255,255,.14)}
+.app.theme-starry .me-foot{color:rgba(255,255,255,.4)}
+.app.theme-starry .me-ava.gost{border-color:rgba(255,255,255,.45);color:rgba(255,255,255,.6)}
+.app.theme-starry .me-lv{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.2)}
+.app.theme-starry .me-lv:active{background:rgba(255,255,255,.22)}
+.app.theme-starry .me-lv-t{color:#FFFFFF}
+.app.theme-starry .me-lv-t em{color:rgba(255,255,255,.6)}
+.app.theme-starry .me-lv-go{color:rgba(255,255,255,.6)}
+.app.theme-starry .me-lv-tr{background:rgba(255,255,255,.2)}
+
+/* ===================== 我的：等级条 ===================== */
+.me-lv{margin-top:14px;display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:13px;background:rgba(255,255,255,.8);border:1px solid var(--line);text-align:left}
+.me-lv:active{background:#fff}
+.me-lv-i{font-size:16px;flex:none}
+.me-lv-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.me-lv-t{font-size:12px;font-weight:800;color:#4A3B32}
+.me-lv-t em{font-style:normal;font-weight:600;color:#B8A99E;font-size:10.5px;margin-left:4px}
+.me-lv-tr{height:5px;border-radius:3px;background:rgba(74,59,50,.12);overflow:hidden}
+.me-lv-tr i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#FFB74D,#FF9800)}
+.me-lv-go{font-size:10.5px;color:#8D7B70;flex:none}
+
+/* ===================== 签到日历 ===================== */
+.ci-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.ci-wd{font-size:10px;color:#B8A99E;text-align:center;padding-bottom:3px}
+.ci-day{height:34px;border-radius:9px;display:grid;place-items:center;font-size:11.5px;color:#6B5A4F;background:rgba(74,59,50,.045)}
+.ci-day.on{background:linear-gradient(135deg,#FFB74D,#FF9800);color:#fff;font-weight:800}
+.ci-day.today{box-shadow:inset 0 0 0 1.5px #E8795A;color:#CE5B3F;font-weight:800;background:#fff}
+.ci-day.future{color:#D3C8BE;background:transparent}
+.ci-day.nil{background:transparent}
+.ci-steps{display:flex;gap:7px;margin:14px 0 0}
+.ci-step{flex:1;padding:7px 4px;border-radius:10px;background:rgba(74,59,50,.05);text-align:center}
+.ci-step b{display:block;font-size:11px;color:#4A3B32}
+.ci-step span{display:block;font-size:9.5px;color:#B8A99E;margin-top:1px}
+.ci-step.hit{background:rgba(232,121,90,.13)}
+.ci-step.hit b{color:#CE5B3F}
+.ci-sub{margin:12px 0 0;font-size:10.5px;color:#B8A99E;text-align:center;line-height:1.7}
+
+/* ===================== 等级成长 ===================== */
+.gr-head{padding:2px 0 0}
+.gr-now{display:flex;align-items:baseline;gap:7px}
+.gr-lv{font-size:15px;font-weight:800;color:#4A3B32}
+.gr-pg{margin-left:auto;font-size:11px;color:#8D7B70}
+.gr-track{height:6px;border-radius:3px;background:rgba(74,59,50,.1);overflow:hidden;margin-top:9px}
+.gr-fill{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#FFB74D,#FF9800)}
+.gr-range{width:100%;height:36px;margin-top:8px;-webkit-appearance:none;appearance:none;background:transparent}
+.gr-range::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:rgba(74,59,50,.14)}
+.gr-range::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-9px;border-radius:50%;background:linear-gradient(135deg,#FFC85C,#FF9800);box-shadow:0 3px 9px -3px rgba(200,110,0,.7),0 0 0 3px #fff}
+.gr-ticks{display:flex;justify-content:space-between;padding:0 10px;margin-top:-4px}
+.gr-tick{font-size:9.5px;color:#C7BBAF;transition:color .12s ease}
+.gr-tick.done{color:#B8A99E}
+.gr-tick.on{color:#CE5B3F;font-weight:800}
+.gr-pv{margin:13px 0 0;padding:13px 14px;border-radius:14px;background:#fff;border:1px solid rgba(74,59,50,.07);box-shadow:0 8px 20px -14px rgba(74,59,50,.35)}
+.gr-pv-top{display:flex;align-items:center;gap:9px}
+.gr-pv-ic{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:18px;background:rgba(255,249,242,.95);flex:none}
+.gr-pv-t{font-size:13.5px;font-weight:800;color:#4A3B32}
+.gr-pv-d{font-size:10.5px;color:#8D7B70;margin-top:2px;line-height:1.5}
+.gr-pv-tag{margin-left:auto;font-size:10px;font-weight:800;padding:3px 8px;border-radius:8px;flex:none;white-space:nowrap}
+.gr-pv-tag.now{color:#fff;background:#E8795A}
+.gr-pv-tag.ok{color:#4CAF7D;background:rgba(76,175,125,.14)}
+.gr-pv-tag.wait{color:#8D7B70;background:rgba(74,59,50,.07)}
+
+/* ===================== toast ===================== */
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%) translateY(8px);background:rgba(45,42,38,.94);color:#fff;font-size:12px;padding:9px 14px;border-radius:8px;z-index:80;opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;max-width:300px;text-align:center;line-height:1.5}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="skin" id="skin" data-skin="toy"></div>
+  <div id="view"></div>
+</div>
+<nav class="tabbar" id="tabbar"></nav>
+<div class="toast" id="toast"></div>
+<script>
+/* ===================== 真数据：22 个工具（tools.ts） ===================== */
+const TOOLS = {
+  crusher:   { name:'情绪粉碎机', icon:'🗑️', desc:'把烦心事撕个粉碎', box:'#FFD3C8', boxDeep:'#FFB5A7', ribbon:'#FF7043', cat:'fun' },
+  life:      { name:'人生倒计时', icon:'⏳', desc:'看看还剩多少个周日', box:'#DCCEF0', boxDeep:'#C5B0E3', ribbon:'#9575CD', cat:'fun' },
+  mixer:     { name:'白噪音混音台', icon:'🎵', desc:'自己调一杯安静', box:'#C5EBCF', boxDeep:'#A8D9BB', ribbon:'#4CAF7D', cat:'fun' },
+  merit:     { name:'电子木鱼', icon:'🪵', desc:'功德+1', box:'#FFE5C4', boxDeep:'#FFD6A0', ribbon:'#FF9800', cat:'fun' },
+  excuse:    { name:'借口生成器', icon:'💬', desc:'帮你说出那个不字', box:'#FFD6E0', boxDeep:'#FFBECF', ribbon:'#EC6F9C', cat:'fun' },
+  wheel:     { name:'转盘选择器', icon:'🎡', desc:'让转盘替你做决定', box:'#FFE0CB', boxDeep:'#FFCFAF', ribbon:'#FF8A65', cat:'fun' },
+  bubble:    { name:'无限气泡纸', icon:'🫧', desc:'把一整张捏个遍', box:'#C9EEFC', boxDeep:'#A5DEFA', ribbon:'#29B6F6', cat:'fun' },
+  praise:    { name:'彩虹屁夸夸机', icon:'🌈', desc:'把人夸得明明白白', box:'#FFF3C4', boxDeep:'#FFE58A', ribbon:'#FFA000', cat:'fun' },
+  classics:  { name:'文言文陪读', icon:'📖', desc:'逐句拼音 跟读背诵', box:'#FFF3C4', boxDeep:'#FFE58A', ribbon:'#C9A063', cat:'study' },
+  stroke:    { name:'汉字练字卡', icon:'✍️', desc:'查字 · 田字格描红', box:'#FFE8D6', boxDeep:'#FFD6B8', ribbon:'#E07856', cat:'study' },
+  copybook:  { name:'字帖生成器', icon:'✒️', desc:'姓名课文 一键成帖', box:'#DCCEF0', boxDeep:'#C5B0E3', ribbon:'#7E57C2', cat:'study' },
+  pinyin:    { name:'拼音注音器', icon:'🔤', desc:'任意文本 逐字注音', box:'#C9EEFC', boxDeep:'#A5DEFA', ribbon:'#29B6F6', cat:'study' },
+  zhconvert: { name:'简繁互转', icon:'字', desc:'词汇级转换 更地道', box:'#C5EBCF', boxDeep:'#A8D9BB', ribbon:'#4CAF7D', cat:'study' },
+  perler:    { name:'拼豆图纸生成', icon:'🧩', desc:'图片转图纸 带清单', box:'#FFE0CB', boxDeep:'#FFCFAF', ribbon:'#FF8A65', cat:'create' },
+  marquee:   { name:'手持弹幕', icon:'📱', desc:'全屏大字 接机应援', box:'#37474F', boxDeep:'#263238', ribbon:'#39FF88', cat:'create' },
+  textimage: { name:'文字转图片', icon:'🖼️', desc:'便签 长图 九宫格', box:'#FFF3C4', boxDeep:'#FFE58A', ribbon:'#FFA000', cat:'create' },
+  photo:     { name:'图片小工具箱', icon:'📷', desc:'裁剪调色 隐私清理', box:'#C9EEFC', boxDeep:'#A5DEFA', ribbon:'#5B7A9D', cat:'create' },
+  textreplace:{ name:'文本批量替换', icon:'🔁', desc:'多组规则 一键处理', box:'#DCCEF0', boxDeep:'#C5B0E3', ribbon:'#9575CD', cat:'create' },
+  calc:      { name:'生活计算器', icon:'🧮', desc:'房贷个税 单位健康', box:'#D7E8D4', boxDeep:'#C3DCC0', ribbon:'#5B7A9D', cat:'calc' },
+  fakecall:  { name:'假装来电', icon:'☎️', desc:'体面撤退 模拟演练', box:'#FFD6E0', boxDeep:'#FFBECF', ribbon:'#EC6F9C', cat:'fun' },
+  funpicker: { name:'趣味选择器', icon:'🎲', desc:'3D 骰子 硬币 摇签', box:'#F9D9CC', boxDeep:'#F5CDBB', ribbon:'#C4523A', cat:'fun' },
+  counter:   { name:'一起数数', icon:'🔢', desc:'一屏到底 数到尽头', box:'#DCE9DF', boxDeep:'#C4D8CB', ribbon:'#2F4B43', cat:'fun' }
+};
+const ALL_IDS = Object.keys(TOOLS);
+/* 简洁模式默认分类（categories.ts，按现有顺序） */
+const CATS = [
+  { id:'study',  name:'学习 · 校园', icon:'📖', hue:'#C9A063' },
+  { id:'create', name:'创作 · 图片', icon:'🎨', hue:'#E07856' },
+  { id:'calc',   name:'生活计算',   icon:'🧮', hue:'#5B7A9D' },
+  { id:'fun',    name:'趣味 · 解压', icon:'🎡', hue:'#9575CD' }
+];
+/* 皮肤（skins/registry） */
+const SKINS = {
+  toy:    { name:'玩具工局', desc:'彩虹、云朵和积木，永远玩不腻', prev:'linear-gradient(165deg,#81D4FA 0%,#B3E5FC 45%,#FFF176 100%)' },
+  starry: { name:'星夜工局', desc:'卡片像星子一样，散在夜空里',   prev:'linear-gradient(165deg,#1B2440 0%,#2A3560 55%,#3D4778 100%)' },
+  grid:   { name:'网格工局', desc:'最朴素的一版，只有卡片和印花', prev:'linear-gradient(165deg,#FFF9F2 0%,#F6EFE4 100%)' }
+};
+const AVA_COLORS = ['#E8795A','#2F4B43','#B39DDB','#FFB74D','#4DB6AC','#F48FB1'];
+const DEFAULT_MINE = ['counter','merit','mixer','wheel','crusher','life'];
+
+/* ===================== 等级与签到 ===================== */
+const LV_NEED = [0, 0, 300, 500, 700, 950, 1200, 1500, 1800, 2200];
+const LV_NAME = ['新手','摸鱼学徒','摸鱼小工','摸鱼能手','摸鱼达人','摸鱼高手','摸鱼大师','摸鱼宗师','摸鱼传奇','摸鱼之神'];
+const LV_REWARD = [
+  { icon:'🧰', t:'6 个首页工具位',  d:'把最常用的工具摆在礼盒格里' },
+  { icon:'📅', t:'每日签到领工分',  d:'签到 +2 工分，连着签还有额外奖励' },
+  { icon:'🧰', t:'工具位 +1',       d:'首页可以放 7 个工具了' },
+  { icon:'🌙', t:'解锁皮肤「星夜工局」', d:'深蓝夜空，月亮挂在山那边' },
+  { icon:'🔥', t:'连签加成',     d:'每次连签奖励多给 1 工分' },
+  { icon:'🧰', t:'工具位 +1',       d:'首页可以放 8 个工具了' },
+  { icon:'🎨', t:'解锁皮肤「网格工局」', d:'暖米底 + 橙色点阵印花' },
+  { icon:'🧰', t:'工具位 +1',       d:'首页可以放 9 个工具了' },
+  { icon:'🏅', t:'专属称号「摸鱼传奇」', d:'名字后面挂个金标，列表里能认出来' },
+  { icon:'🧰', t:'工具位 +2',       d:'首页放满 10 个工具' }
+];
+const CHECK_STEPS = [
+  { day:3,  bonus:2 }, { day:7,  bonus:5 }, { day:14, bonus:8 }, { day:30, bonus:20 }
+];
+function lvOf(p) {
+  let lv = 1;
+  for (let i = 0; i < 10; i++) { if (p >= LV_NEED[i]) lv = i + 1; }
+  return lv;
+}
+function lvProgress(p) {
+  const lv = lvOf(p), base = LV_NEED[lv - 1], next = LV_NEED[lv] || LV_NEED[lv - 1];
+  if (next <= base) return 100;
+  return Math.max(0, Math.min(100, Math.round((p - base) / (next - base) * 100)));
+}
+const todayNum = () => new Date().getDate();
+const signedToday = () => state.checked.indexOf(todayNum()) >= 0;
+
+/* ===================== 状态 ===================== */
+const KEY = 'qgj_tabs_v1';
+const state = {
+  route:'home', sheet:null, editList:false,
+  nick:'', colorIdx:0, skin:'toy', mine:DEFAULT_MINE.slice(),
+  points:120, streak:4, checked:[1,2,3,4], previewLv:2,
+  toastTimer:null
+};
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw) {
+    const s = JSON.parse(raw);
+    if (typeof s.nick === 'string') state.nick = s.nick;
+    if (typeof s.colorIdx === 'number') state.colorIdx = s.colorIdx;
+    if (s.skin && SKINS[s.skin]) state.skin = s.skin;
+    if (Array.isArray(s.mine)) state.mine = s.mine.filter(id => TOOLS[id]);
+    if (typeof s.points === 'number') state.points = s.points;
+    if (typeof s.streak === 'number') state.streak = s.streak;
+    if (Array.isArray(s.checked)) state.checked = s.checked;
+  }
+} catch (e) {}
+function persist() {
+  try { localStorage.setItem(KEY, JSON.stringify({ nick:state.nick, colorIdx:state.colorIdx, skin:state.skin, mine:state.mine, points:state.points, streak:state.streak, checked:state.checked })); } catch (e) {}
+}
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initialOf = v => { const t = String(v || '').trim(); if (!t) return '?'; const c = t[0]; return /[a-zA-Z]/.test(c) ? c.toUpperCase() : c; };
+const avaColor = () => AVA_COLORS[((state.colorIdx % 6) + 6) % 6];
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (state.toastTimer) clearTimeout(state.toastTimer);
+  state.toastTimer = setTimeout(() => el.classList.remove('show'), 1700);
+}
+/* ===================== 皮肤美术层 ===================== */
+function skinArtHTML() {
+  if (state.skin === 'toy') {
+    return `<div class="toy-art">
+      <div class="arc arc-1"></div><div class="arc arc-2"></div><div class="arc arc-3"></div>
+      <div class="arc arc-4"></div><div class="arc arc-5"></div><div class="arc arc-6"></div>
+      <div class="cloud cloud-1"><i></i><i></i><i></i></div>
+      <div class="cloud cloud-2"><i></i><i></i><i></i></div>
+      <div class="cloud cloud-3"><i></i><i></i><i></i></div>
+      <div class="toy-block bk-1"></div><div class="toy-block bk-2"></div>
+      <div class="toy-block bk-3"></div><div class="toy-block bk-4"></div>
+      <div class="confetti cf-1"></div><div class="confetti cf-2"></div>
+      <div class="confetti cf-3"></div><div class="confetti cf-4"></div>
+    </div>`;
+  }
+  if (state.skin === 'starry') {
+    return `<div class="starry-art">
+      <div class="moon"></div><div class="hill"></div>
+      <div class="star st-1"></div><div class="star st-2"></div><div class="star st-3"></div>
+      <div class="star st-4"></div><div class="star st-5"></div><div class="star st-6"></div>
+    </div>`;
+  }
+  return '';
+}
+
+/* ===================== 首页：礼盒卡（现有视觉） ===================== */
+function giftHTML(id) {
+  const t = TOOLS[id];
+  if (!t) return '';
+  return `<button class="gift" data-act="open" data-id="${id}">
+    <div class="gb-stage">
+      <div class="gb-pop"><span>${t.icon}</span></div>
+      <div class="gb-bow">
+        <div class="gb-loop gb-loop-l" style="border-color:${t.ribbon}"></div>
+        <div class="gb-loop gb-loop-r" style="border-color:${t.ribbon}"></div>
+        <div class="gb-knot" style="background:${t.ribbon}"></div>
+      </div>
+      <div class="gb-lid" style="background:${t.boxDeep}">
+        <div class="gb-lid-ribbon" style="background:${t.ribbon}"></div>
+      </div>
+      <div class="gb-body" style="background:${t.box}">
+        <div class="gb-ribbon-v" style="background:${t.ribbon}"></div>
+        <div class="gb-ribbon-h" style="background:${t.ribbon}"></div>
+      </div>
+    </div>
+    <div class="gb-name">${t.name}</div>
+    <div class="gb-desc">${t.desc}</div>
+  </button>`;
+}
+
+function homeHTML() {
+  const mine = state.mine.slice(0, 10);
+  const lv = lvOf(state.points), lvName = LV_NAME[lv - 1];
+  const gap = Math.max(0, (LV_NEED[lv] || 0) - state.points);
+  const remain = lv >= 10 ? '已满级' : '还差 ' + gap + ' 工分';
+  const ck = signedToday();
+  const cards = mine.length
+    ? mine.map(giftHTML).join('')
+    : `<div class="home-empty"><b>首页还是空的</b><span>去「我的 · 首页工具」里挑几个常用的小工具，最多放 10 个</span></div>`;
+  return `<div class="home">
+    <div class="home-acts">
+      <button class="hact ${ck ? 'done' : ''}" data-act="checkin" aria-label="签到">${ck ? '✓' : '📅'}${ck ? '' : '<span class="ck-dot"></span>'}</button>
+      <button class="hact" data-act="share" aria-label="分享">💌</button>
+    </div>
+    <div class="home-head">
+      <span class="home-prefix">摸鱼界</span>
+      <div class="home-title"><i class="t-1">趣</i><i class="t-2">工</i><i class="t-3">局</i></div>
+      <div class="home-slogan">22 个小工具，点一下就有乐子</div>
+    </div>
+    <div class="home-level">
+      <div class="lv-bar" data-act="sheet" data-sheet="growth">
+        <span class="lv-name">🏅 Lv.${lv} ${lvName}</span>
+        <span class="lv-track"><span class="lv-fill" style="width:${lvProgress(state.points)}%"></span></span>
+        <span class="lv-remain">${remain}</span>
+      </div>
+    </div>
+    <div class="gift-grid">${cards}</div>
+    <div class="home-foot">
+      <div class="hf" data-act="about">关于趣工局</div>
+      <div class="hf2">design by Mariana</div>
+    </div>
+  </div>`;
+}
+
+/* ===================== 列表：简洁模式（现有分组双列卡） ===================== */
+function listGroups() {
+  return CATS.map(c => ({ ...c, ids: ALL_IDS.filter(id => TOOLS[id].cat === c.id) })).filter(g => g.ids.length);
+}
+
+function listHTML() {
+  const groups = listGroups();
+  const groupsHTML = groups.map(g => {
+    const cards = g.ids.map((id, i) => {
+      const t = TOOLS[id];
+      const ops = state.editList
+        ? `<div class="sh-ops">
+            <span class="sh-op" data-act="mv" data-id="${id}" data-dir="-1">↑</span>
+            <span class="sh-op" data-act="mv" data-id="${id}" data-dir="1">↓</span>
+            <span class="sh-op" data-act="reopen" data-id="${id}">🗂</span>
+            <span class="sh-op" data-act="hide" data-id="${id}">👁</span>
+          </div>`
+        : `<span class="sh-go">›</span>`;
+      return `<button class="sh-card ${state.editList ? 'edit' : ''}" ${state.editList ? '' : `data-act="open" data-id="${id}"`}>
+        <span class="sh-ci"><span>${t.icon}</span></span>
+        <span class="sh-cn">${t.name}</span>
+        <span class="sh-cd">${t.desc}</span>
+        ${ops}
+      </button>`;
+    }).join('');
+    return `<div class="sh-group" data-cat="${g.id}" id="grp-${g.id}">
+      <div class="sh-deco" style="background:linear-gradient(120deg,${g.hue}1f,${g.hue}08)">
+        <div class="sh-tri sh-tri-1" style="border-color:transparent transparent ${g.hue}3d transparent"></div>
+        <div class="sh-tri sh-tri-2" style="border-color:transparent transparent ${g.hue}30 transparent"></div>
+        <div class="sh-dot sh-dot-1" style="background:${g.hue}4d"></div>
+        <div class="sh-dot sh-dot-2" style="background:${g.hue}38"></div>
+      </div>
+      <div class="sh-ghead">
+        <span class="sh-gi">${g.icon}</span>
+        <span class="sh-gn">${g.name}</span>
+        <span class="sh-gc">${g.ids.length}</span>
+      </div>
+      <div class="sh-cards">${cards}</div>
+    </div>`;
+  }).join('');
+  const rail = groups.map((g, i) => `<button class="rail-item" data-act="jump" data-cat="${g.id}" aria-label="${g.name}">${g.icon}</button>`).join('');
+  const editIcon = state.editList
+    ? `<svg viewBox="0 0 24 24"><path d="M5 12.5 10 17.5 19 7"/></svg>`
+    : `<svg viewBox="0 0 24 24"><path d="M4 20.5h4L18.6 6.4a2.2 2.2 0 0 0-3.1-3.1L5 17.5V20.5Z"/><path d="M14.6 5.1 18.9 9.4"/></svg>`;
+  return `<div class="simple" data-skin="${state.skin}">
+    ${state.editList ? `<div class="sh-edit-tip">点 👁 收起 · ↑↓ 调顺序 · 点 🗂 换分组</div>` : ''}
+    <div class="sh-body">
+      <div class="sh-scroll" id="shScroll">${groupsHTML}<div style="height:4px"></div></div>
+      <div class="sh-rail"><div class="sh-rail-in">${rail}<span class="rail-sep"></span><button class="rail-item rail-edit ${state.editList ? 'on' : ''}" data-act="editlist" aria-label="${state.editList ? '完成' : '整理'}">${editIcon}</button></div></div>
+    </div>
+  </div>`;
+}
+
+/* ===================== 我的：简洁版 ===================== */
+function mineHTML() {
+  const nick = state.nick.trim();
+  const ava = nick ? `<div class="me-ava" style="background:${avaColor()}">${esc(initialOf(nick))}</div>`
+                  : `<div class="me-ava gost">👤</div>`;
+  return `<div class="mine" data-skin="${state.skin}">
+    <div class="me-hero">
+      ${ava}
+      <div class="me-name ${nick ? '' : 'muted'}">${nick ? esc(nick) : '趣工局访客'}</div>
+      <button class="me-edit" data-act="sheet" data-sheet="profile">✏️ ${nick ? '改昵称和头像色' : '起个昵称'}</button>
+      <button class="me-lv" data-act="sheet" data-sheet="growth">
+        <span class="me-lv-i">🏅</span>
+        <span class="me-lv-m">
+          <span class="me-lv-t">Lv.${lvOf(state.points)} ${LV_NAME[lvOf(state.points) - 1]}<em>${state.points} 工分</em></span>
+          <span class="me-lv-tr"><i style="width:${lvProgress(state.points)}%"></i></span>
+        </span>
+        <span class="me-lv-go">看奖励 ›</span>
+      </button>
+    </div>
+    <div class="me-list">
+      <button class="me-row" data-act="sheet" data-sheet="pick">
+        <span class="me-ic">🧰</span>
+        <span class="me-rt"><b>首页工具</b><span>从 22 个里挑，最多 10 个</span></span>
+        <span class="me-val">${state.mine.length}/10 ›</span>
+      </button>
+      <button class="me-row" data-act="sheet" data-sheet="skin">
+        <span class="me-ic">🎨</span>
+        <span class="me-rt"><b>小程序皮肤</b><span>首页 / 列表 / 我的 整套一起换</span></span>
+        <span class="me-val">${SKINS[state.skin].name} ›</span>
+      </button>
+      <button class="me-row" data-act="about">
+        <span class="me-ic">💡</span>
+        <span class="me-rt"><b>关于趣工局</b><span>22 个小工具，点一下就有乐子</span></span>
+        <span class="me-val">›</span>
+      </button>
+    </div>
+    <div class="me-foot">design by Mariana</div>
+  </div>`;
+}
+
+/* ===================== 浮层 ===================== */
+/* 等级预览卡：拖动滑块时就地换内容，不重建浮层（否则滑块会掉焦点） */
+function growthPvHTML(lv) {
+  const cur = state.points, myLv = lvOf(cur), r = LV_REWARD[lv - 1], need = LV_NEED[lv - 1] || 0;
+  let tag = '', cls = '';
+  if (lv === myLv) { tag = '当前等级'; cls = 'now'; }
+  else if (lv < myLv) { tag = '已解锁'; cls = 'ok'; }
+  else { tag = '差 ' + Math.max(0, need - cur); cls = 'wait'; }
+  return `<div class="gr-pv-top">
+    <span class="gr-pv-ic">${r.icon}</span>
+    <div style="flex:1;min-width:0">
+      <div class="gr-pv-t">Lv.${lv} ${LV_NAME[lv - 1]}</div>
+      <div class="gr-pv-d">${r.t} · ${r.d}</div>
+    </div>
+    <span class="gr-pv-tag ${cls}">${tag}</span>
+  </div>`;
+}
+
+function sheetHTML() {
+  if (!state.sheet) return '';
+  if (state.sheet === 'profile') {
+    const nick = state.nick;
+    const sw = AVA_COLORS.map((c, i) => `<button class="sw ${i === state.colorIdx ? 'on' : ''}" data-act="color" data-i="${i}" style="background:${c}" aria-label="头像色 ${i + 1}"></button>`).join('');
+    return `<div class="mask" data-act="close">
+      <div class="sheet" data-stop="1">
+        <div class="grip"></div>
+        <div class="sh-head"><span class="sh-title">改昵称和头像色</span><button class="sh-x" data-act="close">✕</button></div>
+        <div class="sh-body2">
+          <div class="f-label first">昵称</div>
+          <input class="inp" id="nickInput" value="${esc(nick)}" placeholder="比如：豆豆" maxlength="16">
+          <div class="f-label">头像色</div>
+          <div class="swatches">${sw}</div>
+          <div class="f-label">效果</div>
+          <div class="preview">
+            <div class="pv" id="pvAva" style="background:${avaColor()}">${esc(nick ? initialOf(nick) : '?')}</div>
+            <div class="pv-t"><div class="pv-n" id="pvName">${esc(nick || '趣工局访客')}</div><div class="pv-s">一起数数里会显示这个名字</div></div>
+          </div>
+          <div class="note">头像用「颜色 + 昵称首字」拼出来，不用上传图片、不占空间。清掉小程序数据后昵称会没。</div>
+        </div>
+        <div class="sh-acts"><button class="btn btn-ghost" data-act="close">取消</button><button class="btn btn-main" data-act="savenick">保存</button></div>
+      </div>
+    </div>`;
+  }
+  if (state.sheet === 'pick') {
+    const rows = CATS.map(c => {
+      const ids = ALL_IDS.filter(id => TOOLS[id].cat === c.id);
+      if (!ids.length) return '';
+      const items = ids.map(id => {
+        const t = TOOLS[id];
+        const on = state.mine.includes(id);
+        return `<button class="pk ${on ? 'on' : ''}" data-act="togglepick" data-id="${id}">
+          <span class="pk-dot">${t.icon}</span>
+          <span class="pk-m"><span class="pk-n">${t.name}</span><span class="pk-d">${t.desc}</span></span>
+          <span class="pk-mark">${on ? '✓' : ''}</span>
+        </button>`;
+      }).join('');
+      return `<div class="sh-sec-title">${c.icon} ${c.name}</div><div class="pick-list">${items}</div>`;
+    }).join('');
+    return `<div class="mask" data-act="close">
+      <div class="sheet" data-stop="1">
+        <div class="grip"></div>
+        <div class="sh-head"><span class="sh-title">首页工具 · ${state.mine.length}/10</span><button class="sh-x" data-act="close">✕</button></div>
+        <div class="sh-body2">${rows}<div class="note">选中的工具会按顺序摆在首页的礼盒格里；没选中的全部留在「列表」。</div></div>
+        <div class="sh-acts"><button class="btn btn-main" data-act="close">完成</button></div>
+      </div>
+    </div>`;
+  }
+  if (state.sheet === 'skin') {
+    const rows = Object.keys(SKINS).map(id => `<button class="sk ${state.skin === id ? 'on' : ''}" data-act="skin" data-id="${id}">
+      <span class="sk-prev" style="background:${SKINS[id].prev}"></span>
+      <span class="sk-m"><span class="sk-n">${SKINS[id].name}</span><span class="sk-d">${SKINS[id].desc}</span></span>
+      <span class="sk-ok">${state.skin === id ? '使用中' : ''}</span>
+    </button>`).join('');
+    return `<div class="mask" data-act="close">
+      <div class="sheet" data-stop="1">
+        <div class="grip"></div>
+        <div class="sh-head"><span class="sh-title">小程序皮肤</span><button class="sh-x" data-act="close">✕</button></div>
+        <div class="sh-body2"><div class="skins">${rows}</div><div class="note">皮肤是整套换：首页背景、列表底色、我的页和底部栏会一起换。</div></div>
+        <div class="sh-acts"><button class="btn btn-main" data-act="close">完成</button></div>
+      </div>
+    </div>`;
+  }
+  if (state.sheet === 'checkin') {
+    const d = new Date(), today = d.getDate();
+    const days = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    const first = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
+    const wd = ['日','一','二','三','四','五','六'].map(w => `<span class="ci-wd">${w}</span>`).join('');
+    let cells = '';
+    for (let i = 0; i < first; i++) cells += '<span class="ci-day nil"></span>';
+    for (let n = 1; n <= days; n++) {
+      const on = state.checked.indexOf(n) >= 0;
+      const cls = on ? 'on' : (n === today ? 'today' : (n > today ? 'future' : ''));
+      cells += `<span class="ci-day ${cls}">${n}</span>`;
+    }
+    const steps = CHECK_STEPS.map(s => `<div class="ci-step ${state.streak >= s.day ? 'hit' : ''}"><b>连 ${s.day} 天</b><span>+${s.bonus} 工分</span></div>`).join('');
+    const ck = signedToday();
+    return `<div class="mask" data-act="close">
+      <div class="sheet" data-stop="1">
+        <div class="grip"></div>
+        <div class="sh-head"><span class="sh-title">签到 · 连签 ${state.streak} 天</span><button class="sh-x" data-act="close">✕</button></div>
+        <div class="sh-body2">
+          <div style="padding:0 0 6px;font-size:11px;color:#8D7B70">${d.getMonth() + 1} 月 · 已签 ${state.checked.length} 天</div>
+          <div class="ci-cal">${wd}${cells}</div>
+          <div class="ci-steps">${steps}</div>
+          <div class="ci-sub">每天签到 +2 工分，连签天数越多，额外送的也越多。</div>
+        </div>
+        <div class="sh-acts">${ck
+          ? `<button class="btn btn-ghost" data-act="close">今天已签 · 明天再来</button>`
+          : `<button class="btn btn-main" data-act="sign">签到领 2 工分</button>`}</div>
+      </div>
+    </div>`;
+  }
+  if (state.sheet === 'growth') {
+    const cur = state.points, myLv = lvOf(cur);
+    const pv = state.previewLv || myLv;
+    const ticks = Array.from({ length: 10 }, (_, i) => {
+      const lv = i + 1;
+      return `<span class="gr-tick ${lv === pv ? 'on' : (lv < myLv ? 'done' : '')}" data-lv="${lv}">Lv${lv}</span>`;
+    }).join('');
+    return `<div class="mask" data-act="close">
+      <div class="sheet" data-stop="1">
+        <div class="grip"></div>
+        <div class="sh-head"><span class="sh-title">等级成长</span><button class="sh-x" data-act="close">✕</button></div>
+        <div class="sh-body2">
+          <div class="gr-head">
+            <div class="gr-now"><span class="gr-lv">🏅 Lv.${myLv} ${LV_NAME[myLv - 1]}</span><span class="gr-pg">${cur} 工分${myLv >= 10 ? '' : ' · 下一级 ' + LV_NEED[myLv]}</span></div>
+            <div class="gr-track"><span class="gr-fill" style="width:${lvProgress(cur)}%"></span></div>
+          </div>
+          <div class="gr-head">
+            <input class="gr-range" type="range" min="1" max="10" step="1" value="${pv}" id="grRange" aria-label="拖动预览每一级的奖励">
+            <div class="gr-ticks">${ticks}</div>
+          </div>
+          <div class="gr-pv" id="grPv">${growthPvHTML(pv)}</div>
+          <div class="ci-sub">拖动上面那条线，看每一级能拿到什么。</div>
+        </div>
+        <div class="sh-acts"><button class="btn btn-main" data-act="close">知道了</button></div>
+      </div>
+    </div>`;
+  }
+  return '';
+}
+
+/* ===================== 渲染 ===================== */
+function tabbarHTML() {
+  const items = [
+    { id:'home', label:'首页', icon:`<svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.8l8.5 6.7V20a.8.8 0 0 1-.8.8h-5V14h-5.4v6.8H4.3a.8.8 0 0 1-.8-.8V10.5Z"/></svg>` },
+    { id:'list', label:'列表', icon:`<svg viewBox="0 0 24 24"><path d="M4 6h1.5M4 12h1.5M4 18h1.5"/><path d="M9 6h11M9 12h11M9 18h11"/></svg>` },
+    { id:'mine', label:'我的', icon:`<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8"/><path d="M4.6 20c.8-3.6 3.7-5.6 7.4-5.6s6.6 2 7.4 5.6"/></svg>` }
+  ];
+  return items.map(it => `<button class="tab ${state.route === it.id ? 'on' : ''}" data-act="go" data-route="${it.id}">${it.icon}<span class="t-l">${it.label}</span></button>`).join('');
+}
+
+function render() {
+  const sk = document.getElementById('skin');
+  const view = document.getElementById('view');
+  const isHome = state.route === 'home';
+  sk.style.display = isHome ? 'block' : 'none';
+  if (isHome) { sk.dataset.skin = state.skin; sk.innerHTML = skinArtHTML(); }
+  view.style.overflowY = state.route === 'list' ? 'hidden' : 'auto';
+  view.innerHTML = isHome ? homeHTML() : state.route === 'list' ? listHTML() : mineHTML();
+  document.getElementById('tabbar').innerHTML = tabbarHTML();
+  document.body.dataset.skin = state.skin;
+  document.getElementById('app').classList.toggle('theme-starry', state.skin === 'starry');
+  const sheet = sheetHTML();
+  let layer = document.getElementById('sheetLayer');
+  if (!layer) { layer = document.createElement('div'); layer.id = 'sheetLayer'; document.body.appendChild(layer); }
+  layer.innerHTML = sheet;
+  if (state.sheet === 'profile') {
+    const inp = document.getElementById('nickInput');
+    if (inp) {
+      inp.addEventListener('input', e => {
+        const v = e.target.value.slice(0, 16);
+        const pvA = document.getElementById('pvAva');
+        const pvN = document.getElementById('pvName');
+        if (pvA) pvA.textContent = initialOf(v);
+        if (pvN) pvN.textContent = v.trim() || '趣工局访客';
+      });
+    }
+  }
+  if (state.sheet === 'growth') {
+    const rg = document.getElementById('grRange');
+    if (rg) {
+      rg.addEventListener('input', e => {
+        const lv = Number(e.target.value);
+        state.previewLv = lv;
+        const pvEl = document.getElementById('grPv');
+        if (pvEl) pvEl.innerHTML = growthPvHTML(lv);
+        document.querySelectorAll('.gr-tick').forEach(t => t.classList.toggle('on', Number(t.dataset.lv) === lv));
+      });
+    }
+  }
+}
+
+/* ===================== 交互 ===================== */
+function go(route) {
+  state.route = route; state.sheet = null; state.editList = false;
+  if (location.hash !== '#/' + route) { location.hash = '#/' + route; return; }
+  render();
+  document.getElementById('view').scrollTop = 0;
+}
+function closeSheet() { state.sheet = null; render(); }
+function openSheet(name) { state.sheet = name; render(); }
+
+document.addEventListener('click', e => {
+  const hit = e.target.closest('[data-act]');
+  if (!hit) return;
+  const act = hit.dataset.act;
+  /* 点浮层里的空白不算"点遮罩"，别误关 */
+  if (hit.classList.contains('mask') && e.target.closest('.sheet')) return;
+  switch (act) {
+    case 'go': go(hit.dataset.route); break;
+    case 'share':
+      toast('分享小卡片：每张工具卡右上角单独分享');
+      break;
+    case 'about':
+      toast('趣工局 · 22 个小工具，点一下就有乐子');
+      break;
+    case 'open': {
+      const t = TOOLS[hit.dataset.id];
+      if (!t) break;
+      const card = hit.classList.contains('gift') ? hit : null;
+      if (card) {
+        if (card.classList.contains('opening')) break;
+        card.classList.add('opening');
+        setTimeout(() => { card.classList.remove('opening'); toast('演示：进入「' + t.name + '」'); }, 900);
+      } else {
+        toast('演示：进入「' + t.name + '」');
+      }
+      break;
+    }
+    case 'editlist': state.editList = !state.editList; render(); break;
+    case 'jump': {
+      const g = document.getElementById('grp-' + hit.dataset.cat);
+      const sc = document.getElementById('shScroll');
+      if (g && sc) sc.scrollTo({ top: g.offsetTop - 4, behavior: 'smooth' });
+      document.querySelectorAll('.rail-item').forEach(r => r.classList.toggle('on', r === hit));
+      break;
+    }
+    case 'hide': {
+      const id = hit.dataset.id; const t = TOOLS[id];
+      state.mine = state.mine.filter(x => x !== id);
+      persist();
+      toast('已从首页收起「' + t.name + '」');
+      render();
+      break;
+    }
+    case 'reopen': toast('演示：换分组（长按拖动也行）'); break;
+    case 'mv': toast('演示：演示页里不真的调顺序'); break;
+    case 'sheet': openSheet(hit.dataset.sheet); break;
+    case 'close': closeSheet(); break;
+    case 'color': {
+      /* 只换色，不重渲染，否则刚输入的昵称会被清掉 */
+      state.colorIdx = Number(hit.dataset.i); persist();
+      document.querySelectorAll('.sw').forEach(s => s.classList.toggle('on', s === hit));
+      const pv = document.getElementById('pvAva');
+      if (pv) pv.style.background = avaColor();
+      break;
+    }
+    case 'savenick': {
+      const inp = document.getElementById('nickInput');
+      const v = (inp ? inp.value : '').trim().slice(0, 16);
+      if (!v) { toast('先写个昵称，1 到 16 个字'); break; }
+      state.nick = v; persist(); state.sheet = null; render();
+      toast('昵称已存到这台设备');
+      break;
+    }
+    case 'togglepick': {
+      /* 就地勾选，浮层不重建，滚动位置不跳动 */
+      const id = hit.dataset.id;
+      const mark = hit.querySelector('.pk-mark');
+      if (state.mine.includes(id)) {
+        state.mine = state.mine.filter(x => x !== id);
+        hit.classList.remove('on');
+        if (mark) mark.textContent = '';
+      } else {
+        if (state.mine.length >= 10) { toast('最多放 10 个，先收起一个'); break; }
+        state.mine = [...state.mine, id];
+        hit.classList.add('on');
+        if (mark) mark.textContent = '✓';
+      }
+      persist();
+      const ttl = document.querySelector('.sh-title');
+      if (ttl) ttl.textContent = '首页工具 · ' + state.mine.length + '/10';
+      break;
+    }
+    case 'checkin': openSheet('checkin'); break;
+    case 'sign': {
+      if (signedToday()) { toast('今天已经签过了'); break; }
+      const t = todayNum();
+      state.checked = state.checked.concat(t);
+      state.streak = state.streak + 1;
+      let gain = 2;
+      const step = CHECK_STEPS.filter(s => s.day === state.streak)[0];
+      if (step) gain = gain + step.bonus;
+      state.points = state.points + gain;
+      persist();
+      state.sheet = null;
+      render();
+      toast('签到成功 +' + gain + ' 工分' + (step ? '（连签 ' + state.streak + ' 天额外 +' + step.bonus + '）' : ''));
+      break;
+    }
+    case 'skin': state.skin = hit.dataset.id; persist(); render(); break;
+  }
+});
+
+window.addEventListener('hashchange', () => {
+  const r = (location.hash || '').replace('#/', '') || 'home';
+  state.route = ['home', 'list', 'mine'].includes(r) ? r : 'home';
+  state.sheet = null;
+  render();
+});
+
+/* 启动 */
+(function boot() {
+  const r = (location.hash || '').replace('#/', '');
+  if (['home', 'list', 'mine'].includes(r)) state.route = r;
+  render();
+})();
+</script>
+</body>
+</html>
