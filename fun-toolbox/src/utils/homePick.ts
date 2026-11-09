@@ -39,11 +39,12 @@ export function slotCap(): number {
 export function getMine(): string[] {
   const saved = get<string[] | null>(MINE_KEY, null)
   if (Array.isArray(saved)) {
-    const list = sanitize(saved)
-    if (list.length) return list.slice(0, MAX_HOME_SLOTS)
+    /* 用户已经选过就以存储为准（哪怕选空了也不回落旧排序），
+     * 否则「把首页工具全部收起 → 再回首页」会被旧 home_tool_order 重新填满 */
+    return sanitize(saved).slice(0, MAX_HOME_SLOTS)
   }
 
-  /* 结转：老版本的排序表前 N 个作为首页工具 */
+  /* 首次打开：用旧版本的排序表前 N 个结转为首页工具 */
   const oldOrder = sanitize(get<string[]>(ORDER_KEY, []))
   const base = oldOrder.length ? oldOrder : DEFAULT_MINE.filter(id => validIds.has(id))
   const mine = base.slice(0, slotCap())
