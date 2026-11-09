@@ -2,7 +2,6 @@ import { View, Text, Canvas, Button, Image } from '@tarojs/components'
 import Taro, { useShareAppMessage, useDidShow, useDidHide } from '@tarojs/taro'
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { TOOLS, type ToolMeta } from '../../data/tools'
-import { SLOGANS } from '../../data/slogans'
 import { HAPPY_QUIPS } from '../../data/happyQuips'
 import { SHARE_PHRASES } from '../../data/sharePhrases'
 import { PATTERNS, getPatternConfig, renderPattern } from '../../data/patterns'
@@ -13,11 +12,20 @@ import { getHomeOrder, saveHomeOrder } from '../../utils/homeOrder'
 import { hitSlot, moveItem, VxTracker, tiltTowards } from '../../utils/dragSort'
 import { getSkinById, getActiveSkinId, getPreviewSkinId, setPreviewSkinId, SKIN_EVENT, SKIN_PREVIEW_EVENT, type SkinDefinition, type SkinSlot } from '../../skins/registry'
 import { getWorkPoints, getWorkLevel, getLevelTitle, getSelectedTitlePrefix, TITLE_PREFIX_EVENT } from '../../skins/workPoints'
+import { POINTS_PER_OPEN, addPoints, lvOf } from '../../utils/growth'
+import { saveMine, visibleMine } from '../../utils/homePick'
+import { signedToday } from '../../utils/checkin'
+import TabBar, { type TabId } from '../../components/TabBar'
+import MineTab, { type MineSheet } from '../../components/MineTab'
+import CheckinSheet from '../../components/sheets/CheckinSheet'
+import GrowthSheet from '../../components/sheets/GrowthSheet'
+import ProfileSheet from '../../components/sheets/ProfileSheet'
+import PickSheet from '../../components/sheets/PickSheet'
+import SkinSheet from '../../components/sheets/SkinSheet'
 import { startSkinFx, type SkinFxHandle } from '../../utils/skinFx'
 import { track } from '../../utils/analytics'
 import ToolCard, { type CardState } from '../../components/ToolCard'
 import SimpleHome from '../../components/SimpleHome'
-import { getLayoutMode, setLayoutMode } from '../../data/categories'
 import Onboarding from './onboarding'
 import './index.scss'
 
@@ -39,11 +47,8 @@ const CONFETTI_COLORS = [
   '#FF8A80', '#FFB74D', '#FFD54F', '#A5D6A7', '#81D4FA', '#B39DDB', '#F48FB1', '#FFAB91'
 ]
 
-function dayOfYear(): number {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), 0, 0)
-  return Math.floor((now.getTime() - start.getTime()) / 86400000)
-}
+/* 首页可打开的浮层：签到 + 「我的」里的三张浮层 */
+type SheetName = '' | MineSheet | 'checkin'
 
 /* ---- 拖动上下文（高频数据走 ref，状态机走 state）---- */
 type DragPhase = 'idle' | 'pressing' | 'grabbed' | 'dragging' | 'settling'
@@ -63,8 +68,8 @@ interface GridMetrics {
 
 export default function Index() {
   const [theme, setTh] = useState<BackgroundPreset>(getTheme())
-  const [guestNickname, setGuestNickname] = useState(() => get<string>('user_nickname', ''))
-  const [slogan, setSlogan] = useState(SLOGANS[dayOfYear() % SLOGANS.length])
+  /* 设计稿：首页标语为固定品牌句；点一下仍会换一句俏皮话（保留旧彩蛋） */
+  const [slogan, setSlogan] = useState(`${TOOLS.length} 个小工具，点一下就有乐子`)
 
   /* 分享按钮：每次随机一句俏皮话推荐 */
   useShareAppMessage(() => ({
@@ -76,14 +81,16 @@ export default function Index() {
   /* 工局等级条（原在设置页，移到首页；可收起，状态落存储） */
   const [points, setPoints] = useState(getWorkPoints())
   const [titlePrefix, setTitlePrefix] = useState(() => getSelectedTitlePrefix(getWorkLevel(getWorkPoints()).level))
-  const [levelFolded, setLevelFolded] = useState(() => get<boolean>('home_level_folded', false))
   /* 设置按钮固定在左上角（避开微信胶囊区域）；H5 用固定值兜底 */
   const [layout, setLayout] = useState({ gearTop: 40, headerPad: 60 })
   /* 彩带画布尺寸用真实 px：小程序 inline style 的 vh 不可靠，半屏设置会失效 */
   const [confettiSize, setConfettiSize] = useState({ w: 375, h: 400 })
 
   /* ---------- 排序与拖动 ---------- */
-  const [order, setOrder] = useState<string[]>(() => getHomeOrder())
+  /* 首页网格 = 「我的 · 首页工具」选中的工具（数量还受等级工具位上限约束） */
+  const [order, setOrder] = useState<string[]>(() => visibleMine())
+  /* 列表 tab 的排序 = 全部工具顺序，与首页工具位互不影响 */
+  const [listOrder, setListOrder] = useState<string[]>(() => getHomeOrder())
   const [phase, setPhase] = useState<DragPhase>('idle')
   const [dragId, setDragId] = useState('')
   const [dragPos, setDragPos] = useState({ x: 0, y: 0 })
@@ -99,8 +106,14 @@ export default function Index() {
   const [dropFeedback, setDropFeedback] = useState(() => get<boolean>('drop_feedback_enabled', true))
   /* 皮肤：设置页切换后通过 SKIN_EVENT 热更新，返回首页也会刷新 */
   const [skinId, setSkinId] = useState(getActiveSkinId())
-  /* 首页布局模式：礼盒（现有）/ 简洁（分类列表） */
-  const [layoutMode, setLayoutModeState] = useState(getLayoutMode())
+  /* ---- 三栏骨架：首页 / 列表 / 我的（记上次所在栏） ---- */
+  const [tab, setTab] = useState<TabId>(() => {
+    const saved = get<string>('home_tab_v1', 'home')
+    return saved === 'list' || saved === 'mine' ? saved : 'home'
+  })
+  const [sheet, setSheet] = useState<SheetName>('')
+  /* 浮层里改过昵称/工分/工具后自增，触发首页与「我的」重读 */
+  const [tick, setTick] = useState(0)
   /* 工坊「预览」：临时渲染未解锁皮肤，不写存储；由首页提示条退出或真实切换覆盖 */
   const [previewId, setPreviewId] = useState(getPreviewSkinId())
   /* 页面隐藏时置 false：停掉粒子/彩带循环，避免后台页占满 JS 线程把其它页面卡死 */
@@ -210,7 +223,7 @@ export default function Index() {
   }, [])
 
   /* ---------- 首帧尺寸标定：真实卡片宽高反推槽位（兼容安卓字体高度差异） ---------- */
-  /* 依赖 layoutMode：简洁模式下没有 .home-grid，首次挂载量不到；切回礼盒时需要重新标定 */
+  /* 依赖 tab / tick：列表与「我的」没有 .home-grid，切回首页或改过工具位后需要重新标定 */
   useEffect(() => {
     try {
       const info = Taro.getSystemInfoSync()
@@ -258,7 +271,7 @@ export default function Index() {
       clearTimeout(pressTimer.current)
       clearTimeout(settleTimer.current)
     }
-  }, [layoutMode])
+  }, [tab, tick])
 
   /* ---------- 背景印花 ---------- */
   /* 缓存画布节点：设置页触发重绘时本页不在栈顶，
@@ -341,7 +354,8 @@ export default function Index() {
    * fxActive=false（页面被设置页覆盖等）时只画一帧静态，循环停掉——
    * 常驻 60fps 循环会在后台页继续跑，占满 JS 线程导致全局卡顿 */
   useEffect(() => {
-    if (!activeSkin.draw || !metrics || containerH <= 0 || treeImageReady || treeImageFailed) {
+    /* 浮层打开时画布被隐藏，没必要重建（重建会重启动画，肉眼就是一闪） */
+    if (sheet || !activeSkin.draw || !metrics || containerH <= 0 || treeImageReady || treeImageFailed) {
       skinCanvasRef.current = null
       return
     }
@@ -405,7 +419,7 @@ export default function Index() {
       skinFxRef.current?.stop()
       skinFxRef.current = null
     }
-  }, [activeSkin, metrics, containerH, fxActive, treeImageKey, treeImageReady, treeImageFailed])
+  }, [activeSkin, metrics, containerH, fxActive, treeImageKey, treeImageReady, treeImageFailed, sheet])
 
   useEffect(() => {
     const listener = (bg: BackgroundPreset) => {
@@ -561,18 +575,58 @@ export default function Index() {
   const levelPct = level.nextAt > level.curBase
     ? Math.min(100, Math.round(((points - level.curBase) / (level.nextAt - level.curBase)) * 100))
     : 100
-
-  const toggleLevelFold = (e: { stopPropagation: () => void }) => {
-    e.stopPropagation()
-    setLevelFolded(v => {
-      set('home_level_folded', !v)
-      return !v
-    })
-  }
+  /* 今天是否已签到（首页签到按钮的 ✓ / 红点） */
+  const checkinDone = signedToday()
 
   const openLevelPage = () => {
     Taro.navigateTo({ url: '/pages/level/index' })
   }
+
+  /* ---------- 三栏：切栏 / 浮层 ---------- */
+  const changeTab = (next: TabId) => {
+    setTab(next)
+    set('home_tab_v1', next)
+    setSheet('')
+    setOrder(visibleMine())
+    track('home_tab', { tab: next })
+  }
+
+  const openSheet = (name: MineSheet | 'checkin') => setSheet(name)
+  const closeSheet = () => setSheet('')
+
+  /* 签到 / 改昵称 / 换工具后：刷新工分与「我的」数据 */
+  const refreshAfterChange = () => {
+    setPoints(getWorkPoints())
+    setTick(t => t + 1)
+  }
+
+  const upgradeHint = (from: number, to: number) => {
+    if (to <= from) return
+    Taro.showToast({ title: `升级到 Lv.${to}`, icon: 'none' })
+  }
+
+  const renderSheets = () => (
+    <>
+      {sheet === 'checkin' && (
+        <CheckinSheet onClose={closeSheet} onChanged={refreshAfterChange} />
+      )}
+      {sheet === 'growth' && (
+        <GrowthSheet
+          onClose={closeSheet}
+          onOpenLevelPage={() => { closeSheet(); openLevelPage() }}
+        />
+      )}
+      {sheet === 'profile' && (
+        <ProfileSheet onClose={closeSheet} onSaved={refreshAfterChange} />
+      )}
+      {sheet === 'pick' && (
+        <PickSheet onClose={closeSheet} onChanged={() => setOrder(visibleMine())} />
+      )}
+      {sheet === 'skin' && (
+        <SkinSheet onClose={closeSheet} onChanged={refreshAfterChange} />
+      )}
+    </>
+  )
 
   /* 退出皮肤预览：还原正式皮肤（预览态不落存储） */
   const exitPreview = () => {
@@ -586,15 +640,21 @@ export default function Index() {
     if (phaseRef.current !== 'idle' || openingRef.current) return
     openingRef.current = tool.id
     setOpeningId(tool.id)
+    const lvBefore = lvOf(getWorkPoints())
     addTotalCount(`usage_${tool.id}`)
+    /* 打开工具即得工分（规则层 P0 已落盘，这里接线） */
+    const nextPoints = addPoints(POINTS_PER_OPEN)
+    setPoints(nextPoints)
     track('tool_open', { tool_id: tool.id })
+    upgradeHint(lvBefore, lvOf(nextPoints))
+    /* 开盒动画只做一小段就跳转：原来 480ms 的等待体感很慢 */
     setTimeout(() => {
       Taro.navigateTo({ url: tool.path })
       setTimeout(() => {
         openingRef.current = ''
         setOpeningId('')
-      }, 500)
-    }, 480)
+      }, 260)
+    }, 200)
   }, [])
 
   const handleLongPress = useCallback((_tool: ToolMeta) => {
@@ -750,7 +810,8 @@ export default function Index() {
     }
     dragStartSlotRef.current = null
     if (orderChangedRef.current) {
-      saveHomeOrder(orderRef.current)
+      /* 首页排序落在「首页工具」里（与列表排序分开） */
+      saveMine(orderRef.current)
       track('drag_reorder', { tool_id: dragIdRef.current })
       dismissHint('drag')
     }
@@ -776,7 +837,7 @@ export default function Index() {
     const next = [tool.id, ...orderRef.current.filter(id => id !== tool.id)]
     orderRef.current = next
     setOrder(next)
-    saveHomeOrder(next)
+    saveMine(next)
     track('pin_top', { tool_id: tool.id })
     dismissHint('pin')
     setPinPulseId(tool.id)
@@ -785,7 +846,6 @@ export default function Index() {
 
   /* ---------- 埋点与生命周期 ---------- */
   useDidShow(() => {
-    setGuestNickname(get<string>('user_nickname', ''))
     track('home_show')
     /* about 页「再看一遍导引」：消费一次性旗标，进入重放 */
     if (get<boolean>('onboarding_replay', false)) {
@@ -797,6 +857,9 @@ export default function Index() {
     const latestPoints = getWorkPoints()
     setPoints(latestPoints)
     setTitlePrefix(getSelectedTitlePrefix(getWorkLevel(latestPoints).level))
+    /* 首页工具位可能被「我的 · 首页工具」改过 */
+    setOrder(visibleMine())
+    setTick(t => t + 1)
     const df = get<boolean>('drop_feedback_enabled', true)
     dropFeedbackRef.current = df
     setDropFeedback(df)
@@ -815,22 +878,14 @@ export default function Index() {
     loopActiveRef.current = false
   })
 
-  /* ---------- 双模式切换 + 简洁模式排序回传 ---------- */
+  /* ---------- 列表排序回传（简洁列表的 ↑↓） ---------- */
   useEffect(() => {
-    const modeListener = (mode: 'gift' | 'simple') => {
-      setLayoutMode(mode)
-      setLayoutModeState(mode)
-      track('home_mode_change', { mode })
-    }
     const orderListener = (next: string[]) => {
-      orderRef.current = next
-      setOrder(next)
+      setListOrder(next)
       saveHomeOrder(next)
     }
-    Taro.eventCenter.on('home-layout-mode', modeListener)
     Taro.eventCenter.on('home-order-change', orderListener)
     return () => {
-      Taro.eventCenter.off('home-layout-mode', modeListener)
       Taro.eventCenter.off('home-order-change', orderListener)
     }
   }, [])
@@ -885,57 +940,77 @@ export default function Index() {
     )
   }
 
-  /* ---------- 简洁模式：独立渲染（所有 hooks 已执行完毕） ---------- */
-  if (layoutMode === 'simple') {
+  /* ---------- 列表 tab：全部分类的简洁列表（所有 hooks 已执行完毕） ---------- */
+  if (tab === 'list') {
     return (
       <View className='page-root home-root home-root--simple' style={{ background: theme.bg }}>
         {showOnboarding && <Onboarding theme={theme} onFinish={handleOnboardingFinish} />}
         <SimpleHome
           tools={TOOLS}
-          order={order}
+          order={listOrder}
           onOpen={handleOpen}
           accent={theme.accent}
           accentDeep={theme.accentDeep}
           topPad={layout.gearTop}
+          skinId={activeSkin.id}
         />
+        <TabBar active={tab} skinId={activeSkin.id} onChange={changeTab} />
+      </View>
+    )
+  }
+
+  /* ---------- 我的 tab ---------- */
+  if (tab === 'mine') {
+    return (
+      <View
+        className='page-root home-root home-root--mine'
+        style={{ background: activeSkin.backgroundCss || theme.bg }}
+      >
+        <MineTab
+          topPad={layout.gearTop}
+          skinId={activeSkin.id}
+          skinName={activeSkin.name}
+          refreshKey={tick}
+          onOpenSheet={openSheet}
+          onOpenSettings={handleSettings}
+          onOpenAbout={goAbout}
+        />
+        <TabBar active={tab} skinId={activeSkin.id} onChange={changeTab} />
+        {renderSheets()}
       </View>
     )
   }
 
   return (
     <View
-      className='page-root home-root'
+      className={`page-root home-root home-root--tabbed ${activeSkin.id === 'starry' ? 'home-root--starry' : ''} ${sheet ? 'home-root--sheet' : ''}`}
       style={{ background: activeSkin.backgroundCss || theme.bg }}
     >
       <Canvas type='2d' id='patternCanvas' className='pattern-canvas' />
       <View className='home-header' style={{ paddingTop: `${layout.headerPad}px` }}>
-        <View className='home-gear' style={{ top: `${layout.gearTop}px` }} onClick={handleSettings}>
-          <Text className='home-gear-icon'>⚙️</Text>
+        {/* 左上角：签到 + 分享（三栏版把设置/头像/模式切换收进「我的」） */}
+        <View className='home-acts' style={{ top: `${layout.gearTop}px` }}>
+          <View
+            id='home-checkin'
+            className={`hact ${checkinDone ? 'hact--done' : ''}`}
+            onClick={() => openSheet('checkin')}
+          >
+            <Text className='hact-icon'>{checkinDone ? '✓' : '📅'}</Text>
+            {!checkinDone && <View className='hact-dot' />}
+          </View>
+          <Button className='hact hact--share' openType='share'>
+            <View className='share-ic'>
+              <View className='share-ic-tail' />
+              <View className='share-ic-head' />
+            </View>
+          </Button>
+          {/* 编辑首页工具：从「列表」里挑 1~9 个放到首页 */}
+          <View className='hact' id='home-edit' onClick={() => openSheet('pick')}>
+            <Text className='hact-icon'>✏️</Text>
+          </View>
         </View>
-        <View className='home-user' style={{ top: `${layout.gearTop}px` }} onClick={() => Taro.navigateTo({ url: '/pages/user/index' })}>
-          <Text className='home-user-icon'>{guestNickname ? guestNickname.slice(0, 1) : '👤'}</Text>
-        </View>
-        {/* 切到简洁模式（分类列表） */}
-        <View
-          className='home-gear home-mode-toggle'
-          style={{ top: `${layout.gearTop}px` }}
-          onClick={() => {
-            setLayoutMode('simple')
-            setLayoutModeState('simple')
-            track('home_mode_change', { mode: 'simple' })
-          }}
-        >
-          <Text className='home-gear-icon'>☰</Text>
-        </View>
-        <Button
-          className='home-gear home-share-btn'
-          style={{ top: `${layout.gearTop}px` }}
-          openType='share'
-        >
-          <Text className='home-gear-icon'>💌</Text>
-        </Button>
         <View className='home-title' onClick={handleTitleTap}>
-          <Text className='home-title-prefix'>{titlePrefix}</Text>
+          <Text className='home-title-prefix'>{titlePrefix || '摸鱼界'}</Text>
           <Text className='home-title-char'>趣</Text>
           <Text className='home-title-char home-title-char--2'>工</Text>
           <Text className='home-title-char home-title-char--3'>局</Text>
@@ -955,36 +1030,33 @@ export default function Index() {
         </View>
       )}
 
-      {/* 工局等级条（可收起） */}
+      {/* 等级条：点开等级成长浮层 */}
       <View className='home-level'>
-        {levelFolded ? (
-          <View className='home-level-mini' onClick={openLevelPage}>
-            <Text className='home-level-mini-text'>🏅 Lv.{level.level}</Text>
-            <Text className='home-level-mini-arrow'>▸</Text>
+        <View className='home-lv-bar' onClick={() => openSheet('growth')}>
+          <Text className='home-lv-name'>🏅 Lv.{level.level} {getLevelTitle(level.level)}</Text>
+          <View className='home-lv-track'>
+            <View className='home-lv-fill' style={{ width: `${levelPct}%` }} />
           </View>
-        ) : (
-          <View className='home-level-bar' onClick={openLevelPage}>
-            <Text className='home-level-name'>工局 Lv.{level.level} · {getLevelTitle(level.level)}</Text>
-            <View className='home-level-track'>
-              <View
-                className='home-level-fill'
-                style={{ width: `${levelPct}%`, background: `linear-gradient(90deg, ${theme.accent}, ${theme.accentDeep})` }}
-              />
-            </View>
-            <Text className='home-level-remain'>
-              {level.nextAt > level.curBase ? `还差 ${level.nextAt - points} 工分` : '已满级'}
-            </Text>
-            <Text className='home-level-fold' onClick={toggleLevelFold}>
-              ▾
-            </Text>
-          </View>
-        )}
+          <Text className='home-lv-remain'>
+            {level.nextAt > level.curBase ? `还差 ${level.nextAt - points} 工分` : '已满级'}
+          </Text>
+        </View>
       </View>
+
+      {/* 首页工具编辑入口：放在等级条下方，避开皮肤画布的覆盖区域 */}
+
+      {/* 首页工具位为空时的引导（设计稿 .home-empty） */}
+      {order.length === 0 && (
+        <View className='home-empty' onClick={() => openSheet('pick')}>
+          <Text className='home-empty-title'>首页还是空的</Text>
+          <Text className='home-empty-sub'>点下方「编辑首页工具」，从列表里挑 1~9 个常用的小工具</Text>
+        </View>
+      )}
 
       <View
         className='home-grid'
         style={{
-          height: containerH ? `${containerH}px` : undefined,
+          minHeight: containerH ? `${containerH}px` : undefined,
           opacity: metrics && (activeSkin.id !== 'tree' || treeImageReady || treeImageFailed) ? 1 : 0
         }}
       >
@@ -1010,19 +1082,14 @@ export default function Index() {
             <View className='home-hint-arrow' />
           </View>
         )}
+
+        {/* 页脚与编辑入口压在皮肤画布上，让背景一直铺到页面底部 */}
       </View>
 
       {/* 树景专用画布不属于卡片网格，导出后卸载；原生层绝不与卡片叠放。 */}
       {treeImageKey && !treeImageReady && !treeImageFailed && (
         <Canvas type='2d' id='skinCanvas' className='tree-export-canvas' style={{ width: `${metrics!.gridW}px`, height: `${containerH}px` }} />
       )}
-
-      <View className='home-footer-wrap'>
-        <View className='home-footer' onClick={goAbout}>
-          关于
-        </View>
-        <View className='home-author'>design by Mariana</View>
-      </View>
 
       <Canvas
         type='2d'
@@ -1032,6 +1099,9 @@ export default function Index() {
       />
 
       {showOnboarding && <Onboarding theme={theme} onFinish={handleOnboardingFinish} />}
+
+      <TabBar active={tab} skinId={activeSkin.id} onChange={changeTab} />
+      {renderSheets()}
     </View>
   )
 }

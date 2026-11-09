@@ -1,0 +1,109 @@
+/* 首页工具选择浮层（设计稿 .pk* 的 750 版） */
+.pk-sec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 4px 12px;
+}
+
+.pk-sec-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.pk-sec-name {
+  font-size: 23px;
+  font-weight: 800;
+  color: #8d7b70;
+}
+
+.pk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pk {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #fff;
+  border: 1px solid rgba(74, 59, 50, 0.06);
+  border-radius: 20px;
+  padding: 16px 20px;
+  min-height: 96px;
+  box-sizing: border-box;
+}
+
+.pk--on {
+  border-color: rgba(232, 121, 90, 0.5);
+  background: #fff6f1;
+}
+
+.pk-dot {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: #fff9f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.pk-dot-icon {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.pk-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pk-name {
+  font-size: 25px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.pk-desc {
+  font-size: 20px;
+  color: #b8a99e;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(74, 59, 50, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.pk-mark--on {
+  background: #e8795a;
+  border-color: #e8795a;
+}
+
+.pk-mark-txt {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.pk-note {
+  margin-top: 22px;
+  font-size: 21px;
+  line-height: 1.7;
+  color: #b8a99e;
+}

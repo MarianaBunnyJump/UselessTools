@@ -39,7 +39,7 @@ export default function AnnSheet({ tag, selDate, onMark, onDelete, onClose }: An
   }
 
   return (
-    <Sheet title={`「${tag.name}」的纪念日`} onClose={onClose}>
+    <Sheet title={`「${tag.name}」的纪念日`} onClose={onClose} scroll={false}>
       <View className='ann-lead'>
         <Text>记到具体时刻：那天是几点完成的那一刻。</Text>
       </View>

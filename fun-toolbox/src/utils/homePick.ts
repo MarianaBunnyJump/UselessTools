@@ -1,20 +1,21 @@
 /* ===================== 首页工具位（礼盒格） =====================
- * 设计稿：首页只放「选中的工具」，数量上限随等级增长（Lv.1 起 6 个 → Lv.10 满 10 个）；
- * 没选中的全部留在「列表」。旧的 home_tool_order 是「全部工具排序」，语义不同，
- * 这里首次读取时按当前等级位上限截断结转。
+ * 首页只放「选中的工具」，没选中的全部留在「列表」。
+ * 数量按产品要求固定为 1~9 个（不再按等级分档做硬限制，等级工具位奖励留待后续版本再启用）。
+ * 旧的 home_tool_order 是「全部工具排序」，语义不同，首次读取时用来做结转。
  */
 
 import { get, set } from './storage'
 import { TOOLS } from '../data/tools'
-import { homeSlots, lvOf, getPoints } from './growth'
 
 const MINE_KEY = 'home_mine_v1'
 const ORDER_KEY = 'home_tool_order'
 
-/* 设计稿默认首页（Lv.1 的 6 个位） */
+/* 默认首页（6 个位，与设计稿默认一致） */
 export const DEFAULT_MINE = ['counter', 'merit', 'mixer', 'wheel', 'crusher', 'life']
 
-export const MAX_HOME_SLOTS = 10
+/* 首页工具位：最少 1 个、最多 9 个 */
+export const MIN_HOME_SLOTS = 1
+export const MAX_HOME_SLOTS = 9
 
 const validIds = new Set(TOOLS.map(t => t.id))
 
@@ -31,19 +32,20 @@ function sanitize(list: unknown): string[] {
   return out
 }
 
-/* 当前等级允许的位数是硬上限，存储里超出部分不显示 */
+/* 当前允许的位数（上限固定 9；层级奖励的工具位扩展后续版本再启用） */
 export function slotCap(): number {
-  return homeSlots(lvOf(getPoints()))
+  return MAX_HOME_SLOTS
 }
 
 export function getMine(): string[] {
   const saved = get<string[] | null>(MINE_KEY, null)
   if (Array.isArray(saved)) {
-    const list = sanitize(saved)
-    if (list.length) return list.slice(0, MAX_HOME_SLOTS)
+    /* 用户已经选过就以存储为准（哪怕选空了也不回落旧排序），
+     * 否则「把首页工具全部收起 → 再回首页」会被旧 home_tool_order 重新填满 */
+    return sanitize(saved).slice(0, MAX_HOME_SLOTS)
   }
 
-  /* 结转：老版本的排序表前 N 个作为首页工具 */
+  /* 首次打开：用旧版本的排序表前 N 个结转为首页工具 */
   const oldOrder = sanitize(get<string[]>(ORDER_KEY, []))
   const base = oldOrder.length ? oldOrder : DEFAULT_MINE.filter(id => validIds.has(id))
   const mine = base.slice(0, slotCap())
@@ -55,14 +57,14 @@ export function saveMine(list: string[]): boolean {
   return set(MINE_KEY, sanitize(list).slice(0, MAX_HOME_SLOTS))
 }
 
-/* 首页实际渲染的（受当前等级位上限约束） */
+/* 首页实际渲染的（受位数上限约束） */
 export function visibleMine(): string[] {
   return getMine().slice(0, slotCap())
 }
 
 export interface PickResult {
   ok: boolean
-  reason?: 'unknown' | 'full' | 'dup'
+  reason?: 'unknown' | 'full' | 'min' | 'dup'
   mine: string[]
 }
 
@@ -71,6 +73,8 @@ export function toggleMine(id: string): PickResult {
   if (!validIds.has(id)) return { ok: false, reason: 'unknown', mine }
 
   if (mine.includes(id)) {
+    /* 首页至少保留 1 个工具，不允许全删 */
+    if (mine.length <= MIN_HOME_SLOTS) return { ok: false, reason: 'min', mine }
     const next = mine.filter(x => x !== id)
     saveMine(next)
     return { ok: true, mine: next }

@@ -1,0 +1,123 @@
+/* 浮层通用外壳与按钮（750 设计稿） */
+.sheet-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: rgba(74, 59, 50, 0.4);
+  display: flex;
+  align-items: flex-end;
+}
+
+.sheet-panel {
+  width: 100%;
+  max-height: 82vh;
+  background: #fbf7f1;
+  border-radius: 40px 40px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.sheet-grip {
+  width: 68px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(74, 59, 50, 0.16);
+  margin: 16px auto 4px;
+  flex: none;
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 32px 20px;
+  flex: none;
+}
+
+.sheet-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.sheet-x {
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  text-align: center;
+  border-radius: 50%;
+  color: #8d7b70;
+  font-size: 30px;
+}
+
+/* scroll-view 必须有确定高度才能滚动：面板本身是 auto 高度，
+ * 所以这里用 max-height 卡住内容区（内容短时自适应，长时才出现滚动） */
+.sheet-scroll {
+  max-height: 62vh;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.sheet-foot-space {
+  height: 36px;
+}
+
+.sheet-acts {
+  display: flex;
+  gap: 18px;
+  padding: 20px 32px;
+  flex: none;
+  border-top: 1px solid rgba(74, 59, 50, 0.06);
+}
+
+.sheet-btn {
+  flex: 1;
+  min-height: 88px;
+  border-radius: 24px;
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet-btn--main {
+  background: #e8795a;
+  color: #fff;
+}
+
+.sheet-btn--main--off {
+  background: rgba(74, 59, 50, 0.12);
+  color: rgba(74, 59, 50, 0.45);
+}
+
+.sheet-btn--ghost {
+  background: #fff;
+  border: 1px solid rgba(74, 59, 50, 0.12);
+  color: #4a3b32;
+}
+
+/* 浮层内通用小节标题 / 说明 */
+.sheet-label {
+  font-size: 22px;
+  font-weight: 700;
+  color: #8d7b70;
+  margin: 24px 0 12px;
+}
+
+.sheet-label--first {
+  margin-top: 0;
+}
+
+.sheet-note {
+  font-size: 21px;
+  line-height: 1.7;
+  color: #b8a99e;
+  margin-top: 20px;
+}

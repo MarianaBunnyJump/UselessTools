@@ -156,4 +156,6 @@ import { treeSkin } from './treeSkin'
 import { starrySkin } from './starrySkin'
 import { toySkin } from './toySkin'
 
-export const SKINS: SkinDefinition[] = [gridSkin, treeSkin, starrySkin, toySkin]
+/* 顺序即「我的 · 小程序皮肤」列表顺序（设计稿：玩具 → 星夜 → 网格，圣诞季节限定最后）；
+ * 首项同时作为 getSkinById 的兜底，必须与 DEFAULT_SKIN_ID 一致 */
+export const SKINS: SkinDefinition[] = [toySkin, starrySkin, gridSkin, treeSkin]
