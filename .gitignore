@@ -29,6 +29,16 @@ yarn-error.log*
 
 # WeChat DevTools
 miniprogram_npm/
+# 开发者工具个人本机配置（每台机器各不相同，不入库）
+project.private.config.json
+
+# AI 工具缓存（qoder 等）
+.qoder-input-images/
+
+# 工作截图与设计稿旧备份（证据留在本机，不入库）
+.screenshots/
+Docs/_shots/
+Docs/_backup/
 
 # Counter server data
 server/data/
