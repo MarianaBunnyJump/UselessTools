@@ -1,0 +1,265 @@
+/* 「我的」页（设计稿 .me-* 的 750 版） */
+.mine-tab {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-bottom: calc(140px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(140px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #b7e6fb 0%, #ddf3fd 62%, #f2fafe 100%);
+}
+
+/* 星夜皮肤：深底浅字 */
+.mine-tab--starry {
+  background: linear-gradient(180deg, #243055 0%, #333d6c 60%, #3b4577 100%);
+}
+
+/* 网格皮肤：暖米底 */
+.mine-tab--grid {
+  background: #fff9f2;
+}
+
+.mine-tab--starry .me-name,
+.mine-tab--starry .me-lv-t,
+.mine-tab--starry .me-rt-b {
+  color: #fff;
+}
+
+.mine-tab--starry .me-name--muted,
+.mine-tab--starry .me-lv-p,
+.mine-tab--starry .me-lv-go,
+.mine-tab--starry .me-rt-s,
+.mine-tab--starry .me-val,
+.mine-tab--starry .me-foot {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.mine-tab--starry .me-lv {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mine-tab--starry .me-lv-track {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.mine-tab--starry .me-list {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.mine-tab--starry .me-row {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.mine-tab--starry .me-ic {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.mine-tab--starry .me-edit {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #f2f6ff;
+}
+
+/* ---- 头部 ---- */
+.me-hero {
+  text-align: center;
+  padding-top: 16px;
+}
+
+.me-ava {
+  width: 152px;
+  height: 152px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 40px -20px rgba(74, 59, 50, 0.55);
+}
+
+.me-ava-txt {
+  color: #fff;
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.me-ava--guest {
+  background: transparent;
+  border: 3px dashed #b8a99e;
+  box-shadow: none;
+}
+
+.me-ava-guest-icon {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.me-name {
+  display: block;
+  margin-top: 24px;
+  font-size: 34px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.me-name--muted {
+  color: #b8a99e;
+  font-weight: 700;
+}
+
+.me-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  min-height: 76px;
+  padding: 0 30px;
+  border-radius: 38px;
+  border: 1px solid rgba(74, 59, 50, 0.14);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.me-edit-txt {
+  font-size: 24px;
+  font-weight: 700;
+  color: #6b5a4f;
+}
+
+/* ---- 等级条 ---- */
+.me-lv {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 28px;
+  padding: 18px 24px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(74, 59, 50, 0.06);
+  text-align: left;
+}
+
+.me-lv-i {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.me-lv-mid {
+  flex: 1;
+  min-width: 0;
+}
+
+.me-lv-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.me-lv-t {
+  font-size: 24px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.me-lv-p {
+  font-size: 21px;
+  color: #b8a99e;
+}
+
+.me-lv-track {
+  height: 10px;
+  border-radius: 5px;
+  background: rgba(74, 59, 50, 0.12);
+  overflow: hidden;
+}
+
+.me-lv-fill {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #ffb74d, #ff9800);
+}
+
+.me-lv-go {
+  flex: none;
+  font-size: 21px;
+  color: #8d7b70;
+}
+
+/* ---- 列表 ---- */
+.me-list {
+  margin-top: 52px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(74, 59, 50, 0.06);
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+.me-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 100px;
+  padding: 20px 26px;
+  border-bottom: 1px solid rgba(74, 59, 50, 0.06);
+  box-sizing: border-box;
+}
+
+.me-row:last-child {
+  border-bottom: none;
+}
+
+.me-ic {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(255, 249, 242, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.me-ic-txt {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.me-rt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.me-rt-b {
+  font-size: 26px;
+  font-weight: 700;
+  color: #4a3b32;
+}
+
+.me-rt-s {
+  font-size: 21px;
+  color: #b8a99e;
+  margin-top: 2px;
+}
+
+.me-val {
+  flex: none;
+  font-size: 23px;
+  color: #8d7b70;
+}
+
+.me-foot {
+  margin-top: auto;
+  padding-top: 52px;
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: rgba(74, 59, 50, 0.38);
+}

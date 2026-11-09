@@ -1,0 +1,114 @@
+/* 签到日历（设计稿 .ci-* 的 750 版） */
+.ci-meta {
+  font-size: 22px;
+  color: #8d7b70;
+  padding-bottom: 12px;
+}
+
+.ci-grid {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.ci-cell {
+  width: 14.2857%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.ci-wd {
+  display: block;
+  text-align: center;
+  font-size: 20px;
+  color: #b8a99e;
+  line-height: 34px;
+}
+
+.ci-day {
+  height: 64px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 59, 50, 0.045);
+}
+
+.ci-day-num {
+  font-size: 23px;
+  color: #6b5a4f;
+}
+
+.ci-day--on {
+  background: linear-gradient(135deg, #ffb74d, #ff9800);
+}
+
+.ci-day--on .ci-day-num {
+  color: #fff;
+  font-weight: 800;
+}
+
+.ci-day--today {
+  background: #fff;
+  border: 3px solid #e8795a;
+}
+
+.ci-day--today .ci-day-num {
+  color: #ce5b3f;
+  font-weight: 800;
+}
+
+.ci-day--future {
+  background: transparent;
+}
+
+.ci-day--future .ci-day-num {
+  color: #d3c8be;
+}
+
+.ci-day--nil {
+  background: transparent;
+}
+
+.ci-steps {
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.ci-step {
+  flex: 1;
+  padding: 14px 8px;
+  border-radius: 20px;
+  background: rgba(74, 59, 50, 0.05);
+  text-align: center;
+}
+
+.ci-step-day {
+  display: block;
+  font-size: 22px;
+  color: #4a3b32;
+}
+
+.ci-step-bonus {
+  display: block;
+  font-size: 19px;
+  color: #b8a99e;
+  margin-top: 2px;
+}
+
+.ci-step--hit {
+  background: rgba(232, 121, 90, 0.13);
+}
+
+.ci-step--hit .ci-step-day {
+  color: #ce5b3f;
+  font-weight: 700;
+}
+
+.ci-sub {
+  margin-top: 24px;
+  font-size: 21px;
+  color: #b8a99e;
+  text-align: center;
+  line-height: 1.7;
+}

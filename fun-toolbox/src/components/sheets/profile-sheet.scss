@@ -1,0 +1,80 @@
+/* 昵称与头像色浮层（设计稿 .inp / .sw / .preview 的 750 版） */
+.pf-input {
+  width: 100%;
+  height: 88px;
+  background: #fff;
+  border: 1px solid rgba(74, 59, 50, 0.12);
+  border-radius: 20px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  font-size: 30px;
+  color: #4a3b32;
+}
+
+.pf-swatches {
+  display: flex;
+  gap: 18px;
+}
+
+.pf-sw {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+}
+
+.pf-sw--on {
+  box-shadow: 0 0 0 6px #fbf7f1, 0 0 0 10px #4a3b32;
+}
+
+.pf-preview {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: #fff;
+  border: 1px solid rgba(74, 59, 50, 0.06);
+  border-radius: 20px;
+  padding: 20px 24px;
+}
+
+.pf-ava {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.pf-ava-txt {
+  color: #fff;
+  font-size: 38px;
+  font-weight: 800;
+}
+
+.pf-pv-mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-pv-name {
+  font-size: 27px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.pf-pv-sub {
+  font-size: 21px;
+  color: #b8a99e;
+  margin-top: 2px;
+}
+
+.pf-note {
+  font-size: 21px;
+  line-height: 1.7;
+  color: #b8a99e;
+  margin-top: 20px;
+}

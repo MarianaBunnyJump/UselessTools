@@ -12,7 +12,6 @@ import {
   type ToolCategory
 } from '../data/categories'
 import { resolveToolIcon, uploadToolIcon } from '../utils/toolAssets'
-import { getWorkPoints, getWorkLevel } from '../skins/workPoints'
 import './simple-home.scss'
 
 interface SimpleHomeProps {
@@ -23,6 +22,8 @@ interface SimpleHomeProps {
   accentDeep: string
   /* 顶栏顶部留白（真实 px，由首页按胶囊位置计算），避免状态栏遮挡 */
   topPad: number
+  /* 皮肤 id：列表底色跟随皮肤（toy / starry / grid） */
+  skinId?: string
 }
 
 interface Group {
@@ -30,19 +31,13 @@ interface Group {
   tools: ToolMeta[]
 }
 
-export default function SimpleHome({ tools, order, onOpen, accent, accentDeep, topPad }: SimpleHomeProps) {
+export default function SimpleHome({ tools, order, onOpen, accent, topPad, skinId }: SimpleHomeProps) {
   const [editing, setEditing] = useState(false)
   const [hidden, setHidden] = useState<string[]>(getHiddenTools())
   const [cats, setCats] = useState<ToolCategory[]>(getCategories())
   const [scrollTo, setScrollTo] = useState('')
   const [renameTarget, setRenameTarget] = useState<ToolCategory | null>(null)
   const [renameDraft, setRenameDraft] = useState('')
-
-  const points = getWorkPoints()
-  const level = getWorkLevel(points)
-  const levelPct = level.nextAt > level.curBase
-    ? Math.min(100, Math.round(((points - level.curBase) / (level.nextAt - level.curBase)) * 100))
-    : 100
 
   const byId = useMemo(() => {
     const m = new Map<string, ToolMeta>()
@@ -163,25 +158,9 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep, t
   }
 
   return (
-    <View className='simple-home'>
-      {/* 顶栏：与微信胶囊同高对齐，内容靠左 */}
-      <View className='sh-topbar' style={{ marginTop: `${topPad}px` }}>
-        <View className='sh-level-mini'>
-          <Text className='sh-level-txt'>🏅 Lv.{level.level}</Text>
-          <View className='sh-level-track'>
-            <View className='sh-level-fill' style={{ width: `${levelPct}%`, background: `linear-gradient(90deg, ${accent}, ${accentDeep})` }} />
-          </View>
-        </View>
-        <View className='sh-topbar-right'>
-          <Text className='sh-mode-btn' onClick={() => Taro.eventCenter.trigger('home-layout-mode', 'gift')}>🎨 礼盒</Text>
-          <Text className={`sh-mode-btn ${editing ? 'sh-mode-btn--on' : ''}`} onClick={() => setEditing(v => !v)}>
-            {editing ? '完成' : '整理'}
-          </Text>
-        </View>
-      </View>
-
+    <View className={`simple-home ${skinId ? `simple-home--${skinId}` : ''}`} style={{ paddingTop: `${topPad}px` }}>
       {editing && (
-        <View className='sh-edit-tip'>点 👁 隐藏/放出 · ↑↓ 调顺序 · 点分类名换归属 · 点图标可换图</View>
+        <View className='sh-edit-tip'>点 👁 收起 · ↑↓ 调顺序 · 点 🗂 换分组</View>
       )}
 
       <View className='sh-body'>
@@ -263,9 +242,9 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep, t
         <View className='sh-footer-space' />
       </ScrollView>
 
-      {/* 右侧分类索引条：放在滚动区外的右侧留白里，避免被滚动层吞掉点击 */}
-      {!editing && groups.length > 1 && (
-        <View className='sh-rail'>
+      {/* 右侧索引条：分类图标 + 整理开关（设计稿把编辑按钮放在索引条底部） */}
+      <View className='sh-rail'>
+        <View className='sh-rail-in'>
           {groups.map(g => (
             <View
               key={g.cat.id}
@@ -275,8 +254,15 @@ export default function SimpleHome({ tools, order, onOpen, accent, accentDeep, t
               <Text className='sh-rail-icon'>{g.cat.icon}</Text>
             </View>
           ))}
+          <View className='sh-rail-sep' />
+          <View
+            className={`sh-rail-item sh-rail-edit ${editing ? 'sh-rail-edit--on' : ''}`}
+            onClick={() => setEditing(v => !v)}
+          >
+            <Text className='sh-rail-edit-icon'>{editing ? '✓' : '✎'}</Text>
+          </View>
         </View>
-      )}
+      </View>
       </View>
 
       {/* 分类重命名弹层 */}

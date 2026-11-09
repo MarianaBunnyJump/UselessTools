@@ -379,3 +379,223 @@
   pointer-events: none;
 }
 
+/* ===================== 三栏版 ===================== */
+
+/* 底部 tabbar 占位：内容不被底栏压住 */
+.home-root--tabbed {
+  padding-bottom: calc(112px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(112px + env(safe-area-inset-bottom));
+}
+
+.home-root--mine {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* 浮层打开时隐藏原生画布层：微信 2D Canvas 是原生层，会盖过普通 view 的浮层 */
+.home-root--sheet .pattern-canvas,
+.home-root--sheet .skin-canvas,
+.home-root--sheet .confetti-canvas,
+.home-root--sheet .skin-image,
+.home-root--sheet .tree-export-canvas {
+  display: none;
+}
+
+/* 首页左上角动作：签到 + 分享 */
+.home-acts {
+  position: absolute;
+  left: 24px;
+  display: flex;
+  gap: 24px;
+  z-index: 10;
+}
+
+.hact {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+/* 微信 Button 默认带 1px 边框和圆角，抹掉 */
+.hact--share::after {
+  border: none;
+}
+
+.hact--done {
+  opacity: 0.75;
+}
+
+.hact-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.hact--done .hact-icon {
+  font-size: 30px;
+  font-weight: 800;
+  color: #4caf7d;
+}
+
+.hact-dot {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ff5252;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.95);
+}
+
+/* 转发图标：向下弯的尾巴 + 右向箭头（替代原来的信封 emoji） */
+.share-ic {
+  position: relative;
+  width: 34px;
+  height: 34px;
+}
+
+/* 尾巴：左上圆角的「L」，竖线向左下延伸 */
+.share-ic-tail {
+  position: absolute;
+  left: 3px;
+  top: 9px;
+  width: 24px;
+  height: 22px;
+  border-left: 5px solid #e8795a;
+  border-top: 5px solid #e8795a;
+  border-top-left-radius: 14px;
+  box-sizing: border-box;
+}
+
+/* 箭头：45° 旋转的两条边拼成「>」 */
+.share-ic-head {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  width: 15px;
+  height: 15px;
+  border-top: 5px solid #e8795a;
+  border-right: 5px solid #e8795a;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  box-sizing: border-box;
+}
+
+/* 星夜皮肤下用亮色，保证深底可见 */
+.home-root--starry .share-ic-tail {
+  border-left-color: #81d4fa;
+  border-top-color: #81d4fa;
+}
+
+.home-root--starry .share-ic-head {
+  border-top-color: #81d4fa;
+  border-right-color: #81d4fa;
+}
+
+/* 等级条（点开等级成长浮层） */
+.home-lv-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 12px 22px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  box-shadow: 0 6px 16px -8px rgba(74, 59, 50, 0.18);
+}
+
+.home-lv-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #8d7b70;
+  white-space: nowrap;
+}
+
+.home-lv-track {
+  flex: 1;
+  height: 12px;
+  margin: 0 14px;
+  border-radius: 6px;
+  background: rgba(74, 59, 50, 0.12);
+  overflow: hidden;
+}
+
+.home-lv-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e8795a, #ce5b3f);
+  transition: width 0.4s ease;
+}
+
+.home-lv-remain {
+  font-size: 21px;
+  color: #8d7b70;
+  white-space: nowrap;
+}
+
+/* 首页工具位为空 */
+.home-empty {
+  margin: 16px 24px 0;
+  padding: 52px 36px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 2px dashed rgba(255, 255, 255, 0.9);
+  text-align: center;
+}
+
+.home-empty-title {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: #4a3b32;
+}
+
+.home-empty-sub {
+  display: block;
+  margin-top: 8px;
+  font-size: 23px;
+  color: #8d7b70;
+  line-height: 1.6;
+}
+
+/* 星夜皮肤：浅色文字，避免灰字看不清 */
+.home-root--starry .home-title-prefix,
+.home-root--starry .home-lv-name,
+.home-root--starry .home-lv-remain,
+.home-root--starry .home-footer,
+.home-root--starry .home-author {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.home-root--starry .home-slogan {
+  color: #eaf0ff;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.home-root--starry .home-lv-bar {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.home-root--starry .home-lv-track {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.home-root--starry .hact {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+
