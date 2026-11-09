@@ -56,10 +56,10 @@
   font-size: 30px;
 }
 
+/* scroll-view 必须有确定高度才能滚动：面板本身是 auto 高度，
+ * 所以这里用 max-height 卡住内容区（内容短时自适应，长时才出现滚动） */
 .sheet-scroll {
-  flex: 1;
-  min-height: 0;
-  height: 0;
+  max-height: 62vh;
   padding: 0 32px;
   box-sizing: border-box;
 }
