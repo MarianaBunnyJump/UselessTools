@@ -35,6 +35,10 @@ project.private.config.json
 # AI 工具缓存（qoder 等）
 .qoder-input-images/
 
+# Python 缓存（Docs/assets 下的采集脚本）
+__pycache__/
+*.pyc
+
 # 工作截图与设计稿旧备份（证据留在本机，不入库）
 .screenshots/
 Docs/_shots/
