@@ -1,14 +1,20 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useEffect, useRef, useState } from 'react'
 
 /* 浮层外壳：灰把手下拉关闭（跟手 translateY，>90px 松手关）。
  * 与手机测试版一致：点遮罩不关闭，只有 ✕ / 取消 / 下拉会关。
- * 顶部要留出状态栏 + 胶囊的高度，否则浮层会顶到屏幕最上沿、几乎占满全屏。 */
+ * 顶部要留出状态栏 + 胶囊的高度，否则浮层会顶到屏幕最上沿、几乎占满全屏。
+ *
+ * 注意两个坑：
+ * 1) 根节点不能加 catchMove —— 它会吞掉 touchmove，内部 scroll-view 就拖不动了；
+ * 2) 内容区必须用 scroll-view（普通 view 的 overflow-y:auto 在小程序里不滚动）。 */
 interface SheetProps {
   title: string
   onClose: () => void
   children?: React.ReactNode
+  /* 内容已自带 scroll-view 时可关掉外层滚动（目前默认都走外层） */
+  scroll?: boolean
 }
 
 /* 基线在手机模型内部留了 54px 顶部空隙；真机等价物是状态栏 + 胶囊区域 */
@@ -24,7 +30,7 @@ function topGapPx(): number {
   }
 }
 
-export default function Sheet({ title, onClose, children }: SheetProps) {
+export default function Sheet({ title, onClose, children, scroll = true }: SheetProps) {
   const [dy, setDy] = useState(0)
   const [dragging, setDragging] = useState(false)
   const [entered, setEntered] = useState(false)
@@ -62,26 +68,34 @@ export default function Sheet({ title, onClose, children }: SheetProps) {
     if (moved > 90) onClose()
   }
 
+  /* 把手和标题栏都能拖着关（把手本身只有 10px，太难点中） */
+  const dragProps = {
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd: end,
+    onTouchCancel: end
+  }
+
+  const body = scroll
+    ? <ScrollView className='sheet-body' scrollY>{children}</ScrollView>
+    : children
+
   return (
-    <View className={`sheet ${entered ? 'open' : ''}`} style={{ top: `${gapRef.current}px` }} catchMove>
+    <View className={`sheet ${entered ? 'open' : ''}`} style={{ top: `${gapRef.current}px` }}>
       <View
         className={`sheet-inner ${dragging ? 'dragging' : ''}`}
         style={dy ? { transform: `translateY(${dy}px)` } : undefined}
       >
-        <View
-          className='sheet-grab'
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={end}
-          onTouchCancel={end}
-        />
-        <View className='sheet-head'>
+        <View className='sheet-grab-zone' {...dragProps}>
+          <View className='sheet-grab' />
+        </View>
+        <View className='sheet-head' {...dragProps}>
           <Text className='sheet-title'>{title}</Text>
           <View className='sheet-x' onClick={onClose}>
             <Text>×</Text>
           </View>
         </View>
-        {children}
+        {body}
       </View>
     </View>
   )

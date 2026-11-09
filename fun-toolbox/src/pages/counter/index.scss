@@ -796,12 +796,23 @@ $line: rgba(74, 59, 50, 0.08);
   transition: none;
 }
 
+.sheet-grab-zone {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 22px;
+  margin-top: -10px;
+}
+
 .sheet-grab {
   width: 88px;
   height: 10px;
   border-radius: 10px;
   background: $line;
-  margin: 0 auto 32px;
+}
+
+/* 内容区：scroll-view 需要确定高度，用 max-height 卡住（内容短时自适应） */
+.sheet-body {
+  max-height: 58vh;
 }
 
 .sheet-head {
