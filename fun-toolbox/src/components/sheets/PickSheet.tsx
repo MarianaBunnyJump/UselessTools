@@ -34,7 +34,9 @@ export default function PickSheet({ onClose, onChanged }: PickSheetProps) {
     const res = toggleMine(id)
     if (!res.ok) {
       if (res.reason === 'full') {
-        Taro.showToast({ title: `当前等级最多 ${cap} 个，先收起一个`, icon: 'none' })
+        Taro.showToast({ title: `首页最多 ${cap} 个，先收起一个`, icon: 'none' })
+      } else if (res.reason === 'min') {
+        Taro.showToast({ title: '首页至少留 1 个工具', icon: 'none' })
       }
       return
     }
@@ -76,7 +78,7 @@ export default function PickSheet({ onClose, onChanged }: PickSheetProps) {
         </View>
       ))}
       <View className='pk-note'>
-        选中的工具会按顺序摆在首页的礼盒格里；没选中的全部留在「列表」。当前等级最多 {cap} 个（上限 {MAX_HOME_SLOTS} 个）。
+        从下面挑 1~{MAX_HOME_SLOTS} 个常用工具摆到首页礼盒格；没选中的全部留在「列表」。
       </View>
       <View className='sheet-foot-space' />
     </SheetShell>

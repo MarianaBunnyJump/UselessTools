@@ -242,10 +242,16 @@
 }
 
 /* 卡片区：绝对定位容器（卡片坐标由 JS 按槽位写入 transform）
- * 尺寸标定期隐藏，量完真实卡片宽高后淡入 */
+ * 尺寸标定期隐藏，量完真实卡片宽高后淡入；
+ * flex:1 让网格吃掉剩余高度，皮肤画布因此一直铺到页面底部 */
 .home-grid {
   position: relative;
   margin-top: 10px;
+  flex: 1 1 auto;
+  /* 底部让出底栏高度：卡片不会被 tabbar 压住，画布仍覆盖这块，背景铺到页面最底 */
+  padding-bottom: calc(112px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
   /* 建立独立层叠上下文，避免微信 2D Canvas 原生层盖过同级卡片 */
   z-index: 1;
   isolation: isolate;
@@ -346,12 +352,26 @@
   }
 }
 
-.home-footer-wrap {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 60px;
+/* 首页编辑入口：并入左上角按钮组（✏️），不额外占高度 */
+
+.home-edit-ic {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.home-edit-txt {
+  font-size: 23px;
+  font-weight: 700;
+  color: #6b5a4f;
+}
+
+.home-root--starry .home-edit-btn {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.home-root--starry .home-edit-txt {
+  color: #eaf0ff;
 }
 
 .home-footer {
@@ -381,10 +401,13 @@
 
 /* ===================== 三栏版 ===================== */
 
-/* 底部 tabbar 占位：内容不被底栏压住 */
+/* 底部 tabbar 占位：内容不被底栏压住；画布铺到 tabbar 后面，背景不断层 */
 .home-root--tabbed {
-  padding-bottom: calc(112px + constant(safe-area-inset-bottom));
-  padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: 0;
 }
 
 .home-root--mine {

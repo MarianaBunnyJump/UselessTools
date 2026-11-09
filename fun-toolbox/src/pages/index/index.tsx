@@ -1002,6 +1002,10 @@ export default function Index() {
               <View className='share-ic-head' />
             </View>
           </Button>
+          {/* 编辑首页工具：从「列表」里挑 1~9 个放到首页 */}
+          <View className='hact' id='home-edit' onClick={() => openSheet('pick')}>
+            <Text className='hact-icon'>✏️</Text>
+          </View>
         </View>
         <View className='home-title' onClick={handleTitleTap}>
           <Text className='home-title-prefix'>{titlePrefix || '摸鱼界'}</Text>
@@ -1037,18 +1041,20 @@ export default function Index() {
         </View>
       </View>
 
+      {/* 首页工具编辑入口：放在等级条下方，避开皮肤画布的覆盖区域 */}
+
       {/* 首页工具位为空时的引导（设计稿 .home-empty） */}
       {order.length === 0 && (
         <View className='home-empty' onClick={() => openSheet('pick')}>
           <Text className='home-empty-title'>首页还是空的</Text>
-          <Text className='home-empty-sub'>去「我的 · 首页工具」里挑几个常用的小工具，最多放 10 个</Text>
+          <Text className='home-empty-sub'>点下方「编辑首页工具」，从列表里挑 1~9 个常用的小工具</Text>
         </View>
       )}
 
       <View
         className='home-grid'
         style={{
-          height: containerH ? `${containerH}px` : undefined,
+          minHeight: containerH ? `${containerH}px` : undefined,
           opacity: metrics && (activeSkin.id !== 'tree' || treeImageReady || treeImageFailed) ? 1 : 0
         }}
       >
@@ -1074,19 +1080,14 @@ export default function Index() {
             <View className='home-hint-arrow' />
           </View>
         )}
+
+        {/* 页脚与编辑入口压在皮肤画布上，让背景一直铺到页面底部 */}
       </View>
 
       {/* 树景专用画布不属于卡片网格，导出后卸载；原生层绝不与卡片叠放。 */}
       {treeImageKey && !treeImageReady && !treeImageFailed && (
         <Canvas type='2d' id='skinCanvas' className='tree-export-canvas' style={{ width: `${metrics!.gridW}px`, height: `${containerH}px` }} />
       )}
-
-      <View className='home-footer-wrap'>
-        <View className='home-footer' onClick={goAbout}>
-          关于趣工局
-        </View>
-        <View className='home-author'>design by Mariana</View>
-      </View>
 
       <Canvas
         type='2d'

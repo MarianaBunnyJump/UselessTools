@@ -74,7 +74,7 @@ export default function MineTab(props: MineTabProps) {
           <View className='me-ic'><Text className='me-ic-txt'>🧰</Text></View>
           <View className='me-rt'>
             <Text className='me-rt-b'>首页工具</Text>
-            <Text className='me-rt-s'>按等级最多放几个，从全部工具里挑</Text>
+            <Text className='me-rt-s'>从全部工具里挑 1~9 个放到首页</Text>
           </View>
           <Text className='me-val'>{data.mineCount}/{data.cap} ›</Text>
         </View>
