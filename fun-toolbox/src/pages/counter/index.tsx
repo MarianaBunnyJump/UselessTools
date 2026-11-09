@@ -441,46 +441,13 @@ export default function Counter() {
   /* ---------------- 照片 ---------------- */
   const pickPhoto = (for_: 'new' | 'manage') => {
     setCropFor(for_)
-    const onOk = (path: string) => { if (path) setCropImg(path) }
-    /* 兜底：从微信聊天记录里选图。这个接口不属于隐私接口，
-     * 后台还没配「用户隐私保护指引」时也能用 */
-    const fromChat = () => {
-      Taro.chooseMessageFile({
-        count: 1,
-        type: 'image',
-        success: (r: any) => {
-          const f = r.tempFiles && r.tempFiles[0]
-          onOk(f && f.path)
-        },
-        fail: (e: any) => Taro.showToast({ title: String((e && e.errMsg) || '没选到图'), icon: 'none' })
-      } as any)
-    }
     Taro.chooseMedia({
       count: 1,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
       success: (res: any) => {
         const file = res.tempFiles && res.tempFiles[0]
-        onOk(file && file.tempFilePath)
-      },
-      fail: (err: any) => {
-        const msg = String((err && (err.errMsg || err.message)) || '')
-        /* 隐私接口未声明（后台没配隐私指引）：改从聊天记录选图 */
-        if (msg.indexOf('scope is not declared') >= 0 || msg.indexOf('privacy') >= 0) {
-          Taro.showToast({ title: '改从聊天记录选一张图', icon: 'none' })
-          setTimeout(fromChat, 400)
-          return
-        }
-        /* 老版本基础库没有 chooseMedia：回退 chooseImage */
-        if (msg.indexOf('not a function') >= 0 || msg.indexOf('is not defined') >= 0 || msg.indexOf('不支持') >= 0) {
-          Taro.chooseImage({
-            count: 1,
-            success: (r: any) => onOk(r && r.tempFilePaths && r.tempFilePaths[0]),
-            fail: () => fromChat()
-          } as any)
-          return
-        }
-        Taro.showToast({ title: msg ? msg.slice(0, 40) : '打不开相册', icon: 'none' })
+        if (file && file.tempFilePath) setCropImg(file.tempFilePath)
       }
     } as any)
   }
