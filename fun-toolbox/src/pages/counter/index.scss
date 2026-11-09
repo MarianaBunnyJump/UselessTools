@@ -782,6 +782,8 @@ $line: rgba(74, 59, 50, 0.08);
   border-radius: 60px 60px 0 0;
   padding: 36px 40px 52px;
   width: 100%;
+  /* 关键：不加 border-box 时 width:100% + 左右 padding 会撑出屏幕，右侧内容被裁掉点不到 */
+  box-sizing: border-box;
   max-height: 100%;
   overflow-y: auto;
   transform: translateY(100%);
