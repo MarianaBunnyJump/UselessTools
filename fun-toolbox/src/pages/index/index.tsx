@@ -354,7 +354,8 @@ export default function Index() {
    * fxActive=false（页面被设置页覆盖等）时只画一帧静态，循环停掉——
    * 常驻 60fps 循环会在后台页继续跑，占满 JS 线程导致全局卡顿 */
   useEffect(() => {
-    if (!activeSkin.draw || !metrics || containerH <= 0 || treeImageReady || treeImageFailed) {
+    /* 浮层打开时画布被隐藏，没必要重建（重建会重启动画，肉眼就是一闪） */
+    if (sheet || !activeSkin.draw || !metrics || containerH <= 0 || treeImageReady || treeImageFailed) {
       skinCanvasRef.current = null
       return
     }
@@ -418,7 +419,7 @@ export default function Index() {
       skinFxRef.current?.stop()
       skinFxRef.current = null
     }
-  }, [activeSkin, metrics, containerH, fxActive, treeImageKey, treeImageReady, treeImageFailed])
+  }, [activeSkin, metrics, containerH, fxActive, treeImageKey, treeImageReady, treeImageFailed, sheet])
 
   useEffect(() => {
     const listener = (bg: BackgroundPreset) => {

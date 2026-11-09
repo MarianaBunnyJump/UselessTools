@@ -30,6 +30,12 @@ export default function PickSheet({ onClose, onChanged }: PickSheetProps) {
       .filter(g => g.tools.length > 0)
   }, [])
 
+  /* 选择过程只在本地记账，关闭时一次性回传：每点一次都通知首页重排会让玩具皮肤闪 */
+  const done = () => {
+    onChanged(mine)
+    onClose()
+  }
+
   const pick = (id: string) => {
     const res = toggleMine(id)
     if (!res.ok) {
@@ -41,14 +47,13 @@ export default function PickSheet({ onClose, onChanged }: PickSheetProps) {
       return
     }
     setMine(res.mine)
-    onChanged(res.mine)
   }
 
   return (
     <SheetShell
       title={`首页工具 · ${mine.length}/${cap}`}
-      onClose={onClose}
-      footer={<View className='sheet-btn sheet-btn--main' onClick={onClose}>完成</View>}
+      onClose={done}
+      footer={<View className='sheet-btn sheet-btn--main' onClick={done}>完成</View>}
     >
       {groups.map(g => (
         <View key={g.cat.id}>
