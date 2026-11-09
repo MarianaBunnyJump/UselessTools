@@ -62,6 +62,20 @@ export default defineAppConfig({
    * 未授权时声明会导致整个小程序无法打开：
    *   plugins: { WechatSI: { version: '0.3.6', provider: 'wx069ba97219f66d99' } }
    * 未声明期间朗读功能自动降级（tts.ts try/catch），页面给出提示。 */
+  /* 分包预下载：进首页时后台把 6 个分包下好，点工具不再等分包下载 */
+  preloadRule: {
+    'pages/index/index': {
+      network: 'all',
+      packages: [
+        'pages/study',
+        'pages/text/pinyin-annotate',
+        'pages/text/zh-convert',
+        'pages/create',
+        'pages/calc',
+        'pages/fun'
+      ]
+    }
+  },
   window: {
     navigationStyle: 'custom',
     backgroundColor: '#FFF9F2',

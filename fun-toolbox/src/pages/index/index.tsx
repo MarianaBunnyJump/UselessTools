@@ -646,13 +646,14 @@ export default function Index() {
     setPoints(nextPoints)
     track('tool_open', { tool_id: tool.id })
     upgradeHint(lvBefore, lvOf(nextPoints))
+    /* 开盒动画只做一小段就跳转：原来 480ms 的等待体感很慢 */
     setTimeout(() => {
       Taro.navigateTo({ url: tool.path })
       setTimeout(() => {
         openingRef.current = ''
         setOpeningId('')
-      }, 500)
-    }, 480)
+      }, 260)
+    }, 200)
   }, [])
 
   const handleLongPress = useCallback((_tool: ToolMeta) => {

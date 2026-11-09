@@ -401,13 +401,14 @@
 
 /* ===================== 三栏版 ===================== */
 
-/* 底部 tabbar 占位：内容不被底栏压住；画布铺到 tabbar 后面，背景不断层 */
+/* 底部 tabbar 占位：内容与皮肤画布都止于底栏上方，彩虹不会画进 bar 里 */
 .home-root--tabbed {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   box-sizing: border-box;
-  padding-bottom: 0;
+  padding-bottom: calc(112px + constant(safe-area-inset-bottom));
+  padding-bottom: calc(112px + env(safe-area-inset-bottom));
 }
 
 .home-root--mine {
